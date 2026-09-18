@@ -144,7 +144,7 @@ async function loadHistory(
   return ((data || []) as StoredMessage[]).reverse();
 }
 
-function parseGatewayContent(raw: string, mode: AiMode) {
+function parseGatewayContent(raw: string, mode: AiMode, language: Language) {
   const cleaned = raw.trim().replace(/^\`\`\`(?:json)?\s*/i, "").replace(/\s*\`\`\`$/i, "");
   try {
     const parsed = JSON.parse(cleaned) as Record<string, unknown>;
@@ -160,7 +160,7 @@ function parseGatewayContent(raw: string, mode: AiMode) {
     const text = cleanText(raw, 4000);
     if (mode === "ask") return { answer: text, customerMessage: null, showWhatsApp: false, intent: "information" };
     return {
-      answer: localized("pt", "Mensagem preparada.", "Mensaje preparado.", "Message prepared."),
+      answer: localized(language, "Mensagem preparada.", "Mensaje preparado.", "Message prepared."),
       customerMessage: text.slice(0, 2500),
       showWhatsApp: Boolean(text),
       intent: "sales_message",
@@ -277,7 +277,8 @@ export async function POST(request: Request) {
   if (leadId && !lead) return NextResponse.json({ error: "Lead não encontrado." }, { status: 404 });
 
   const history = await loadHistory(resolved.context, resolved.tenantId, userId, leadId);
-  const groundedQuestion = [activeProduct !== "auto" ? activeProduct : "", message].filter(Boolean).join(". ");
+  const recentContextText = history.slice(-6).map((item) => item.content).join(" ");
+  const groundedQuestion = [activeProduct !== "auto" ? activeProduct : "", recentContextText, message].filter(Boolean).join(". ");
   const detectedContext = detectIteraContext(groundedQuestion);
   const knowledge = [
     materialKnowledgeReply(groundedQuestion, language)?.text,
@@ -354,7 +355,7 @@ export async function POST(request: Request) {
       };
       const raw = payload.choices?.[0]?.message?.content || "";
       if (!raw) throw new Error("gateway_empty");
-      result = parseGatewayContent(raw, mode);
+      result = parseGatewayContent(raw, mode, language);
     } catch (error) {
       console.error("CRM AI gateway failed", {
         tenantId: resolved.tenantId,
