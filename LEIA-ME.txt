@@ -1,0 +1,11 @@
+CORRECAO DO BUILD DA VERCEL
+
+1. Copie todo o conteudo desta pasta para a pasta local prife-brasil-vercel.
+2. Confirme a substituicao dos 2 arquivos existentes:
+   - app/api/access-request/route.ts
+   - tsconfig.json
+3. Abra o GitHub Desktop.
+4. Use o resumo: Corrigir build da Vercel
+5. Clique em Commit to main e depois em Push origin.
+
+Validacao realizada: npm run build concluido com sucesso no Next.js 16.2.6.

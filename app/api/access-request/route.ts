@@ -35,8 +35,8 @@ export async function POST(request: Request) {
         .update({ full_name: fullName, updated_at: updatedAt })
         .eq("id", context.claims.sub)
         .select("id")
-        .maybeSingle()
-        .abortSignal(AbortSignal.timeout(15_000)),
+        .abortSignal(AbortSignal.timeout(15_000))
+        .maybeSingle(),
       context.supabase
         .from("access_requests")
         .update({
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
         })
         .eq("user_id", context.claims.sub)
         .select("id")
-        .maybeSingle()
-        .abortSignal(AbortSignal.timeout(15_000)),
+        .abortSignal(AbortSignal.timeout(15_000))
+        .maybeSingle(),
     ]);
 
     const saveError = profileResult.error ?? requestResult.error;
