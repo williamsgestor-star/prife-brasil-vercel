@@ -19,3 +19,19 @@ test('asks for clarification instead of inventing an unrelated answer', () => {
   assert.match(result.text, /entender melhor sua pergunta/);
   assert.equal(result.focusQuestion, true);
 });
+
+
+test('purchase intent for a named product answers the product before handing off to WhatsApp', () => {
+  const result = freeQuestionReply('quero comprar um iteracare', 'pt');
+  assert.equal(result.context, 'iteracare');
+  assert.equal(result.showWhatsApp, true);
+  assert.match(result.text, /iTeraCare/);
+  assert.doesNotMatch(result.text, /Para preço, estoque, compra ou cadastro/);
+});
+
+test('follow-up pronouns keep the previous product context', () => {
+  const first = freeQuestionReply('quero conhecer o iTeraCare', 'pt');
+  const followUp = freeQuestionReply('e este aparelho como funciona?', 'pt', first.context);
+  assert.equal(followUp.context, 'iteracare');
+  assert.match(followUp.text, /iTeraCare|terahertz/i);
+});
