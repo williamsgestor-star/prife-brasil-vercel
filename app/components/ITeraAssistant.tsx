@@ -114,6 +114,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "no WhatsApp",
       questionLabel: "Digite sua dúvida",
       placeholder: "Como posso ajudar?",
+      loading: "Carregando conversa…",
       send: "Enviar pergunta",
       open: "Abrir Assistente iTERA",
       launcherSmall: "FALAR COM",
@@ -140,6 +141,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "por WhatsApp",
       questionLabel: "Escribe tu pregunta",
       placeholder: "¿Cómo puedo ayudarte?",
+      loading: "Cargando conversación…",
       send: "Enviar pregunta",
       open: "Abrir Asistente iTERA",
       launcherSmall: "HABLAR CON",
@@ -166,6 +168,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "on WhatsApp",
       questionLabel: "Type your question",
       placeholder: "How can I help?",
+      loading: "Loading conversation…",
       send: "Send question",
       open: "Open iTERA Assistant",
       launcherSmall: "TALK TO",
@@ -362,7 +365,7 @@ function ITeraAssistantSession({
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
                 maxLength={300}
-                placeholder={restoring ? "Carregando conversa…" : copy.placeholder}
+                placeholder={restoring ? copy.loading : copy.placeholder}
                 disabled={busy || restoring}
               />
               <button type="submit" aria-label={copy.send} disabled={!question.trim() || busy || restoring}>➜</button>
