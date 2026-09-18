@@ -24,7 +24,7 @@ create policy itera_chat_select_own_session
   using (
     session_key_hash is not null
     and session_key_hash = coalesce(
-      (current_setting('request.headers', true)::json ->> 'x-itera-session-hash'),
+      (select current_setting('request.headers', true)::json ->> 'x-itera-session-hash'),
       ''
     )
   );
