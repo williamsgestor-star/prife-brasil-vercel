@@ -159,7 +159,7 @@ async function aiReply(
     "Use a conversa recente para entender pronomes e referências como 'ele', 'isso', 'este aparelho' e perguntas de continuação.",
     "Não crie fatos novos. Se a base confirmada não trouxer uma informação específica, diga que ela precisa ser confirmada com o consultor.",
     "Mantenha a resposta natural, acolhedora e objetiva; não repita automaticamente uma abertura comercial.",
-    "Retorne SOMENTE JSON válido neste formato: {"text":"resposta","context":"iteracare ou outro contexto válido","focusQuestion":true}.",
+    'Retorne SOMENTE JSON válido neste formato: {"text":"resposta","context":"iteracare ou outro contexto válido","focusQuestion":true}.',
   ].join("\n\n");
 
   try {
