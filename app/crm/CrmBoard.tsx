@@ -67,6 +67,7 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
   const[coachContext,setCoachContext]=useState("");const[coachAnswer,setCoachAnswer]=useState("");const[coachCustomerMessage,setCoachCustomerMessage]=useState("");
   const[coachCopied,setCoachCopied]=useState(false);const[coachOffer,setCoachOffer]=useState("auto");const[coachBusy,setCoachBusy]=useState(false);const[coachError,setCoachError]=useState("");
   const[coachHistory,setCoachHistory]=useState<AiHistory[]>([]);
+  const coachRequestRef=useRef<AbortController|null>(null);
   const fileRef=useRef<HTMLInputElement>(null);const headers=useMemo(()=>({"x-prife-tenant":tenantId}),[tenantId]);
 
   async function load(){setLoading(true);const response=await fetch("/api/crm/leads",{headers,cache:"no-store"});const data=await response.json();setLeads(data.leads||[]);setStageLabels(data.stageLabels||{});setMessage(response.ok?"":data.error||copy.loadError);setLoading(false)}
@@ -76,21 +77,33 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
   async function deleteLead(lead:Lead){if(!window.confirm(copy.removeConfirm.replace("{name}",lead.company_name)))return;setDeletingId(lead.id);setMessage("");try{const response=await fetch("/api/crm/leads",{method:"DELETE",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({id:lead.id})});const data=await response.json().catch(()=>({error:copy.removeError}));if(!response.ok){setMessage(data.error||copy.removeError);return}setLeads((current)=>current.filter((item)=>item.id!==lead.id));if(expandedId===lead.id)setExpandedId(null);if(coachLeadId===lead.id)setCoachLeadId("");setMessage(copy.removed)}catch{setMessage(copy.removeError)}finally{setDeletingId(null)}}
   async function saveStageLabels(){const response=await fetch("/api/crm/leads",{method:"PUT",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({stage_labels:stageLabels})});const data=await response.json();if(response.ok){setStageLabels(data.stageLabels||{});setMessage("")}else setMessage(data.error||copy.labelUpdateError)}
 
-  async function loadCoachHistory(leadId=coachLeadId){try{const suffix=leadId?`?leadId=${encodeURIComponent(leadId)}`:"";const response=await fetch(`/api/crm/assistant${suffix}`,{headers,cache:"no-store"});const data=await response.json();setCoachHistory(response.ok?data.messages||[]:[])}catch{setCoachHistory([])}}
-  async function openCopilot(leadId=""){setCoachLeadId(leadId);setCoachOpen(true);setCoachError("");setCoachAnswer("");setCoachCustomerMessage("");setCoachCopied(false);await loadCoachHistory(leadId)}
+  async function fetchCopilot(input:string,init:RequestInit={},timeoutMs=15_000){
+    coachRequestRef.current?.abort();
+    const controller=new AbortController();coachRequestRef.current=controller;
+    const timeout=window.setTimeout(()=>controller.abort(),timeoutMs);
+    try{return await fetch(input,{...init,signal:controller.signal})}
+    finally{window.clearTimeout(timeout);if(coachRequestRef.current===controller)coachRequestRef.current=null}
+  }
+  async function loadCoachHistory(leadId=coachLeadId){
+    try{const suffix=leadId?`?leadId=${encodeURIComponent(leadId)}`:"";const response=await fetchCopilot(`/api/crm/assistant${suffix}`,{headers,cache:"no-store"},10_000);const data=await response.json();setCoachHistory(response.ok?data.messages||[]:[])}
+    catch{setCoachHistory([])}
+  }
+  function closeCopilot(){coachRequestRef.current?.abort();coachRequestRef.current=null;setCoachBusy(false);setCoachOpen(false)}
+  function openCopilot(leadId=""){setCoachLeadId(leadId);setCoachOpen(true);setCoachError("");setCoachAnswer("");setCoachCustomerMessage("");setCoachCopied(false);void loadCoachHistory(leadId)}
   async function runCopilot(mode:AiMode=coachMode){
     const text=coachContext.trim()||(mode==="client"?coachAnswer.trim():"");if(!text)return;
     setCoachBusy(true);setCoachError("");setCoachCopied(false);
     try{
-      const response=await fetch("/api/crm/assistant",{method:"POST",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({leadId:coachLeadId,mode,product:coachOffer,message:text,language})});
-      const data=await response.json();
+      const response=await fetchCopilot("/api/crm/assistant",{method:"POST",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({leadId:coachLeadId,mode,product:coachOffer,message:text,language})},30_000);
+      const data=await response.json().catch(()=>({error:copilot.error}));
       if(!response.ok){setCoachError(data.error||copilot.error);return}
       setCoachAnswer(data.answer||"");setCoachCustomerMessage(data.customerMessage||"");
       if(mode!=="client")setCoachContext("");
       await loadCoachHistory(coachLeadId);
     }catch{setCoachError(copilot.error)}finally{setCoachBusy(false)}
   }
-  async function clearCoachMemory(){if(!window.confirm(copilot.clearConfirm))return;setCoachBusy(true);try{const response=await fetch("/api/crm/assistant",{method:"DELETE",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({leadId:coachLeadId})});if(response.ok){setCoachHistory([]);setCoachAnswer("");setCoachCustomerMessage("");setCoachContext("")}}finally{setCoachBusy(false)}}
+  async function clearCoachMemory(){if(!window.confirm(copilot.clearConfirm))return;setCoachBusy(true);setCoachError("");try{const response=await fetchCopilot("/api/crm/assistant",{method:"DELETE",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({leadId:coachLeadId})},12_000);if(response.ok){setCoachHistory([]);setCoachAnswer("");setCoachCustomerMessage("");setCoachContext("")}else setCoachError(copilot.error)}catch{setCoachError(copilot.error)}finally{setCoachBusy(false)}
+  }
   async function copyCoachMessage(){if(!coachCustomerMessage)return;await navigator.clipboard.writeText(coachCustomerMessage);setCoachCopied(true)}
 
   const coachLead=leads.find((lead)=>lead.id===coachLeadId);
@@ -102,7 +115,7 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
 
   return <main className={styles.page}>
     <header className={styles.header}><Link href="/"><img src="/brand/prife-brasil-original.png" alt="Prife Brasil"/></Link><nav><Link href="/leads">Prospector</Link><Link href="/reuniao">{copy.live}</Link><Link href="/ponto-vivo">PontoVivo</Link><a href="/auth/signout">Sair</a></nav></header>
-    <section className={styles.hero}><div><small>ÁREA EXCLUSIVA • {userDisplayName}</small><h1>{copy.title} <em>{copy.highlight}</em></h1><p>{copy.description}</p></div><div className={styles.actions}><button className={styles.aiButton} onClick={()=>void openCopilot()}>{copilot.button}</button><button type="button" disabled={importing} onClick={()=>fileRef.current?.click()}>{importing?copy.importing:copy.import}</button><a href="https://convertio.co/pt/conversor-csv/" target="_blank" rel="noopener noreferrer">{language==="es"?"Convertir a CSV":language==="en"?"Convert to CSV":"Converter para CSV"}</a><a href="/leads">{copy.search}</a><input ref={fileRef} type="file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" onClick={(event)=>{event.currentTarget.value=""}} onChange={(event)=>void importFile(event.target.files?.[0])} hidden/></div></section>
+    <section className={styles.hero}><div><small>ÁREA EXCLUSIVA • {userDisplayName}</small><h1>{copy.title} <em>{copy.highlight}</em></h1><p>{copy.description}</p></div><div className={styles.actions}><button className={styles.aiButton} onClick={()=>openCopilot()}>{copilot.button}</button><button type="button" disabled={importing} onClick={()=>fileRef.current?.click()}>{importing?copy.importing:copy.import}</button><a href="https://convertio.co/pt/conversor-csv/" target="_blank" rel="noopener noreferrer">{language==="es"?"Convertir a CSV":language==="en"?"Convert to CSV":"Converter para CSV"}</a><a href="/leads">{copy.search}</a><input ref={fileRef} type="file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" onClick={(event)=>{event.currentTarget.value=""}} onChange={(event)=>void importFile(event.target.files?.[0])} hidden/></div></section>
     <section className={styles.metrics} aria-label="Resumo do CRM"><article><small>{copy.total}</small><strong>{leads.length}</strong></article><article><small>{copy.hot}</small><strong>{metrics.hot}</strong></article><article><small>{copy.followUp}</small><strong>{metrics.followUps}</strong></article><article><small>{copy.conversion}</small><strong>{metrics.conversion}%</strong></article></section>
     <section className={styles.toolbar}><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder={copy.filterPlaceholder} aria-label={copy.filterPlaceholder}/></section>
     {message?<p className={styles.notice} role="status" aria-live="polite">{message}</p>:null}
@@ -120,7 +133,7 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
             <select value={statuses.includes(lead.status)?lead.status:"novo"} onChange={(event)=>void updateLead(lead,{status:event.target.value as LeadStatus})}>{statuses.map((item)=><option value={item} key={item}>{stageLabels[item]??copy.status[item]}</option>)}</select>
             <div className={styles.cardActions}>
               <button className={styles.detailsButton} type="button" onClick={()=>setExpandedId((current)=>current===lead.id?null:lead.id)}>{copy.details}</button>
-              <button className={styles.aiCardButton} type="button" onClick={()=>void openCopilot(lead.id)}>{copilot.button}</button>
+              <button className={styles.aiCardButton} type="button" onClick={()=>openCopilot(lead.id)}>{copilot.button}</button>
               <button className={styles.deleteButton} type="button" disabled={deletingId===lead.id} onClick={()=>void deleteLead(lead)} aria-label={`${copy.remove}: ${lead.company_name}`}>{deletingId===lead.id?copy.removing:copy.remove}</button>
             </div>
             {expandedId===lead.id?<div className={styles.detailsPanel}><label><span>{copy.score}</span><input type="number" min="0" max="100" value={lead.lead_score} onChange={(event)=>setLeads((current)=>current.map((item)=>item.id===lead.id?{...item,lead_score:Number(event.target.value)}:item))} onBlur={(event)=>void updateLead(lead,{lead_score:Number(event.currentTarget.value)})}/></label><label><span>{copy.nextContact}</span><input type="datetime-local" value={toDateInput(lead.next_follow_up_at)} onChange={(event)=>void updateLead(lead,{next_follow_up_at:event.target.value?new Date(event.target.value).toISOString():null})}/></label><label><span>{copy.notes}</span><textarea defaultValue={lead.notes||""} maxLength={2000} onBlur={(event)=>void updateLead(lead,{notes:event.target.value})}/></label>{lead.email?<a href={`mailto:${lead.email}`}>{lead.email}</a>:null}{lead.website?<a href={lead.website} target="_blank" rel="noreferrer">{lead.website}</a>:null}</div>:null}
@@ -129,9 +142,9 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
       })}
     </section>
 
-    {coachOpen?<div className={styles.coachBackdrop} role="presentation" onMouseDown={()=>setCoachOpen(false)}>
+    {coachOpen?<div className={styles.coachBackdrop} role="presentation" onMouseDown={closeCopilot}>
       <section className={styles.coachPanel} role="dialog" aria-modal="true" aria-labelledby="coach-title" onMouseDown={(event)=>event.stopPropagation()}>
-        <header><div><small>PRIFE • CRM • IA</small><h2 id="coach-title">{copilot.title}</h2></div><button type="button" aria-label="Fechar" onClick={()=>setCoachOpen(false)}>×</button></header>
+        <header><div><small>PRIFE • CRM • IA</small><h2 id="coach-title">{copilot.title}</h2></div><button type="button" aria-label="Fechar" onClick={closeCopilot}>×</button></header>
         <p>{copilot.description}</p>
 
         <div className={styles.coachGrid}>
