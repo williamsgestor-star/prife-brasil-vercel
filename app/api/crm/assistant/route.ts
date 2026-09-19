@@ -332,6 +332,7 @@ export async function POST(request: Request) {
     try {
       const gatewayResponse = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
         method: "POST",
+        signal: AbortSignal.timeout(20_000),
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
