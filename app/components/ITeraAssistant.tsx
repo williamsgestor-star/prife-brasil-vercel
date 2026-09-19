@@ -50,6 +50,13 @@ function createChatSessionId() {
   return `itera-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
+function createChatSessionKey() {
+  if (typeof window !== "undefined" && typeof window.crypto?.randomUUID === "function") {
+    return `${window.crypto.randomUUID()}.${window.crypto.randomUUID()}`;
+  }
+  return `${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}.${Math.random().toString(36).slice(2)}`;
+}
+
 type Message = {
   id: number;
   role: "assistant" | "visitor";
@@ -107,6 +114,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "no WhatsApp",
       questionLabel: "Digite sua dúvida",
       placeholder: "Como posso ajudar?",
+      loading: "Carregando conversa…",
       send: "Enviar pergunta",
       open: "Abrir Assistente iTERA",
       launcherSmall: "FALAR COM",
@@ -133,6 +141,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "por WhatsApp",
       questionLabel: "Escribe tu pregunta",
       placeholder: "¿Cómo puedo ayudarte?",
+      loading: "Cargando conversación…",
       send: "Enviar pregunta",
       open: "Abrir Asistente iTERA",
       launcherSmall: "HABLAR CON",
@@ -159,6 +168,7 @@ function ITeraAssistantSession({
       whatsappSuffix: "on WhatsApp",
       questionLabel: "Type your question",
       placeholder: "How can I help?",
+      loading: "Loading conversation…",
       send: "Send question",
       open: "Open iTERA Assistant",
       launcherSmall: "TALK TO",
@@ -172,6 +182,8 @@ function ITeraAssistantSession({
   const [question, setQuestion] = useState("");
   const [context, setContext] = useState<IteraContext | null>(null);
   const [leadIntent, setLeadIntent] = useState<LeadIntent | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, role: "assistant", text: getIteraWelcomeMessage(language) },
   ]);
@@ -179,6 +191,7 @@ function ITeraAssistantSession({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageId = useRef(1);
   const chatSessionId = useRef("");
+  const chatSessionKey = useRef("");
   const safeWhatsapp = whatsappNumber.replace(/\D/g, "");
   const whatsappMessage = copy.whatsappMessages[leadIntent || "generic"];
   const whatsappHref = `https://wa.me/${safeWhatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -189,12 +202,43 @@ function ITeraAssistantSession({
   }, []);
 
   useEffect(() => {
-    const storageKey = "itera-chat-session";
-    const stored = window.localStorage.getItem(storageKey);
-    const sessionId = stored || createChatSessionId();
+    let active = true;
+    const idStorageKey = "itera-chat-session";
+    const secretStorageKey = "itera-chat-session-key";
+    const storedId = window.localStorage.getItem(idStorageKey);
+    const storedSecret = window.localStorage.getItem(secretStorageKey);
+    const sessionId = storedId || createChatSessionId();
+    const sessionKey = storedSecret || createChatSessionKey();
     chatSessionId.current = sessionId;
-    if (!stored) window.localStorage.setItem(storageKey, sessionId);
-  }, []);
+    chatSessionKey.current = sessionKey;
+    if (!storedId) window.localStorage.setItem(idStorageKey, sessionId);
+    if (!storedSecret) window.localStorage.setItem(secretStorageKey, sessionKey);
+
+    void fetch(`/api/itera/chat?sessionId=${encodeURIComponent(sessionId)}&language=${language}`, {
+      headers: { "x-itera-session-key": sessionKey },
+      cache: "no-store",
+    }).then(async (response) => {
+      const data = await response.json().catch(() => ({ messages: [] }));
+      if (!active || !response.ok) return;
+      const restored = Array.isArray(data.messages) ? data.messages : [];
+      if (restored.length) {
+        const restoredMessages = restored.map((item: { role?: string; text?: string; showWhatsApp?: boolean }, index: number) => ({
+          id: index + 2,
+          role: item.role === "visitor" ? "visitor" as const : "assistant" as const,
+          text: String(item.text || ""),
+          showWhatsApp: Boolean(item.showWhatsApp),
+        })).filter((item: Message) => item.text);
+        messageId.current = restoredMessages.length + 1;
+        setMessages([{ id: 1, role: "assistant", text: getIteraWelcomeMessage(language) }, ...restoredMessages]);
+        const restoredContext = data.context as IteraContext | null;
+        if (restoredContext) setContext(restoredContext);
+      }
+    }).catch(() => undefined).finally(() => {
+      if (active) setRestoring(false);
+    });
+
+    return () => { active = false; };
+  }, [language]);
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
@@ -215,48 +259,54 @@ function ITeraAssistantSession({
     window.setTimeout(() => inputRef.current?.focus(), 0);
   }
 
-  function persistExchange(visitorText: string, reply: IteraReply) {
-    if (!chatSessionId.current) chatSessionId.current = createChatSessionId();
-    void fetch("/api/itera/chat", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      keepalive: true,
-      body: JSON.stringify({
-        sessionId: chatSessionId.current,
-        language,
-        visitorQuestion: visitorText,
-        assistantAnswer: reply.text,
-        conversationContext: reply.context || context,
-        showWhatsApp: Boolean(reply.showWhatsApp),
-      }),
-    }).catch(() => undefined);
-  }
-
-  function appendExchange(visitorText: string, reply: IteraReply, explicitIntent?: LeadIntent | null) {
+  function appendAssistantReply(visitorText: string, reply: IteraReply, addVisitor = false) {
     setMessages((current) => [
       ...current,
-      { id: nextId(), role: "visitor", text: visitorText },
-      { id: nextId(), role: "assistant", text: reply.text, showWhatsApp: reply.showWhatsApp },
+      ...(addVisitor ? [{ id: nextId(), role: "visitor" as const, text: visitorText }] : []),
+      { id: nextId(), role: "assistant" as const, text: reply.text, showWhatsApp: reply.showWhatsApp },
     ]);
     if (reply.context) setContext(reply.context);
-    const resolvedIntent = explicitIntent || intentFromExchange(visitorText, reply);
+    const resolvedIntent = intentFromExchange(visitorText, reply);
     if (resolvedIntent) {
       setLeadIntent(resolvedIntent);
       if (resolvedIntent !== leadIntent) dispatchAnalytics("assistant_intent_select", { intent: resolvedIntent });
     }
-    persistExchange(visitorText, reply);
     window.requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
-    if (reply.focusQuestion) {
-      window.setTimeout(() => inputRef.current?.focus(), 0);
-    }
+    if (reply.focusQuestion) window.setTimeout(() => inputRef.current?.focus(), 0);
   }
 
-  function submitQuestion(event: FormEvent<HTMLFormElement>) {
+  async function submitQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = question.trim();
-    if (!text) return;
+    if (!text || busy) return;
     setQuestion("");
-    appendExchange(text, freeQuestionReply(text, language, context));
+    setBusy(true);
+    setMessages((current) => [...current, { id: nextId(), role: "visitor", text }]);
+    window.requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
+
+    if (!chatSessionId.current) chatSessionId.current = createChatSessionId();
+    if (!chatSessionKey.current) chatSessionKey.current = createChatSessionKey();
+
+    try {
+      const response = await fetch("/api/itera/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sessionId: chatSessionId.current,
+          sessionKey: chatSessionKey.current,
+          language,
+          visitorQuestion: text,
+          conversationContext: context,
+        }),
+      });
+      const data = await response.json().catch(() => null) as { reply?: IteraReply } | null;
+      if (!response.ok || !data?.reply?.text) throw new Error("assistant_unavailable");
+      appendAssistantReply(text, data.reply, false);
+    } catch {
+      appendAssistantReply(text, freeQuestionReply(text, language, context), false);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function trackWhatsAppClick(location: string) {
@@ -298,6 +348,11 @@ function ITeraAssistantSession({
                 )}
               </div>
             ))}
+            {busy && (
+              <div className={styles.typing} role="status" aria-live="polite">
+                <span /><span /><span />
+              </div>
+            )}
             <div ref={messagesEndRef} aria-hidden="true" />
           </div>
 
@@ -310,9 +365,10 @@ function ITeraAssistantSession({
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
                 maxLength={300}
-                placeholder={copy.placeholder}
+                placeholder={restoring ? copy.loading : copy.placeholder}
+                disabled={busy || restoring}
               />
-              <button type="submit" aria-label={copy.send} disabled={!question.trim()}>➜</button>
+              <button type="submit" aria-label={copy.send} disabled={!question.trim() || busy || restoring}>➜</button>
             </div>
           </form>
           <div className={styles.panelFooter}>

@@ -243,6 +243,17 @@ export function freeQuestionReply(
   if (expertReply) return expertReply;
 
   if (commercialIntent.test(normalized)) {
+    const commercialProductContext = detectedContext && !["business", "sales", "prife"].includes(detectedContext);
+    if (commercialProductContext) {
+      const productReply = materialKnowledgeReply(normalized, language) || expertiseReply(normalized, language, detectedContext);
+      if (productReply) {
+        return {
+          ...productReply,
+          showWhatsApp: true,
+          context: detectedContext,
+        };
+      }
+    }
     if (/^\s*(compra|comprar|purchase|buy|compra|comprar)\s*$/i.test(normalized)) {
       return {
         text: {
