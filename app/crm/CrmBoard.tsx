@@ -29,7 +29,7 @@ const copilotCopy = {
     noMemory:"Ainda não há histórico para este lead.", internal:"Resposta para você", client:"Mensagem pronta para o cliente",
     copy:"Copiar mensagem", copied:"Copiado", whatsapp:"Enviar no WhatsApp", transform:"Transformar em mensagem para o cliente",
     modes:{ask:"Perguntar à IA",outreach:"Criar abordagem",objection:"Responder objeção",followup:"Criar follow-up"},
-    error:"Não foi possível consultar o Copiloto IA. Tente novamente."
+    required:"Digite uma pergunta ou descreva o que aconteceu na conversa.", error:"Não foi possível consultar o Copiloto IA. Tente novamente."
   },
   es:{
     button:"Copiloto IA", title:"Copiloto IA del CRM",
@@ -40,7 +40,7 @@ const copilotCopy = {
     noMemory:"Todavía no hay historial para este lead.", internal:"Respuesta para ti", client:"Mensaje listo para el cliente",
     copy:"Copiar mensaje", copied:"Copiado", whatsapp:"Enviar por WhatsApp", transform:"Convertir en mensaje para el cliente",
     modes:{ask:"Preguntar a la IA",outreach:"Crear abordaje",objection:"Responder objeción",followup:"Crear seguimiento"},
-    error:"No fue posible consultar el Copiloto IA. Inténtalo de nuevo."
+    required:"Escribe una pregunta o describe lo ocurrido en la conversación.", error:"No fue posible consultar el Copiloto IA. Inténtalo de nuevo."
   },
   en:{
     button:"AI Copilot", title:"CRM AI Copilot",
@@ -51,7 +51,7 @@ const copilotCopy = {
     noMemory:"No history for this lead yet.", internal:"Answer for you", client:"Customer-ready message",
     copy:"Copy message", copied:"Copied", whatsapp:"Send on WhatsApp", transform:"Turn into a customer message",
     modes:{ask:"Ask AI",outreach:"Create outreach",objection:"Handle objection",followup:"Create follow-up"},
-    error:"The AI Copilot could not respond. Please try again."
+    required:"Enter a question or describe what happened in the conversation.", error:"The AI Copilot could not respond. Please try again."
   },
 };
 
@@ -68,6 +68,7 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
   const[coachCopied,setCoachCopied]=useState(false);const[coachOffer,setCoachOffer]=useState("auto");const[coachBusy,setCoachBusy]=useState(false);const[coachError,setCoachError]=useState("");
   const[coachHistory,setCoachHistory]=useState<AiHistory[]>([]);
   const coachRequestRef=useRef<AbortController|null>(null);
+  const coachContextRef=useRef<HTMLTextAreaElement>(null);
   const fileRef=useRef<HTMLInputElement>(null);const headers=useMemo(()=>({"x-prife-tenant":tenantId}),[tenantId]);
 
   async function load(){setLoading(true);const response=await fetch("/api/crm/leads",{headers,cache:"no-store"});const data=await response.json();setLeads(data.leads||[]);setStageLabels(data.stageLabels||{});setMessage(response.ok?"":data.error||copy.loadError);setLoading(false)}
@@ -89,9 +90,9 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
     catch{setCoachHistory([])}
   }
   function closeCopilot(){coachRequestRef.current?.abort();coachRequestRef.current=null;setCoachBusy(false);setCoachOpen(false)}
-  function openCopilot(leadId=""){setCoachLeadId(leadId);setCoachOpen(true);setCoachError("");setCoachAnswer("");setCoachCustomerMessage("");setCoachCopied(false);void loadCoachHistory(leadId)}
+  function openCopilot(leadId=""){setCoachLeadId(leadId);setCoachOpen(true);setCoachError("");setCoachAnswer("");setCoachCustomerMessage("");setCoachCopied(false);void loadCoachHistory(leadId);window.setTimeout(()=>coachContextRef.current?.focus(),0)}
   async function runCopilot(mode:AiMode=coachMode){
-    const text=coachContext.trim()||(mode==="client"?coachAnswer.trim():"");if(!text)return;
+    const text=coachContext.trim()||(mode==="client"?coachAnswer.trim():"");if(!text){setCoachError(copilot.required);coachContextRef.current?.focus();return}
     setCoachBusy(true);setCoachError("");setCoachCopied(false);
     try{
       const response=await fetchCopilot("/api/crm/assistant",{method:"POST",headers:{...headers,"content-type":"application/json"},body:JSON.stringify({leadId:coachLeadId,mode,product:coachOffer,message:text,language})},30_000);
@@ -115,7 +116,7 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
 
   return <main className={styles.page}>
     <header className={styles.header}><Link href="/"><img src="/brand/prife-brasil-original.png" alt="Prife Brasil"/></Link><nav><Link href="/leads">Prospector</Link><Link href="/reuniao">{copy.live}</Link><Link href="/ponto-vivo">PontoVivo</Link><a href="/auth/signout">Sair</a></nav></header>
-    <section className={styles.hero}><div><small>ÁREA EXCLUSIVA • {userDisplayName}</small><h1>{copy.title} <em>{copy.highlight}</em></h1><p>{copy.description}</p></div><div className={styles.actions}><button className={styles.aiButton} onClick={()=>openCopilot()}>{copilot.button}</button><button type="button" disabled={importing} onClick={()=>fileRef.current?.click()}>{importing?copy.importing:copy.import}</button><a href="https://convertio.co/pt/conversor-csv/" target="_blank" rel="noopener noreferrer">{language==="es"?"Convertir a CSV":language==="en"?"Convert to CSV":"Converter para CSV"}</a><a href="/leads">{copy.search}</a><input ref={fileRef} type="file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" onClick={(event)=>{event.currentTarget.value=""}} onChange={(event)=>void importFile(event.target.files?.[0])} hidden/></div></section>
+    <section className={styles.hero}><div><small>ÁREA EXCLUSIVA • {userDisplayName}</small><h1>{copy.title} <em>{copy.highlight}</em></h1><p>{copy.description}</p></div><div className={styles.actions}><button type="button" className={styles.aiButton} onClick={()=>openCopilot()}>{copilot.button}</button><button type="button" disabled={importing} onClick={()=>fileRef.current?.click()}>{importing?copy.importing:copy.import}</button><a href="https://convertio.co/pt/conversor-csv/" target="_blank" rel="noopener noreferrer">{language==="es"?"Convertir a CSV":language==="en"?"Convert to CSV":"Converter para CSV"}</a><a href="/leads">{copy.search}</a><input ref={fileRef} type="file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" onClick={(event)=>{event.currentTarget.value=""}} onChange={(event)=>void importFile(event.target.files?.[0])} hidden/></div></section>
     <section className={styles.metrics} aria-label="Resumo do CRM"><article><small>{copy.total}</small><strong>{leads.length}</strong></article><article><small>{copy.hot}</small><strong>{metrics.hot}</strong></article><article><small>{copy.followUp}</small><strong>{metrics.followUps}</strong></article><article><small>{copy.conversion}</small><strong>{metrics.conversion}%</strong></article></section>
     <section className={styles.toolbar}><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder={copy.filterPlaceholder} aria-label={copy.filterPlaceholder}/></section>
     {message?<p className={styles.notice} role="status" aria-live="polite">{message}</p>:null}
@@ -142,8 +143,8 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
       })}
     </section>
 
-    {coachOpen?<div className={styles.coachBackdrop} role="presentation" onMouseDown={closeCopilot}>
-      <section className={styles.coachPanel} role="dialog" aria-modal="true" aria-labelledby="coach-title" onMouseDown={(event)=>event.stopPropagation()}>
+    {coachOpen?<div className={styles.coachBackdrop} role="presentation" onClick={(event)=>{if(event.target===event.currentTarget)closeCopilot()}}>
+      <section className={styles.coachPanel} role="dialog" aria-modal="true" aria-labelledby="coach-title">
         <header><div><small>PRIFE • CRM • IA</small><h2 id="coach-title">{copilot.title}</h2></div><button type="button" aria-label="Fechar" onClick={closeCopilot}>×</button></header>
         <p>{copilot.description}</p>
 
@@ -156,9 +157,9 @@ export default function CrmBoard({userDisplayName,tenantId}:{userDisplayName:str
           {(Object.keys(copilot.modes) as Array<Exclude<AiMode,"client">>).map((mode)=><button key={mode} type="button" className={coachMode===mode?styles.coachModeActive:""} onClick={()=>setCoachMode(mode)}>{copilot.modes[mode]}</button>)}
         </div>
 
-        <label className={styles.coachContext}>{copilot.context}<textarea value={coachContext} onChange={(event)=>setCoachContext(event.target.value)} placeholder={copilot.placeholder} maxLength={2000} onKeyDown={(event)=>{if(event.key==="Enter"&&event.ctrlKey&&!coachBusy)void runCopilot()}}/><small>Ctrl + Enter</small></label>
+        <label className={styles.coachContext}>{copilot.context}<textarea ref={coachContextRef} value={coachContext} onChange={(event)=>setCoachContext(event.target.value)} placeholder={copilot.placeholder} maxLength={2000} onKeyDown={(event)=>{if(event.key==="Enter"&&event.ctrlKey&&!coachBusy)void runCopilot()}}/><small>Ctrl + Enter</small></label>
         {coachError?<p className={styles.coachError}>{coachError}</p>:null}
-        <div className={styles.coachActions}><button className={styles.generateButton} type="button" disabled={coachBusy||!coachContext.trim()} onClick={()=>void runCopilot()}>{coachBusy?copilot.sending:copilot.modes[coachMode]}</button><button type="button" className={styles.clearMemoryButton} disabled={coachBusy} onClick={()=>void clearCoachMemory()}>{copilot.clear}</button></div>
+        <div className={styles.coachActions}><button className={styles.generateButton} type="button" disabled={coachBusy} aria-busy={coachBusy} onClick={()=>void runCopilot()}>{coachBusy?copilot.sending:copilot.modes[coachMode]}</button><button type="button" className={styles.clearMemoryButton} disabled={coachBusy} onClick={()=>void clearCoachMemory()}>{copilot.clear}</button></div>
 
         <div className={styles.coachMemory}><div className={styles.coachMemoryHeader}><strong>{copilot.memory}</strong><span>{coachHistory.length}</span></div>{!coachHistory.length?<p>{copilot.noMemory}</p>:coachHistory.slice(-8).map((item)=><div key={item.id} className={item.role==="assistant"?styles.memoryAssistant:styles.memoryUser}><small>{item.role==="assistant"?"IA":"Você"}</small><p>{item.content}</p></div>)}</div>
 
