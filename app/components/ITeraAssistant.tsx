@@ -43,6 +43,15 @@ function AssistantMascot({ className }: { className?: string }) {
   );
 }
 
+function WhatsAppMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.3-4.7A8.5 8.5 0 1 1 20.5 11.7Z" />
+      <path d="M8.1 7.3c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.8 2c.1.3.1.5-.1.7l-.6.7c-.2.2-.1.4 0 .6.5 1 1.3 1.8 2.3 2.4.2.1.4.1.6-.1l.8-1c.2-.2.4-.3.7-.2l2 .9c.3.1.4.3.4.5 0 .4-.2 1.2-.7 1.7-.5.5-1.2.8-2 .8-1.1 0-2.6-.5-4.3-2-2-1.7-3.2-3.9-3.3-5.3 0-.7.2-1.3.5-1.7Z" />
+    </svg>
+  );
+}
+
 function createChatSessionId() {
   if (typeof window !== "undefined" && typeof window.crypto?.randomUUID === "function") {
     return window.crypto.randomUUID();
@@ -120,6 +129,8 @@ function ITeraAssistantSession({
       launcherSmall: "FALAR COM",
       launcherName: "ASSISTENTE iTERA",
       chatWhatsapp: "WhatsApp com",
+      whatsappFast: "Atendimento mais rápido e personalizado",
+      brandLine: "iTERA • TECNOLOGIA PARA O SEU BEM-ESTAR",
       disclaimer: "Respostas informativas. Tecnologias de bem-estar não substituem cuidados médicos.",
     },
     es: {
@@ -147,6 +158,8 @@ function ITeraAssistantSession({
       launcherSmall: "HABLAR CON",
       launcherName: "ASISTENTE iTERA",
       chatWhatsapp: "WhatsApp con",
+      whatsappFast: "Atención más rápida y personalizada",
+      brandLine: "iTERA • TECNOLOGÍA PARA TU BIENESTAR",
       disclaimer: "Respuestas informativas. Las tecnologías de bienestar no sustituyen la atención médica.",
     },
     en: {
@@ -174,6 +187,8 @@ function ITeraAssistantSession({
       launcherSmall: "TALK TO",
       launcherName: "iTERA ASSISTANT",
       chatWhatsapp: "WhatsApp with",
+      whatsappFast: "Faster, personalized service",
+      brandLine: "iTERA • TECHNOLOGY FOR YOUR WELL-BEING",
       disclaimer: "Informational answers. Wellness technologies do not replace medical care.",
     },
   }[language];
@@ -339,26 +354,51 @@ function ITeraAssistantSession({
 
           <div className={styles.messages} aria-live="polite">
             {messages.map((message) => (
-              <div className={message.role === "assistant" ? styles.assistantMessage : styles.visitorMessage} key={message.id}>
-                <p>{message.text}</p>
-                {message.showWhatsApp && safeWhatsapp && (
-                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsAppClick("assistant_message")}>
-                    {copy.whatsapp} {distributorName || copy.consultant} {copy.whatsappSuffix}
-                  </a>
-                )}
+              <div
+                className={`${styles.messageRow} ${message.role === "assistant" ? styles.assistantRow : styles.visitorRow}`}
+                key={message.id}
+              >
+                {message.role === "assistant" ? (
+                  <span className={styles.messageAvatar} aria-hidden="true">
+                    <AssistantMascot className={styles.messageAvatarMedia} />
+                  </span>
+                ) : null}
+                <div className={message.role === "assistant" ? styles.assistantMessage : styles.visitorMessage}>
+                  <p>{message.text}</p>
+                  {message.showWhatsApp && safeWhatsapp ? (
+                    <a href={whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsAppClick("assistant_message")}>
+                      <WhatsAppMark className={styles.messageWhatsappIcon} />
+                      <span>{copy.whatsapp} {distributorName || copy.consultant} {copy.whatsappSuffix}</span>
+                      <b aria-hidden="true">›</b>
+                    </a>
+                  ) : null}
+                </div>
+                {message.role === "visitor" ? (
+                  <span className={styles.visitorAvatar} aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c.5-4 3.1-6 7-6s6.5 2 7 6" /></svg>
+                  </span>
+                ) : null}
               </div>
             ))}
-            {busy && (
-              <div className={styles.typing} role="status" aria-live="polite">
-                <span /><span /><span />
+            {busy ? (
+              <div className={`${styles.messageRow} ${styles.assistantRow}`}>
+                <span className={styles.messageAvatar} aria-hidden="true">
+                  <AssistantMascot className={styles.messageAvatarMedia} />
+                </span>
+                <div className={styles.typing} role="status" aria-live="polite">
+                  <span /><span /><span />
+                </div>
               </div>
-            )}
+            ) : null}
             <div ref={messagesEndRef} aria-hidden="true" />
           </div>
 
           <form className={styles.question} onSubmit={submitQuestion}>
             <label htmlFor="itera-question">{copy.questionLabel}</label>
-            <div>
+            <div className={styles.questionShell}>
+              <span className={styles.attachmentIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="m8.8 12.8 5.8-5.8a3 3 0 0 1 4.2 4.2l-7.3 7.3a5 5 0 0 1-7.1-7.1l7.1-7.1" /></svg>
+              </span>
               <input
                 ref={inputRef}
                 id="itera-question"
@@ -368,22 +408,23 @@ function ITeraAssistantSession({
                 placeholder={restoring ? copy.loading : copy.placeholder}
                 disabled={busy || restoring}
               />
-              <button type="submit" aria-label={copy.send} disabled={!question.trim() || busy || restoring}>➜</button>
+              <button type="submit" aria-label={copy.send} disabled={!question.trim() || busy || restoring}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 4 18 8-18 8 4-8-4-8Zm4 8h14" /></svg>
+              </button>
             </div>
           </form>
           <div className={styles.panelFooter}>
-            {safeWhatsapp && (
+            {safeWhatsapp ? (
               <a className={styles.chatWhatsapp} href={whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => trackWhatsAppClick("assistant_footer")}>
-                <span aria-hidden="true">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.3-4.7A8.5 8.5 0 1 1 20.5 11.7Z" />
-                    <path d="M8.1 7.3c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.8 2c.1.3.1.5-.1.7l-.6.7c-.2.2-.1.4 0 .6.5 1 1.3 1.8 2.3 2.4.2.1.4.1.6-.1l.8-1c.2-.2.4-.3.7-.2l2 .9c.3.1.4.3.4.5 0 .4-.2 1.2-.7 1.7-.5.5-1.2.8-2 .8-1.1 0-2.6-.5-4.3-2-2-1.7-3.2-3.9-3.3-5.3 0-.7.2-1.3.5-1.7Z" />
-                  </svg>
+                <span className={styles.chatWhatsappIcon}><WhatsAppMark /></span>
+                <span className={styles.chatWhatsappText}>
+                  <strong>{copy.chatWhatsapp} {distributorName || copy.consultant}</strong>
+                  <small>{copy.whatsappFast}</small>
                 </span>
-                {copy.chatWhatsapp} {distributorName || copy.consultant}
+                <span className={styles.chatWhatsappArrow} aria-hidden="true">›</span>
               </a>
-            )}
-            <small className={styles.disclaimer}>{copy.disclaimer}</small>
+            ) : null}
+            <small className={styles.brandLine}>{copy.brandLine}</small>
           </div>
         </section>
       )}
