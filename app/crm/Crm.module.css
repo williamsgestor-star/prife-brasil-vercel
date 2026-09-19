@@ -405,7 +405,7 @@
   place-items: center;
   padding: 18px;
   background: rgba(0, 5, 22, 0.8);
-  backdrop-filter: blur(9px);
+  pointer-events: auto;
 }
 .coachPanel {
   width: min(760px, 100%);
@@ -679,8 +679,11 @@
 .generateButton:disabled,
 .clearMemoryButton:disabled,
 .transformButton:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: .55;
+}
+.generateButton[aria-busy="true"] {
+  cursor: progress;
 }
 .coachMemory {
   margin-top: 18px;
