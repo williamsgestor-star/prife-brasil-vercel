@@ -39,16 +39,24 @@ export async function POST(request: Request) {
     if (!context?.isAdmin) return NextResponse.json({ error: "Acesso administrativo necessário." }, { status: 403 });
     const body = await request.json();
     const validPlans = ["monthly", "semiannual", "annual"];
-    if (!body || typeof body.tenantId !== "string" || !["toggle", "payment"].includes(body.action) ||
+    const validCourtesyDays = [7, 15, 30];
+    if (!body || typeof body.tenantId !== "string" || !["toggle", "payment", "courtesy"].includes(body.action) ||
       (body.action === "toggle" && typeof body.enabled !== "boolean") ||
-      (body.action === "payment" && (!validPlans.includes(body.plan) || typeof body.requestId !== "string"))) {
+      (body.action === "payment" && (!validPlans.includes(body.plan) || typeof body.requestId !== "string")) ||
+      (body.action === "courtesy" && !validCourtesyDays.includes(body.days))) {
       return NextResponse.json({ error: "Confira os dados informados." }, { status: 400 });
     }
-    const rpcName = body.action === "toggle" ? "admin_set_tenant_site_enabled" : "admin_register_tenant_payment";
+    const rpcName = body.action === "toggle" ? "admin_set_tenant_site_enabled"
+      : body.action === "courtesy" ? "admin_extend_tenant_courtesy" : "admin_register_tenant_payment";
     const rpcArgs = body.action === "toggle"
       ? { p_tenant_id: body.tenantId, p_enabled: body.enabled }
-      : { p_tenant_id: body.tenantId, p_plan: body.plan, p_request_id: body.requestId };
+      : body.action === "courtesy"
+        ? { p_tenant_id: body.tenantId, p_days: body.days }
+        : { p_tenant_id: body.tenantId, p_plan: body.plan, p_request_id: body.requestId };
     const { data, error } = await context.supabase.rpc(rpcName, rpcArgs).abortSignal(AbortSignal.timeout(15000));
+    if (body.action === "courtesy" && error && (error.code === "PGRST202" || error.message?.includes("admin_extend_tenant_courtesy"))) {
+      return NextResponse.json({ error: "A cortesia ainda não foi instalada no banco. Rode o arquivo de cortesia no Supabase (SQL Editor) e tente de novo." }, { status: 501 });
+    }
     if (error?.message?.includes("payment_already_registered_today")) {
       return NextResponse.json({ error: "Já existe um pagamento registrado hoje para este subdomínio." }, { status: 409 });
     }

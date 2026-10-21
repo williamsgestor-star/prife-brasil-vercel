@@ -76,7 +76,7 @@ export default function SubscriptionPanel({ tenantId, slug, subscription, now, o
     } finally { setReferralsBusy(false); }
   }
 
-  async function act(action: "toggle" | "payment", plan?: PaymentPlan) {
+  async function act(action: "toggle" | "payment" | "courtesy", plan?: PaymentPlan, days?: number) {
     if (busy) return;
     if (action === "payment" && paidToday) {
       setMessage("Já existe um pagamento registrado hoje para este subdomínio.");
@@ -88,13 +88,15 @@ export default function SubscriptionPanel({ tenantId, slug, subscription, now, o
       const response = await fetch("/api/admin/subscriptions", {
         method: "POST", headers: { "Content-Type": "application/json" },
         signal: AbortSignal.timeout(20000),
-        body: JSON.stringify({ tenantId, action, enabled: subscription?.enabled === false, plan, requestId: crypto.randomUUID() }),
+        body: JSON.stringify({ tenantId, action, enabled: subscription?.enabled === false, plan, days, requestId: crypto.randomUUID() }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Falha ao salvar.");
       onChange(result.subscription);
       if (action === "payment") setRegisteredNow(true);
-      setMessage(action === "payment" ? `Pagamento ${selectedPlan?.title.toLowerCase()} registrado. Prazo renovado por ${selectedPlan?.message} e site reativado.` : "Controle do subdomínio atualizado.");
+      setMessage(action === "payment" ? `Pagamento ${selectedPlan?.title.toLowerCase()} registrado. Prazo renovado por ${selectedPlan?.message} e site reativado.`
+        : action === "courtesy" ? `Cortesia aplicada: prazo prorrogado por ${days} dias, sem registrar pagamento. Site reativado.`
+        : "Controle do subdomínio atualizado.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Falha ao salvar.");
       // Reconcile a response lost after commit; never repeat a payment blindly.
@@ -126,6 +128,11 @@ export default function SubscriptionPanel({ tenantId, slug, subscription, now, o
     <div className={styles.controls} aria-label="Registrar pagamento">
       {paymentPlans.map((plan) => <button key={plan.id} type="button" disabled={busy || paidToday} onClick={() => void act("payment", plan.id)}>
         <strong>{plan.title}</strong><span>{plan.price} · {plan.period}</span>
+      </button>)}
+    </div>
+    <div className={styles.controls} aria-label="Prorrogar sem cobrança">
+      {[7, 15, 30].map((days) => <button key={days} type="button" disabled={busy} onClick={() => void act("courtesy", undefined, days)}>
+        <strong>Cortesia +{days} dias</strong><span>Prorroga sem registrar pagamento</span>
       </button>)}
     </div>
     {paidToday && <p className={styles.locked}>Pagamento já registrado hoje. Os botões serão liberados novamente amanhã.</p>}
