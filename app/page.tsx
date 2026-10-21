@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { preloadModule } from "react-dom";
 import AppBootstrap from "./AppBootstrap";
 import BackgroundMusic from "./components/BackgroundMusic";
 import ITeraAssistant from "./components/ITeraAssistant";
@@ -66,6 +67,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
+  // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
+  preloadModule("/src/app.js?v=116", { as: "script" });
+  preloadModule("/src/content.js?v=103", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
     return (

@@ -130,7 +130,8 @@ export default function SubscriptionPanel({ tenantId, slug, subscription, now, o
         <strong>{plan.title}</strong><span>{plan.price} · {plan.period}</span>
       </button>)}
     </div>
-    <div className={styles.controls} aria-label="Prorrogar sem cobrança">
+    <p style={{ margin: "22px 0 10px", fontWeight: 700, fontSize: 14, opacity: 0.85 }}>Cortesia · prorrogar sem cobrança</p>
+    <div className={styles.controls} aria-label="Prorrogar sem cobrança" style={{ marginBottom: 20 }}>
       {[7, 15, 30].map((days) => <button key={days} type="button" disabled={busy} onClick={() => void act("courtesy", undefined, days)}>
         <strong>Cortesia +{days} dias</strong><span>Prorroga sem registrar pagamento</span>
       </button>)}
