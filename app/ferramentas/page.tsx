@@ -43,7 +43,6 @@ export default async function ToolsPage() {
         ))}
       </nav>
       <InstallHint />
-      <a className={styles.site} href="/">Ir para o site</a>
     </main>
   );
 }
