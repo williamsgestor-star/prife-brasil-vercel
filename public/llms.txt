@@ -1,32 +1,41 @@
 # Prife Brasil
 
-> Site público sobre tecnologias de bem-estar, produtos e oportunidade Prife, apresentado por Williams Costa Leite e por representantes autorizados em seus subdomínios.
+> Site de distribuidores independentes PRIFE no Brasil. Apresenta o iTeraCare e as demais tecnologias de bem-estar da Prife International, explica como funciona ser distribuidor independente e conecta o visitante, pelo WhatsApp, ao distribuidor responsável pelo site. O site principal é de Williams Costa Leite; cada subdomínio (nome.prife-brasil.com) pertence a um distribuidor diferente. Este não é o site oficial da Prife International.
 
-Canonical site: https://www.prife-brasil.com
-Languages: Portuguese (pt-BR), Spanish (es), English (en)
+Site principal: https://www.prife-brasil.com
+Idiomas: português (pt-BR), espanhol (es), inglês (en)
+Atendimento: Brasil, Paraguai e demais países onde a Prife atua, pelo WhatsApp exibido em cada site.
 
-## Main topics
+## Páginas públicas
 
-- Prife Brasil and Prife International
-- iTeraCare Classic Plus
-- Vitality Energy
-- Envy Sun and Envy Specs
-- iTera-Bio Lite
-- Renew Patch
-- MagnoSeek
-- iON Shield
-- Business opportunity, training and distributor support
+- [Início](https://www.prife-brasil.com/): visão geral da Prife, das tecnologias, da galeria e do contato.
+- [iTeraCare Classic Plus](https://www.prife-brasil.com/produto): modelos, características, cuidados de uso e condições atuais.
+- [Seja distribuidor](https://www.prife-brasil.com/oportunidade): como funciona a distribuição independente, requisitos, custos e regras, sem promessa de renda.
+- [Apresentação interativa](https://www.prife-brasil.com/apresentacao): o ecossistema Prife e as ferramentas do distribuidor.
+- [Política de Privacidade](https://www.prife-brasil.com/privacidade)
+- [Sitemap](https://www.prife-brasil.com/sitemap.xml)
 
-## Important safety statement
+## Tecnologias apresentadas
 
-The products and technologies are presented for informational and wellness purposes. They do not replace medical diagnosis, prescription, treatment or professional healthcare.
+- iTeraCare Classic e iTeraCare Classic Plus: aparelhos de terahertz para a rotina de bem-estar.
+- iTera-Bio Lite: tecnologia para relaxamento e bem-estar diário.
+- Vitality Energy: pulseiras de uso diário com geração de íons negativos.
+- Envy Sun e Envy Specs (Aurora): óculos com foco em conforto visual.
+- Renew Patch: patch não transdérmico.
+- MagnoSeek: tecnologia informativa e não invasiva de análise com IA.
+- iON Shield: ionizador de ar portátil.
 
-## Public pages
+## Perguntas frequentes
 
-- Home: https://www.prife-brasil.com/
-- Privacy policy: https://www.prife-brasil.com/privacidade
-- Sitemap: https://www.prife-brasil.com/sitemap.xml
+- Este é o site oficial da Prife? Não. É mantido por distribuidores independentes PRIFE.
+- Como comprar o iTeraCare no Brasil? Pelo WhatsApp do distribuidor do site, que explica modelos, condições atuais e o pedido.
+- Como ser distribuidor Prife? Veja a página /oportunidade e fale com o distribuidor do site.
+- Os produtos substituem tratamento médico? Não.
 
-## Contact
+## Aviso importante
 
-Use the WhatsApp and social links displayed on the current domain. Each subdomain may represent a different authorized contact.
+Os produtos e tecnologias são apresentados para fins informativos e de bem-estar. Não substituem diagnóstico, prescrição, tratamento ou acompanhamento de profissionais de saúde. Não há promessa de renda na oportunidade de negócio.
+
+## Contato
+
+Use o WhatsApp e as redes sociais exibidos no domínio atual. Cada subdomínio representa um distribuidor independente diferente.

@@ -1,31 +1,48 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.prife-brasil.com";
+import { requestPublicOrigin } from "./lib/public-origin";
 
-export default function robots(): MetadataRoute.Robots {
-  const privatePaths = [
-    "/api/",
-    "/admin/",
-    "/crm",
-    "/leads",
-    "/login",
-    "/painel",
-    "/ponto-vivo",
-    "/reuniao",
-    "/aguardando-aprovacao",
-    "/acesso-indisponivel",
-  ];
+export const dynamic = "force-dynamic";
+
+const publicPaths = ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade", "/llms.txt"];
+const privatePaths = [
+  "/api/",
+  "/admin/",
+  "/crm",
+  "/leads",
+  "/login",
+  "/painel",
+  "/ponto-vivo",
+  "/reuniao",
+  "/aguardando-aprovacao",
+  "/acesso-indisponivel",
+];
+
+// Robôs de busca e de assistentes de IA (ChatGPT, Claude, Perplexity, Gemini, Copilot) podem ler as páginas públicas.
+const searchAndAiBots = [
+  "Googlebot",
+  "Bingbot",
+  "Google-Extended",
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "GPTBot",
+  "Claude-SearchBot",
+  "Claude-User",
+  "ClaudeBot",
+  "PerplexityBot",
+  "Perplexity-User",
+  "Applebot",
+  "Applebot-Extended",
+];
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const origin = await requestPublicOrigin();
   return {
     rules: [
-      { userAgent: "*", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade", "/llms.txt"], disallow: privatePaths },
-      { userAgent: "Googlebot", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade"], disallow: privatePaths },
-      { userAgent: "Bingbot", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade"], disallow: privatePaths },
-      { userAgent: "OAI-SearchBot", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade", "/llms.txt"], disallow: privatePaths },
-      { userAgent: "ChatGPT-User", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade", "/llms.txt"], disallow: privatePaths },
-      { userAgent: "PerplexityBot", allow: ["/", "/produto", "/oportunidade", "/apresentacao", "/privacidade", "/llms.txt"], disallow: privatePaths },
-      { userAgent: "GPTBot", disallow: "/" },
+      { userAgent: "*", allow: publicPaths, disallow: privatePaths },
+      { userAgent: searchAndAiBots, allow: publicPaths, disallow: privatePaths },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    sitemap: `${origin}/sitemap.xml`,
+    host: origin,
   };
 }

@@ -100,9 +100,9 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
       {loginMode === "password" ? (
         <form onSubmit={signInWithPassword}>
           <label htmlFor="password-email">E-mail de acesso</label>
-          <input id="password-email" type="email" autoComplete="email" placeholder="voce@email.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          <input id="password-email" type="email" autoComplete="email" placeholder="voce@email.com" value={email} onChange={(event) => setEmail(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} required />
           <label htmlFor="login-password">Senha</label>
-          <input id="login-password" type="password" autoComplete="current-password" placeholder="Sua senha provisória" value={password} onChange={(event) => setPassword(event.target.value)} required />
+          <input id="login-password" type="password" autoComplete="current-password" placeholder="Sua senha provisória" value={password} onChange={(event) => setPassword(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} required />
           <button className={styles.primaryButton} disabled={loading} type="submit">
             {loading ? "Entrando…" : "Entrar na área exclusiva"}<span aria-hidden="true">→</span>
           </button>

@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=103";
+} from "./content.js?v=104";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -1045,7 +1045,7 @@ function render() {
     <footer>
       <div class="wrap footer-grid">
         <img src="/brand/prife-brasil-original.png" alt="Prife Brasil" />
-        <p>${escapeHtml(leaderRole)}<br />${escapeHtml(ownerName)}${publicEmail ? `<br />${contactLabels.email}: <a href="mailto:${escapeHtml(publicEmail)}">${escapeHtml(publicEmail)}</a>` : ""}${siteConfig.whatsappNumber ? `<br />WhatsApp: <a href="${whatsappUrl()}">${escapeHtml(siteConfig.whatsappDisplay)}</a>` : ""}</p>
+        <p>${escapeHtml(leaderRole)}<br />${escapeHtml(ownerName)}${t.footer.independent ? `<br /><span class="footer-independent">${t.footer.independent}</span>` : ""}${publicEmail ? `<br />${contactLabels.email}: <a href="mailto:${escapeHtml(publicEmail)}">${escapeHtml(publicEmail)}</a>` : ""}${siteConfig.whatsappNumber ? `<br />WhatsApp: <a href="${whatsappUrl()}">${escapeHtml(siteConfig.whatsappDisplay)}</a>` : ""}</p>
         <nav aria-label="Navegação do rodapé"><button type="button" data-scroll="sobre">${t.footer.company}</button><button type="button" data-scroll="produtos">${t.footer.products}</button><button type="button" data-scroll="galeria">${t.footer.gallery}</button><a href="/privacidade">${contactLabels.privacy}</a><a href="/leads" data-track="lead_finder_open">${t.nav.leads}</a>${googleReviewUrl ? `<a href="${escapeHtml(googleReviewUrl)}" target="_blank" rel="noopener noreferrer" data-track="google_review_open">${contactLabels.review}</a>` : ""}${siteConfig.instagramUrl ? `<a href="${siteConfig.instagramUrl}" target="_blank" rel="noopener noreferrer" data-track="social_click" data-track-network="instagram">${escapeHtml(siteConfig.instagramHandle)}</a>` : ""}</nav>
         <span class="footer-legal">${t.footer.rights.replace(/^©\s*\d{4}\s*•\s*/, "")}<i aria-hidden="true">•</i><a href="https://wa.me/595976945533" target="_blank" rel="noopener noreferrer" data-track="creative_credit_click">WR CREATIVE DIGITAL<sup>®</sup></a></span>
       </div>

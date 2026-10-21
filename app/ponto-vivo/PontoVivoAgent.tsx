@@ -191,7 +191,7 @@ function BodyModel({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={view}
-            src={view === "back" ? "/ponto-vivo/pontovivo-body-back.png" : "/ponto-vivo/pontovivo-body-front.png"}
+            src={view === "back" ? "/ponto-vivo/pontovivo-body-back.webp" : "/ponto-vivo/pontovivo-body-front.webp"}
             alt=""
             width={822}
             height={1913}
