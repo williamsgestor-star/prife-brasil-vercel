@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { preloadModule } from "react-dom";
 import AppBootstrap from "./AppBootstrap";
-import BackgroundMusic from "./components/BackgroundMusic";
 import ITeraAssistant from "./components/ITeraAssistant";
 import { getCurrentTenantSiteProfile, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
 
@@ -197,7 +196,6 @@ export default async function Home() {
         </div>
       </div>
       <AppBootstrap />
-      <BackgroundMusic />
       <ITeraAssistant whatsappNumber={whatsapp} distributorName={ownerFirstName} />
     </>
   );
