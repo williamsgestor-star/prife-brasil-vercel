@@ -39,6 +39,7 @@ export default function MeetingRoom({ userDisplayName, canViewRecordingPassword 
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [inviteShared, setInviteShared] = useState(false);
   const [showRecording, setShowRecording] = useState(false);
   const [recordingPassword, setRecordingPassword] = useState("");
   const [recordingPasswordLoading, setRecordingPasswordLoading] = useState(false);
@@ -109,6 +110,8 @@ export default function MeetingRoom({ userDisplayName, canViewRecordingPassword 
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2500);
+      // Dentro da sala: depois de copiar, o convite sai da frente do vídeo.
+      if (roomUrl) window.setTimeout(() => { setInviteUrl(""); setInviteShared(true); }, 1200);
     } catch {
       document.querySelector<HTMLInputElement>('[data-invite-link="true"]')?.select();
     }
@@ -139,10 +142,10 @@ export default function MeetingRoom({ userDisplayName, canViewRecordingPassword 
       {error && <div className={styles.alert} role="alert">{error}</div>}{inviteError && <div className={styles.alert} role="alert">{inviteError}</div>}{invitePanel}
     </section> : <section className={styles.room}>
       <div className={styles.timer} aria-live="polite"><span>{copy.remaining}</span><strong>{timerLabel}</strong></div>
-      <button className={styles.roomInviteButton} onClick={() => void createInvite()} disabled={inviteLoading}>
+      {!inviteShared && <button className={styles.roomInviteButton} onClick={() => void createInvite()} disabled={inviteLoading}>
         <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 19a6 6 0 0 0-12 0M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm9-4v6m-3-3h6" /></svg>
         <span>{inviteLoading ? copy.preparingInvite : copy.invite}</span>
-      </button>
+      </button>}
       {inviteError && <div className={styles.roomError} role="alert">{inviteError}</div>}{invitePanel}
       <iframe src={roomUrl} allow="camera; microphone; fullscreen; display-capture; autoplay" title={copy.live} />
     </section>}
