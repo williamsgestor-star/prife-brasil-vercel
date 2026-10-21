@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { requireAuthenticated } from "../lib/supabase/access";
+import { toolsAppMetadata } from "../lib/tools-app";
 import AccessRequestForm from "./AccessRequestForm";
 import styles from "./Pending.module.css";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Liberação de acesso", description: "Solicitação e acompanhamento de acesso ao espaço Prife Brasil.", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Liberação de acesso", description: "Solicitação e acompanhamento de acesso ao espaço Prife Brasil.", robots: { index: false, follow: false }, ...toolsAppMetadata };
 
 export default async function PendingPage() {
   const context = await requireAuthenticated("/aguardando-aprovacao");
   if (context.isAdmin) redirect("/admin/acessos");
-  if (context.profile?.approval_status === "approved" && context.profile.tenant_id) redirect("/leads");
+  if (context.profile?.approval_status === "approved" && context.profile.tenant_id) redirect("/ferramentas");
 
   const { data: request } = await context.supabase
     .from("access_requests")

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getAuthenticatedContext, safeNextPath } from "../lib/supabase/access";
+import { toolsAppMetadata } from "../lib/tools-app";
 import LoginForm from "./LoginForm";
 import styles from "./Login.module.css";
 
@@ -11,11 +12,12 @@ export const metadata: Metadata = {
   title: "Login Prife VIP",
   description: "Acesso seguro às ferramentas exclusivas da Prife Brasil.",
   robots: { index: false, follow: false },
+  ...toolsAppMetadata,
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const params = await searchParams;
-  const nextPath = safeNextPath(params.next);
+  const nextPath = safeNextPath(params.next, "/ferramentas");
   const current = await getAuthenticatedContext();
   if (current) redirect(nextPath);
 
