@@ -433,3 +433,20 @@
 .hero h1 em,
 .earningsSimulator,
 .earningsSimulator::before { animation-iteration-count: 2; }
+
+/* Calculadora de lucro da revenda */
+.resaleList { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 6px; max-height: 248px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(18, 223, 243, .35) transparent; }
+.resaleList li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid rgba(126, 186, 241, .14); border-radius: 12px; background: rgba(255, 255, 255, .025); }
+.resaleList li.resaleActive { border-color: rgba(18, 223, 243, .55); background: rgba(18, 223, 243, .08); }
+.resaleInfo { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.resaleInfo strong { color: #f3fbff; font-size: 12px; font-weight: 800; }
+.resaleInfo span { color: #8da6cb; font-size: 10px; }
+.resaleInfo em { color: #7affea; font-size: 10px; font-style: normal; font-weight: 750; }
+.resaleStepper { flex: none; display: flex; align-items: center; gap: 4px; }
+.resaleStepper button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; color: #eaffff; font: inherit; font-size: 16px; font-weight: 800; border: 1px solid rgba(18, 223, 243, .45); border-radius: 9px; background: rgba(18, 223, 243, .12); cursor: pointer; }
+.resaleStepper button:hover:not(:disabled) { background: rgba(18, 223, 243, .25); }
+.resaleStepper button:disabled { opacity: .35; cursor: default; }
+.resaleStepper button:focus-visible { outline: 2px solid #7affea; outline-offset: 2px; }
+.resaleStepper output { min-width: 22px; text-align: center; color: #fff; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.simulatorMainResult > small { font-size: 10px; }
+.simulatorDisclaimer { font-size: 9px !important; }

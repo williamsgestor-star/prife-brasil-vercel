@@ -71,65 +71,45 @@ const countryLabels: Record<SiteLanguage, Record<(typeof countries)[number], str
   en: { br: "Brazil", py: "Paraguay", ar: "Argentina", uy: "Uruguay", bo: "Bolivia" },
 };
 
+// Calculadora de lucro da revenda: custo do distribuidor (em US$) x preço de venda (em R$).
+const resaleProducts: { id: string; name: string; costUsd: number; price: number }[] = [
+  { id: "classic", name: "iTeraCare Classic", costUsd: 450, price: 3500 },
+  { id: "classic-plus", name: "iTeraCare Classic Plus", costUsd: 550, price: 4500 },
+  { id: "bio-lite", name: "Bio-lite", costUsd: 1500, price: 12500 },
+  { id: "pulseira", name: "Pulseira", costUsd: 150, price: 899 },
+  { id: "envy", name: "Óculos Envy", costUsd: 95, price: 749 },
+  { id: "aurora", name: "Óculos de Sol Aurora", costUsd: 130, price: 899 },
+  { id: "ion-shield", name: "Ion Shield", costUsd: 400, price: 2900 },
+  { id: "magnoseek", name: "Magnoseek", costUsd: 5800, price: 41500 },
+  { id: "renew-patch", name: "Renew Patch (caixa)", costUsd: 65, price: 460 },
+];
+
 const simulatorCopy: Record<SiteLanguage, {
-  eyebrow: string;
-  title: string;
-  averageSale: string;
-  commission: string;
-  salesPerMonth: string;
-  monthlyCommission: string;
-  monthlyVolume: string;
-  projectionMonths: string;
-  projection: string;
-  month: string;
-  months: string;
-  disclaimer: string;
-  currencyNote: string;
+  eyebrow: string; title: string; subtitle: string; dollar: string; projectionMonths: string;
+  cost: string; sale: string; profit: string; perUnit: string; monthlyProfit: string; revenue: string;
+  totalCost: string; margin: string; projection: string; month: string; months: string; units: string;
+  disclaimer: string; decrease: string; increase: string;
 }> = {
   pt: {
-    eyebrow: "SIMULAÇÃO PERSONALIZADA",
-    title: "Calcule sua projeção de ganhos",
-    averageSale: "Valor médio por venda (R$)",
-    commission: "Comissão",
-    salesPerMonth: "Vendas por mês",
-    monthlyCommission: "Comissão mensal estimada",
-    monthlyVolume: "Volume mensal de vendas",
-    projectionMonths: "Meses da projeção",
-    projection: "Projeção",
-    month: "mês",
-    months: "meses",
-    disclaimer: "Simulação ilustrativa. Os resultados dependem das regras comerciais aplicáveis.",
-    currencyNote: "Valores em Real brasileiro (BRL)",
+    eyebrow: "SIMULAÇÃO PERSONALIZADA", title: "Calcule seu lucro com a revenda", subtitle: "Custo do distribuidor × preço de venda",
+    dollar: "Cotação do dólar", projectionMonths: "Meses da projeção", cost: "custo", sale: "venda", profit: "lucro", perUnit: "por unidade",
+    monthlyProfit: "Lucro mensal estimado", revenue: "Faturamento", totalCost: "Custo", margin: "Margem", projection: "Lucro projetado",
+    month: "mês", months: "meses", units: "un.", decrease: "Diminuir", increase: "Aumentar",
+    disclaimer: "Simulação ilustrativa da revenda. Custos em US$ convertidos pela cotação informada; bônus da rede, frete e impostos não incluídos.",
   },
   es: {
-    eyebrow: "SIMULACIÓN PERSONALIZADA",
-    title: "Calcula tu proyección de ganancias",
-    averageSale: "Valor medio por venta (R$)",
-    commission: "Comisión",
-    salesPerMonth: "Ventas por mes",
-    monthlyCommission: "Comisión mensual estimada",
-    monthlyVolume: "Volumen mensual de ventas",
-    projectionMonths: "Meses de proyección",
-    projection: "Proyección",
-    month: "mes",
-    months: "meses",
-    disclaimer: "Simulación ilustrativa. Los resultados dependen de las reglas comerciales aplicables.",
-    currencyNote: "Valores en real brasileño (BRL)",
+    eyebrow: "SIMULACIÓN PERSONALIZADA", title: "Calcula tu ganancia con la reventa", subtitle: "Costo del distribuidor × precio de venta",
+    dollar: "Cotización del dólar", projectionMonths: "Meses de proyección", cost: "costo", sale: "venta", profit: "ganancia", perUnit: "por unidad",
+    monthlyProfit: "Ganancia mensual estimada", revenue: "Facturación", totalCost: "Costo", margin: "Margen", projection: "Ganancia proyectada",
+    month: "mes", months: "meses", units: "un.", decrease: "Disminuir", increase: "Aumentar",
+    disclaimer: "Simulación ilustrativa de la reventa. Costos en US$ convertidos por la cotización informada; bonos de la red, envío e impuestos no incluidos.",
   },
   en: {
-    eyebrow: "PERSONALIZED SIMULATION",
-    title: "Calculate your earnings projection",
-    averageSale: "Average sale value (R$)",
-    commission: "Commission",
-    salesPerMonth: "Sales per month",
-    monthlyCommission: "Estimated monthly commission",
-    monthlyVolume: "Monthly sales volume",
-    projectionMonths: "Projection months",
-    projection: "Projection",
-    month: "month",
-    months: "months",
-    disclaimer: "Illustrative simulation. Results depend on the applicable commercial rules.",
-    currencyNote: "Values in Brazilian real (BRL)",
+    eyebrow: "PERSONALIZED SIMULATION", title: "Calculate your resale profit", subtitle: "Distributor cost × sale price",
+    dollar: "Dollar rate", projectionMonths: "Projection months", cost: "cost", sale: "sale", profit: "profit", perUnit: "per unit",
+    monthlyProfit: "Estimated monthly profit", revenue: "Revenue", totalCost: "Cost", margin: "Margin", projection: "Projected profit",
+    month: "month", months: "months", units: "units", decrease: "Decrease", increase: "Increase",
+    disclaimer: "Illustrative resale simulation. US$ costs converted at the rate entered; network bonuses, shipping and taxes not included.",
   },
 };
 
@@ -313,9 +293,6 @@ function sanitizeDecimalInput(value: string) {
     : normalizedInteger;
 }
 
-function sanitizeIntegerInput(value: string) {
-  return value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-}
 
 function inputNumber(value: string) {
   const parsed = Number(value);
@@ -338,9 +315,8 @@ export default function LeadFinder({
   const [region, setRegion] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [country, setCountry] = useState("br");
-  const [averageSaleInput, setAverageSaleInput] = useState("2475");
-  const [commissionPercentInput, setCommissionPercentInput] = useState("30");
-  const [monthlySalesInput, setMonthlySalesInput] = useState("1");
+  const [dollarRateInput, setDollarRateInput] = useState("5.50");
+  const [quantities, setQuantities] = useState<Record<string, number>>({ "classic-plus": 1 });
   const [projectionMonths, setProjectionMonths] = useState(6);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -396,20 +372,27 @@ export default function LeadFinder({
     ? Math.min(100, Math.round((quota.used / Math.max(1, quota.monthly_limit)) * 100))
     : 0;
   const simulation = useMemo(() => {
-    const averageSale = inputNumber(averageSaleInput);
-    const commissionPercent = inputNumber(commissionPercentInput);
-    const monthlySales = inputNumber(monthlySalesInput);
-    const saleValue = Math.max(0, averageSale);
-    const commissionRate = Math.max(0, commissionPercent) / 100;
-    const salesCount = Math.max(0, monthlySales);
-    const monthlyVolume = saleValue * salesCount;
-    const monthlyCommission = monthlyVolume * commissionRate;
+    const rate = Math.max(0, inputNumber(dollarRateInput));
+    const rows = resaleProducts.map((product) => {
+      const cost = product.costUsd * rate;
+      const quantity = quantities[product.id] ?? 0;
+      return { ...product, cost, unitProfit: product.price - cost, quantity };
+    });
+    const revenue = rows.reduce((total, row) => total + row.price * row.quantity, 0);
+    const totalCost = rows.reduce((total, row) => total + row.cost * row.quantity, 0);
+    const monthlyProfit = revenue - totalCost;
     return {
-      monthlyVolume,
-      monthlyCommission,
-      selectedProjection: monthlyCommission * projectionMonths,
+      rows,
+      revenue,
+      totalCost,
+      monthlyProfit,
+      margin: revenue > 0 ? (monthlyProfit / revenue) * 100 : 0,
+      units: rows.reduce((total, row) => total + row.quantity, 0),
+      selectedProjection: monthlyProfit * projectionMonths,
     };
-  }, [averageSaleInput, commissionPercentInput, monthlySalesInput, projectionMonths]);
+  }, [dollarRateInput, quantities, projectionMonths]);
+  const changeQuantity = (id: string, delta: number) =>
+    setQuantities((current) => ({ ...current, [id]: Math.min(99, Math.max(0, (current[id] ?? 0) + delta)) }));
   const simulationText = simulatorCopy[language];
 
   const stats = useMemo(() => {
@@ -605,20 +588,12 @@ export default function LeadFinder({
           <div className={styles.simulatorHeading}>
             <small className={styles.simulatorSpotlight}><span aria-hidden="true">✦</span>{simulationText.eyebrow}</small>
             <h2>{simulationText.title}</h2>
-            <span><strong>{simulationText.currencyNote}</strong></span>
+            <span><strong>{simulationText.subtitle}</strong></span>
           </div>
-          <div className={styles.simulatorInputs}>
+          <div className={styles.simulatorInputs} style={{ gridTemplateColumns: "1fr 1fr" }}>
             <label>
-              <span>{simulationText.averageSale}</span>
-              <span className={styles.simulatorInput}><b>R$</b><input type="text" inputMode="decimal" value={averageSaleInput} onChange={(event) => setAverageSaleInput(sanitizeDecimalInput(event.target.value))} /></span>
-            </label>
-            <label>
-              <span>{simulationText.commission}</span>
-              <span className={styles.simulatorInput}><input type="text" inputMode="decimal" value={commissionPercentInput} onChange={(event) => setCommissionPercentInput(sanitizeDecimalInput(event.target.value))} /><b>%</b></span>
-            </label>
-            <label>
-              <span>{simulationText.salesPerMonth}</span>
-              <span className={styles.simulatorInput}><input type="text" inputMode="numeric" value={monthlySalesInput} onChange={(event) => setMonthlySalesInput(sanitizeIntegerInput(event.target.value))} /></span>
+              <span>{simulationText.dollar}</span>
+              <span className={styles.simulatorInput}><b>R$</b><input type="text" inputMode="decimal" value={dollarRateInput} onChange={(event) => setDollarRateInput(sanitizeDecimalInput(event.target.value))} aria-label={simulationText.dollar} /></span>
             </label>
             <label>
               <span>{simulationText.projectionMonths}</span>
@@ -627,10 +602,26 @@ export default function LeadFinder({
               </select>
             </label>
           </div>
+          <ul className={styles.resaleList}>
+            {simulation.rows.map((row) => (
+              <li key={row.id} className={row.quantity > 0 ? styles.resaleActive : undefined}>
+                <div className={styles.resaleInfo}>
+                  <strong>{row.name}</strong>
+                  <span>{simulationText.cost} {brlFormatter.format(row.cost)} · {simulationText.sale} {brlFormatter.format(row.price)}</span>
+                  <em>{simulationText.profit} {brlFormatter.format(row.unitProfit)} {simulationText.perUnit}</em>
+                </div>
+                <div className={styles.resaleStepper}>
+                  <button type="button" onClick={() => changeQuantity(row.id, -1)} disabled={row.quantity === 0} aria-label={`${simulationText.decrease} ${row.name}`}>−</button>
+                  <output aria-live="polite">{row.quantity}</output>
+                  <button type="button" onClick={() => changeQuantity(row.id, 1)} aria-label={`${simulationText.increase} ${row.name}`}>+</button>
+                </div>
+              </li>
+            ))}
+          </ul>
           <div className={styles.simulatorMainResult}>
-            <span>{simulationText.monthlyCommission}</span>
-            <strong>{brlFormatter.format(simulation.monthlyCommission)}</strong>
-            <small>{simulationText.monthlyVolume}: {brlFormatter.format(simulation.monthlyVolume)}</small>
+            <span>{simulationText.monthlyProfit} · {simulation.units} {simulationText.units}</span>
+            <strong>{brlFormatter.format(simulation.monthlyProfit)}</strong>
+            <small>{simulationText.revenue} {brlFormatter.format(simulation.revenue)} · {simulationText.totalCost} {brlFormatter.format(simulation.totalCost)} · {simulationText.margin} {simulation.margin.toFixed(0)}%</small>
           </div>
           <div className={styles.simulatorProjections}>
             <div><span>{simulationText.projection} · {projectionMonths} {projectionMonths === 1 ? simulationText.month : simulationText.months}</span><strong>{brlFormatter.format(simulation.selectedProjection)}</strong></div>
