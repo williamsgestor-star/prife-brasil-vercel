@@ -4233,3 +4233,6 @@ body[data-site-scope="primary"] .williams-copy blockquote {
     animation:none !important;
   }
 }
+
+/* v116: a animação do celular fica dentro de <picture> para não ser baixada no computador */
+.hero-video-shell > picture { display: contents; }

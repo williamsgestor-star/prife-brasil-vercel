@@ -422,3 +422,14 @@
   .footerData { padding-top: 14px; }
   .footerBack { width: 100%; }
 }
+
+/* Desempenho (v116): o fundo quadriculado ficava em movimento sem parar e os brilhos redesenhavam
+   a tela inteira a cada quadro, travando a rolagem. Agora o fundo fica parado e os brilhos tocam
+   só na abertura. Animações leves (radar girando, pontos flutuando) continuam. */
+.backdrop { contain: strict; transform: translateZ(0); }
+.backdrop::after { animation: none; }
+.hero::after,
+.eyebrow::before,
+.hero h1 em,
+.earningsSimulator,
+.earningsSimulator::before { animation-iteration-count: 2; }

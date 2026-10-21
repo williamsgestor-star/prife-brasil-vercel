@@ -19,7 +19,16 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // Mídia pública: guardada por 7 dias no navegador e na Vercel (os arquivos novos ganham nome novo, ex.: -v97).
+    const mediaCache = { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=2592000" };
+    // Scripts e estilos do site: 1 hora, atualizando em segundo plano.
+    const appCache = { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" };
+    const mediaDirs = ["videos", "travel", "fonts", "brand", "products", "gallery", "assistant", "ponto-vivo", "pdfs"];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      ...mediaDirs.map((dir) => ({ source: `/${dir}/:path*`, headers: [mediaCache] })),
+      { source: "/src/:path*", headers: [appCache] },
+    ];
   },
 };
 

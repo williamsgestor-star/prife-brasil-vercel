@@ -9,6 +9,7 @@ import {
 
 import { useSiteLanguage, type SiteLanguage } from "../lib/site-language";
 import styles from "./LeadFinder.module.css";
+import { REGIONS } from "./geo-data";
 
 type Lead = {
   sourceId: string;
@@ -351,6 +352,43 @@ export default function LeadFinder({
   const [historyLeads, setHistoryLeads] = useState<Lead[]>([]);
   const [viewingHistory, setViewingHistory] = useState(false);
   const locationCopy = locationLabels[language][country] ?? locationLabels[language].br;
+  // Listas automáticas: cidades do estado/departamento escolhido e bairros da cidade.
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [neighborhoodOptions, setNeighborhoodOptions] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(false);
+  const loadingListLabel = language === "es" ? "Cargando lista…" : language === "en" ? "Loading list…" : "Carregando lista…";
+  const chooseLabel = language === "es" ? "Elegir" : language === "en" ? "Choose" : "Escolher";
+
+  useEffect(() => {
+    setCityOptions([]);
+    if (!region) return;
+    const controller = new AbortController();
+    setLoadingCities(true);
+    fetch(`/api/geo?type=cities&country=${country}&region=${encodeURIComponent(region)}`, { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : { items: [] }))
+      .then((data: { items?: string[] }) => setCityOptions(data.items ?? []))
+      .catch(() => {})
+      .finally(() => { if (!controller.signal.aborted) setLoadingCities(false); });
+    return () => controller.abort();
+  }, [country, region]);
+
+  useEffect(() => {
+    setNeighborhoodOptions([]);
+    const typedCity = city.trim();
+    if (!region || typedCity.length < 3) return;
+    if (cityOptions.length && !cityOptions.some((option) => option.localeCompare(typedCity, "pt-BR", { sensitivity: "base" }) === 0)) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setLoadingNeighborhoods(true);
+      fetch(`/api/geo?type=neighborhoods&country=${country}&region=${encodeURIComponent(region)}&city=${encodeURIComponent(typedCity)}`, { signal: controller.signal })
+        .then((response) => (response.ok ? response.json() : { items: [] }))
+        .then((data: { items?: string[] }) => setNeighborhoodOptions(data.items ?? []))
+        .catch(() => {})
+        .finally(() => { if (!controller.signal.aborted) setLoadingNeighborhoods(false); });
+    }, 600);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [country, region, city, cityOptions]);
   const quotaUnlimited = quota?.monthly_limit === null;
   const unlimitedLabel = language === "pt" ? "Ilimitado" : language === "es" ? "Sin límite" : "Unlimited";
   const quotaExhausted = quota && !quotaUnlimited ? (quota.remaining ?? 0) <= 0 : false;
@@ -632,6 +670,7 @@ export default function LeadFinder({
                 onChange={(event) => {
                   setCountry(event.target.value);
                   setRegion("");
+                  setCity("");
                   setNeighborhood("");
                 }}
               >
@@ -642,13 +681,17 @@ export default function LeadFinder({
             </label>
             <label>
               <span>{locationCopy.region}</span>
-              <input
+              <select
                 value={region}
-                onChange={(event) => setRegion(event.target.value)}
-                placeholder={locationCopy.regionPlaceholder}
-                maxLength={70}
-                autoComplete="address-level1"
-              />
+                onChange={(event) => {
+                  setRegion(event.target.value);
+                  setCity("");
+                  setNeighborhood("");
+                }}
+              >
+                <option value="">{chooseLabel} · {locationCopy.regionPlaceholder}</option>
+                {(REGIONS[country] ?? []).map((name) => <option key={name} value={name}>{name}</option>)}
+              </select>
             </label>
           </div>
 
@@ -657,23 +700,31 @@ export default function LeadFinder({
               <span>{copy.city} <small>{copy.required}</small></span>
               <input
                 value={city}
-                onChange={(event) => setCity(event.target.value)}
-                placeholder={locationCopy.cityPlaceholder}
+                onChange={(event) => { setCity(event.target.value); setNeighborhood(""); }}
+                placeholder={loadingCities ? loadingListLabel : locationCopy.cityPlaceholder}
                 minLength={2}
                 maxLength={70}
                 required
-                autoComplete="address-level2"
+                autoComplete="off"
+                list="cidades-sugeridas"
               />
+              <datalist id="cidades-sugeridas">
+                {cityOptions.map((name) => <option key={name} value={name} />)}
+              </datalist>
             </label>
             <label>
               <span>{locationCopy.neighborhood}</span>
               <input
                 value={neighborhood}
                 onChange={(event) => setNeighborhood(event.target.value)}
-                placeholder={locationCopy.neighborhoodPlaceholder}
+                placeholder={loadingNeighborhoods ? loadingListLabel : locationCopy.neighborhoodPlaceholder}
                 maxLength={70}
-                autoComplete="address-level3"
+                autoComplete="off"
+                list="bairros-sugeridos"
               />
+              <datalist id="bairros-sugeridos">
+                {neighborhoodOptions.map((name) => <option key={name} value={name} />)}
+              </datalist>
             </label>
           </div>
 
