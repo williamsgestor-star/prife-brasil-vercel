@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import AppHomeButton from "../components/AppHomeButton";
 import { requireApprovedAccess } from "../lib/supabase/access";
 import { toolsAppMetadata } from "../lib/tools-app";
 import PontoVivoAgent from "./PontoVivoAgent";
@@ -18,7 +17,6 @@ export default async function PontoVivoPage() {
 
   return (
     <>
-    <AppHomeButton />
     <PontoVivoAgent
       userDisplayName={user.displayName}
       signOutUrl="/auth/signout"

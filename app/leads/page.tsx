@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import AppHomeButton from "../components/AppHomeButton";
 import { requireApprovedAccess } from "../lib/supabase/access";
 import { toolsAppMetadata } from "../lib/tools-app";
 import LeadFinder, { type QuotaStatus } from "./LeadFinder";
@@ -22,7 +21,6 @@ export default async function LeadsPage() {
 
   return (
     <>
-    <AppHomeButton />
     <LeadFinder
       userDisplayName={user.displayName}
       signOutUrl="/auth/signout"

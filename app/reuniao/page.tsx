@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import AppHomeButton from "../components/AppHomeButton";
 import { requireApprovedAccess } from "../lib/supabase/access";
 import { toolsAppMetadata } from "../lib/tools-app";
 import MeetingRoom from "./MeetingRoom";
@@ -10,5 +9,5 @@ export const metadata: Metadata = { title: "Sala ao vivo", description: "Sala pr
 
 export default async function MeetingPage() {
   const user = await requireApprovedAccess("prospector", "/reuniao");
-  return <><AppHomeButton /><MeetingRoom userDisplayName={user.displayName} canViewRecordingPassword={user.isAdmin} /></>;
+  return <><MeetingRoom userDisplayName={user.displayName} canViewRecordingPassword={user.isAdmin} /></>;
 }
