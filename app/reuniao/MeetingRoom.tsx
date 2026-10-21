@@ -126,7 +126,7 @@ export default function MeetingRoom({ userDisplayName, canViewRecordingPassword 
   ) : null;
 
   return <main className={styles.page}>
-    <header><a href="/"><img src="/brand/prife-brasil-original.png" alt="Prife Brasil" /></a><nav><Link href="/leads">Prospector</Link><Link href="/crm">CRM</Link><Link href="/ponto-vivo">PontoVivo</Link><a href="/auth/signout">{copy.signout}</a></nav></header>
+    <header><a href="/ferramentas"><img src="/brand/prife-brasil-original.png" alt="Prife Brasil" /></a><nav><Link href="/leads">Prospector</Link><Link href="/crm">CRM</Link><Link href="/ponto-vivo">PontoVivo</Link><a href="/auth/signout">{copy.signout}</a></nav></header>
     {!roomUrl ? <section className={styles.welcome}>
       <small>ÁREA EXCLUSIVA • {userDisplayName}</small><h1>{copy.live.split(" ")[0]} <em>{copy.live.split(" ").slice(1).join(" ")}</em></h1><p>{copy.description}</p>
       <div className={styles.actions}><button onClick={() => void enter()} disabled={loading}>{loading ? copy.loading : copy.enter}</button><button className={styles.secondaryButton} onClick={() => void createInvite()} disabled={inviteLoading}>{inviteLoading ? copy.preparingInvite : copy.invite}</button><button className={styles.secondaryButton} onClick={() => setShowRecording((current) => !current)}>{copy.recording}</button></div>

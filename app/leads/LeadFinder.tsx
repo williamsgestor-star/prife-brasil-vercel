@@ -151,7 +151,7 @@ const locationLabels: Record<SiteLanguage, Record<string, {
 
 const leadCopy = {
   pt: {
-    back: "Voltar ao site Prife Brasil", area: "Área autenticada", signOut: "Sair",
+    back: "Voltar às ferramentas", area: "Área autenticada", signOut: "Sair",
     eyebrow: "CAPTAÇÃO DE LEADS LOCAIS", titleBefore: "Encontre empresas e fale pelo", titleHighlight: "WhatsApp.",
     description: "Informe a cidade e, se desejar, um segmento para encontrar negócios com telefone público e iniciar sua prospecção.",
     steps: ["Escolha o segmento (opcional)", "Informe a região", "Ligue ou abra o WhatsApp"],
@@ -169,7 +169,7 @@ const leadCopy = {
     csv: ["Nome", "Nicho", "Telefone", "WhatsApp", "Site", "Endereço", "Fonte", "Link da fonte"],
   },
   es: {
-    back: "Volver al sitio Prife Brasil", area: "Área autenticada", signOut: "Salir",
+    back: "Volver a las herramientas", area: "Área autenticada", signOut: "Salir",
     eyebrow: "CAPTACIÓN DE LEADS LOCALES", titleBefore: "Encuentra empresas y habla por", titleHighlight: "WhatsApp.",
     description: "Indica la ciudad y, si deseas, un segmento para encontrar negocios con teléfono público e iniciar tu prospección.",
     steps: ["Elige el segmento (opcional)", "Indica la región", "Llama o abre WhatsApp"],
@@ -187,7 +187,7 @@ const leadCopy = {
     csv: ["Nombre", "Segmento", "Teléfono", "WhatsApp", "Sitio", "Dirección", "Fuente", "Enlace de la fuente"],
   },
   en: {
-    back: "Back to Prife Brasil website", area: "Authenticated area", signOut: "Sign out",
+    back: "Back to tools", area: "Authenticated area", signOut: "Sign out",
     eyebrow: "LOCAL LEAD PROSPECTING", titleBefore: "Find businesses and connect on", titleHighlight: "WhatsApp.",
     description: "Enter a city and, if desired, a segment to find businesses with public phone numbers and start prospecting.",
     steps: ["Choose a segment (optional)", "Enter the region", "Call or open WhatsApp"],
@@ -550,7 +550,7 @@ export default function LeadFinder({
       <header className={styles.header}>
         {/* Navegação nativa intencional: reinicia a página institucional sem estado residual. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a className={styles.brand} href="/" aria-label={copy.back}>
+        <a className={styles.brand} href="/ferramentas" aria-label={copy.back}>
           <img src="/brand/prife-brasil-original.png" alt="Prife Brasil" />
         </a>
         <div className={styles.account}>

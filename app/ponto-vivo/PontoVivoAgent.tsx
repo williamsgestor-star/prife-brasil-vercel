@@ -300,7 +300,7 @@ export default function PontoVivoAgent({
       <header className={styles.header}>
         {/* Navegação nativa intencional: força uma página limpa ao sair desta ferramenta. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/" className={styles.brand} aria-label="Voltar ao site Prife Brasil">
+        <a href="/ferramentas" className={styles.brand} aria-label="Voltar às ferramentas">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/prife-brasil-original.png" alt="Prife Brasil" width="180" height="68" />
         </a>
@@ -308,7 +308,7 @@ export default function PontoVivoAgent({
           <a href="/crm" className={styles.backLink}>CRM</a>
           <a href="/reuniao" className={styles.backLink}>Sala ao vivo</a>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a href="/" className={styles.backLink}>Voltar ao site <ArrowIcon /></a>
+          <a href="/ferramentas" className={styles.backLink}>Ferramentas <ArrowIcon /></a>
           <div className={styles.account}>
             <span>Área exclusiva</span>
             <strong title={userDisplayName}>{userDisplayName}</strong>
