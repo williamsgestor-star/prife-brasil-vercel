@@ -86,3 +86,8 @@ body {
   .seo-hero > img { max-height: 420px; justify-self: center; }
   .seo-products { grid-template-columns: 1fr; }
 }
+
+/* App instalado no celular: o conteúdo começa abaixo da barra do relógio/bateria. */
+@media (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top); }
+}

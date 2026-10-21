@@ -1,6 +1,6 @@
 .page {
-  min-height: 100dvh;
-  padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  min-height: calc(100dvh - env(safe-area-inset-top));
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom));
   background: radial-gradient(120% 70% at 50% 0%, #0b2a52 0%, #01061b 60%);
   color: #eefbff;
   font-family: var(--font-manrope, system-ui, sans-serif);
