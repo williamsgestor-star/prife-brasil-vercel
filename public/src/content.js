@@ -74,15 +74,15 @@ export const products = [
 ];
 
 export const galleryImages = [
-  "gallery/lancamento-grupo.jpg",
-  "gallery/palco-prife.jpeg",
-  "gallery/corte-fita.jpeg",
-  "gallery/reconhecimento.jpeg",
+  "gallery/lancamento-grupo.webp",
+  "gallery/palco-prife.webp",
+  "gallery/corte-fita.webp",
+  "gallery/reconhecimento.webp",
   "gallery/comunidade-prife.webp",
   "gallery/lancamento-celebracao.webp",
-  "gallery/malasia-aniversario-01.jpeg",
-  "gallery/malasia-aniversario-02.jpeg",
-  "gallery/malasia-aniversario-03.jpeg",
+  "gallery/malasia-aniversario-01.webp",
+  "gallery/malasia-aniversario-02.webp",
+  "gallery/malasia-aniversario-03.webp",
 ];
 
 export const videos = [
@@ -276,6 +276,7 @@ export const copy = {
       products: "Produtos",
       gallery: "Galeria",
       rights: "© 2026 • Todos os direitos reservados",
+      independent: "Distribuidor independente PRIFE · site não oficial da Prife International",
       talk: "FALAR COM",
     },
     whatsappMessage: "Olá, Williams! Gostaria de conhecer mais sobre a apresentação da Prife.",
@@ -424,7 +425,7 @@ export const copy = {
       human: "Comienzas por WhatsApp y recibes atención personal de Williams.",
       disclaimer: "*Información institucional según los materiales proporcionados. Los resultados individuales pueden variar.",
     },
-    footer: { leader: "Líder de Expansión", company: "Empresa", products: "Productos", gallery: "Galería", rights: "© 2026 • Todos los derechos reservados", talk: "HABLAR CON" },
+    footer: { leader: "Líder de Expansión", company: "Empresa", products: "Productos", gallery: "Galería", rights: "© 2026 • Todos los derechos reservados", independent: "Distribuidor independiente PRIFE · sitio no oficial de Prife International", talk: "HABLAR CON" },
     whatsappMessage: "¡Hola, Williams! Me gustaría conocer más sobre la presentación de Prife.",
   },
 
@@ -561,7 +562,7 @@ export const copy = {
       human: "Start on WhatsApp and receive personal assistance from Williams.",
       disclaimer: "*Institutional and international reach information is based on supplied materials. Individual results may vary.",
     },
-    footer: { leader: "Expansion Leader", company: "Company", products: "Products", gallery: "Gallery", rights: "© 2026 • All rights reserved", talk: "TALK TO" },
+    footer: { leader: "Expansion Leader", company: "Company", products: "Products", gallery: "Gallery", rights: "© 2026 • All rights reserved", independent: "Independent PRIFE distributor · not the official Prife International website", talk: "TALK TO" },
     whatsappMessage: "Hello, Williams! I would like to learn more about the Prife presentation.",
   },
 };

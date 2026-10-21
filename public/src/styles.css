@@ -736,6 +736,7 @@ footer { background: rgb(2, 4, 20); border-top: 1px solid rgba(255, 255, 255, 0.
 .footer-grid > img { filter: none; width: 130px; }
 .footer-grid > p { color: rgb(115, 129, 154); margin: 0px; font-size: 10px; line-height: 1.6; }
 .footer-grid > p a { color: rgb(117, 223, 233); text-decoration: none; }
+.footer-grid > p .footer-independent { color: rgb(140, 153, 175); letter-spacing: .02em; }
 .footer-grid nav { gap: 25px; display: flex; }
 .footer-grid nav button, .footer-grid nav a { color: rgb(140, 153, 175); cursor: pointer; background: 0px 0px; border: 0px; font-size: 10px; text-decoration: none; }
 .footer-grid nav a { color: rgb(117, 223, 233); }

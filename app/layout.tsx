@@ -8,11 +8,11 @@ const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.tri
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Prife Brasil | Tecnologia, bem-estar e oportunidade",
+    default: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
     template: "%s | Prife Brasil",
   },
   description:
-    "Conheça a Prife Brasil, suas tecnologias de bem-estar, presença internacional e possibilidades apresentadas por Williams Costa Leite.",
+    "Williams Costa Leite, distribuidor independente PRIFE no Brasil: conheça o iTeraCare e as tecnologias de bem-estar Prife e fale direto pelo WhatsApp.",
   applicationName: "Prife Brasil",
   authors: [{ name: "Williams Costa Leite" }],
   creator: "Williams Costa Leite",
@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     "Envy Specs",
     "MagnoSeek",
     "iON Shield",
+    "distribuidor independente Prife",
+    "como ser distribuidor Prife",
+    "iTeraCare preço",
     "empreendedorismo",
   ],
   alternates: {
@@ -41,23 +44,23 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: "/",
     siteName: "Prife Brasil",
-    title: "Prife Brasil | Tecnologia, bem-estar e oportunidade",
+    title: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
     description:
-      "Tecnologias de bem-estar, presença internacional e uma conexão direta com Williams Costa Leite.",
+      "Conheça o iTeraCare e as tecnologias de bem-estar Prife com Williams Costa Leite, distribuidor independente PRIFE.",
     images: [
       {
         url: "/og-prife-brasil.webp",
         width: 1200,
         height: 630,
-        alt: "Prife Brasil — tecnologia, bem-estar e oportunidade",
+        alt: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prife Brasil | Tecnologia, bem-estar e oportunidade",
+    title: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
     description:
-      "Conheça o ecossistema, as tecnologias e a presença internacional da Prife Brasil.",
+      "Conheça o iTeraCare e as tecnologias de bem-estar Prife com um distribuidor independente PRIFE.",
     images: ["/og-prife-brasil.webp"],
   },
   robots: {
@@ -117,7 +120,7 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link rel="stylesheet" href="/src/styles.css?v=perf-116" />
+        <link rel="stylesheet" href="/src/styles.css?v=perf-117" />
       </head>
       <body>
         {children}

@@ -7,9 +7,19 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: { absolute: "Apresentação da Oportunidade | Prife Brasil" },
-  description: "Apresentação interativa do ecossistema, das ferramentas e da oportunidade independente Prife.",
+  title: { absolute: "Apresentação da oportunidade Prife | Prife Brasil" },
+  description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.",
   alternates: { canonical: "/apresentacao" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Prife Brasil",
+    url: "/apresentacao",
+    title: "Apresentação da oportunidade Prife | Prife Brasil",
+    description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.",
+    images: [{ url: "/og-prife-brasil.webp", alt: "Apresentação da oportunidade Prife | Prife Brasil" }],
+  },
+  twitter: { card: "summary_large_image", title: "Apresentação da oportunidade Prife | Prife Brasil", description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.", images: ["/og-prife-brasil.webp"] },
 };
 
 export default async function PresentationPage() {

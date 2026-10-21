@@ -7,9 +7,19 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: { absolute: "Oportunidade Prife | Prife Brasil" },
-  description: "Entenda a oportunidade independente Prife, suas atividades, requisitos, custos, regras atuais e suporte, sem promessa de renda.",
+  title: { absolute: "Seja distribuidor Prife: como funciona | Prife Brasil" },
+  description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.",
   alternates: { canonical: "/oportunidade" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Prife Brasil",
+    url: "/oportunidade",
+    title: "Seja distribuidor Prife: como funciona | Prife Brasil",
+    description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.",
+    images: [{ url: "/og-prife-brasil.webp", alt: "Seja distribuidor Prife: como funciona | Prife Brasil" }],
+  },
+  twitter: { card: "summary_large_image", title: "Seja distribuidor Prife: como funciona | Prife Brasil", description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.", images: ["/og-prife-brasil.webp"] },
 };
 
 export default async function OpportunityCapturePage() {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { preloadModule } from "react-dom";
 import AppBootstrap from "./AppBootstrap";
+import { requestPublicOrigin } from "./lib/public-origin";
 import ITeraAssistant from "./components/ITeraAssistant";
 import { getCurrentTenantSiteProfile, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
 
@@ -20,22 +20,15 @@ const faq = [
   ["O que é a Prife?", "A Prife é uma empresa internacional com um ecossistema de produtos voltados ao bem-estar, tecnologia e estilo de vida."],
   ["Como conhecer os produtos?", "Solicite uma apresentação personalizada com Williams Costa Leite para conhecer as características de cada linha."],
   ["Existe oportunidade de negócio?", "A Prife também possui um modelo de empreendedorismo. Detalhes, regras e condições são apresentados individualmente."],
+  ["Este é o site oficial da Prife?", "Não. Este site é mantido por distribuidores independentes PRIFE no Brasil. O site oficial da empresa é o da Prife International."],
+  ["Como comprar o iTeraCare no Brasil?", "Fale com o distribuidor independente deste site pelo WhatsApp. Ele explica os modelos, as condições atuais e o processo de pedido."],
   ["Os produtos substituem tratamento médico?", "Não. Tecnologias de bem-estar não substituem diagnóstico, prescrição ou acompanhamento de profissionais de saúde."],
 ];
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-async function currentPublicOrigin() {
-  const requestHeaders = await headers();
-  const host = (requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "")
-    .toLowerCase()
-    .split(":")[0];
-  if (host === "prife-brasil.com" || host === "www.prife-brasil.com" || host.endsWith(".prife-brasil.com")) {
-    return `https://${host}`;
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.prife-brasil.com";
-}
+const currentPublicOrigin = requestPublicOrigin;
 
 export async function generateMetadata(): Promise<Metadata> {
   const [tenant, origin] = await Promise.all([getCurrentTenantSiteProfile(), currentPublicOrigin()]);
@@ -43,10 +36,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const ownerName = tenant?.owner_name || "Williams Costa Leite";
   const isPrimary = !tenant?.slug || tenant.slug === "williams";
   const title = isPrimary
-    ? "Prife Brasil | Tecnologias de bem-estar e oportunidade"
-    : `${businessName} | Tecnologias Prife e iTeraCare`;
+    ? "Prife Brasil: iTeraCare e tecnologias de bem-estar"
+    : `${businessName}: iTeraCare e tecnologias Prife`;
   const description = tenant?.description?.trim() ||
-    `Conheça as tecnologias de bem-estar, produtos e a oportunidade Prife apresentados por ${ownerName}. Atendimento em português, espanhol e inglês.`;
+    `${ownerName}, distribuidor independente PRIFE: conheça o iTeraCare e as tecnologias de bem-estar Prife, tire dúvidas e fale direto pelo WhatsApp.`;
   return {
     title: { absolute: title },
     description,
@@ -67,8 +60,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=116", { as: "script" });
-  preloadModule("/src/content.js?v=103", { as: "script" });
+  preloadModule("/src/app.js?v=117", { as: "script" });
+  preloadModule("/src/content.js?v=104", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
     return (
@@ -95,7 +88,7 @@ export default async function Home() {
     "@graph": [
       { "@type": "WebSite", "@id": `${origin}/#website`, url: origin, name: tenant?.business_name || "Prife Brasil", alternateName: "Prife Brasil", inLanguage: ["pt-BR", "es", "en"], description },
       { "@type": "Organization", "@id": `${origin}/#organization`, name: tenant?.business_name || "Prife Brasil", url: origin, logo: `${origin}/favicon-512.png`, description, sameAs: socialProfiles, contactPoint: { "@type": "ContactPoint", telephone: `+${whatsapp}`, contactType: "customer service", availableLanguage: ["Portuguese", "Spanish", "English"] } },
-      { "@type": "Person", "@id": `${origin}/#representative`, name: ownerName, jobTitle: role, image: portrait.startsWith("http") ? portrait : `${origin}${portrait.startsWith("/") ? "" : "/"}${portrait}`, worksFor: { "@id": `${origin}/#organization` }, sameAs: socialProfiles },
+      { "@type": "Person", "@id": `${origin}/#representative`, name: ownerName, jobTitle: role, description: "Distribuidor independente PRIFE", knowsAbout: ["iTeraCare", "tecnologias de bem-estar Prife", "distribuição independente Prife"], image: portrait.startsWith("http") ? portrait : `${origin}${portrait.startsWith("/") ? "" : "/"}${portrait}`, worksFor: { "@id": `${origin}/#organization` }, sameAs: socialProfiles },
       { "@type": "ItemList", name: "Tecnologias de bem-estar Prife", numberOfItems: products.length, itemListElement: products.map(([name, itemDescription], index) => ({ "@type": "ListItem", position: index + 1, item: { "@type": "Product", name, description: itemDescription } })) },
       { "@type": "FAQPage", mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
     ],
@@ -126,10 +119,8 @@ export default async function Home() {
               <a href="#produtos">Tecnologias</a>
               <a href="#galeria">Galeria</a>
               <a href="#contato">Contato</a>
-              <a href="/leads">Prospector</a>
-              <a href="/crm">CRM</a>
-              <a href="/reuniao">Sala ao vivo</a>
-              <a href="/ponto-vivo">PontoVivo 3D</a>
+              <a href="/produto">iTeraCare</a>
+              <a href="/oportunidade">Oportunidade</a>
               <a href="/privacidade">Privacidade</a>
             </nav>
           </header>
@@ -190,6 +181,7 @@ export default async function Home() {
               <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Olá, ${ownerFirstName}! Conheci o site da Prife Brasil e gostaria de conhecer melhor as tecnologias.`)}`} target="_blank" rel="noopener noreferrer">Falar com {ownerFirstName} no WhatsApp</a>
             </section>
             <footer className="seo-section">
+              <p>{ownerName}, distribuidor independente PRIFE. Este não é o site oficial da Prife International.</p>
               <a href="/privacidade">Política de Privacidade</a>
             </footer>
           </main>
