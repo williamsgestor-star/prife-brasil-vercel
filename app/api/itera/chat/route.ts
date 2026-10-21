@@ -8,6 +8,7 @@ import {
   freeQuestionReply,
   type IteraReply,
 } from "../../../lib/itera-assistant";
+import { callChatModel, customerPriceList, type ChatMessage } from "../../../lib/ai-chat";
 import type { IteraContext } from "../../../lib/itera-expertise";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -110,14 +111,14 @@ async function loadHistory(
   return ((data || []) as HistoryRow[]).reverse();
 }
 
-function parseAiReply(raw: string, fallback: IteraReply, language: Language): IteraReply {
+function parseAiReply(raw: string, fallback: IteraReply): IteraReply {
   const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
   try {
     const parsed = JSON.parse(cleaned) as Record<string, unknown>;
     const text = sanitizeChatText(parsed.text, 1800);
     return {
       text: text || fallback.text,
-      showWhatsApp: Boolean(fallback.showWhatsApp),
+      showWhatsApp: Boolean(parsed.showWhatsApp) || Boolean(fallback.showWhatsApp),
       focusQuestion: Boolean(parsed.focusQuestion ?? fallback.focusQuestion),
       context: normalizeContext(parsed.context) || fallback.context,
     };
@@ -133,9 +134,6 @@ async function aiReply(
   fallback: IteraReply,
   history: HistoryRow[],
 ) {
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
-  if (!token) return { reply: fallback, model: "rules-fallback" };
-
   const languageInstruction = localized(
     language,
     "Responda somente em português do Brasil.",
@@ -143,56 +141,34 @@ async function aiReply(
     "Reply only in English.",
   );
 
-  const recentConversation = history
+  const recentConversation: ChatMessage[] = history
     .flatMap((row) => [
-      { role: "user", content: row.visitor_question },
-      { role: "assistant", content: row.assistant_answer },
+      { role: "user" as const, content: row.visitor_question },
+      { role: "assistant" as const, content: row.assistant_answer },
     ])
     .slice(-16);
 
   const grounding = [
     languageInstruction,
-    "A resposta factual confirmada pela base local para esta pergunta é:",
+    "BASE DE CONHECIMENTO DO SITE para esta pergunta (use como fonte de fatos; reescreva com suas palavras, adapte à pergunta e à conversa, não copie literalmente):",
     fallback.text,
-    "Contexto confirmado: " + (fallback.context || "não definido"),
-    "WhatsApp autorizado pela base: " + (fallback.showWhatsApp ? "sim" : "não"),
-    "Use a conversa recente para entender pronomes e referências como 'ele', 'isso', 'este aparelho' e perguntas de continuação.",
-    "Não crie fatos novos. Se a base confirmada não trouxer uma informação específica, diga que ela precisa ser confirmada com o consultor.",
-    "Mantenha a resposta natural, acolhedora e objetiva; não repita automaticamente uma abertura comercial.",
-    'Retorne SOMENTE JSON válido neste formato: {"text":"resposta","context":"iteracare ou outro contexto válido","focusQuestion":true}.',
+    "Contexto atual da conversa: " + (fallback.context || "não definido"),
+    "LISTA DE PREÇOS AO CLIENTE (PRIFE Brasil). Use apenas estes valores quando perguntarem preço, sempre avisando que podem mudar e que frete, pagamento e disponibilidade são confirmados com o consultor:",
+    customerPriceList(),
+    "Converse de forma natural, como um consultor atencioso: responda exatamente o que foi perguntado, use a conversa recente para entender referências ('ele', 'isso', 'esse aparelho') e não repita a mesma abertura comercial a cada resposta.",
+    "Se faltar uma informação específica na base, diga com transparência que o consultor confirma.",
+    "Marque showWhatsApp como true quando a pessoa quiser comprar, saber preço/condições, se cadastrar, ser distribuidora ou falar com alguém.",
+    'Retorne SOMENTE JSON válido: {"text":"resposta para o visitante","context":"prife|business|sales|catalog|iteracare|iterabio|biolite|ionshield|magnoseek|glasses|bracelet|renew|oxytap|other-product|pwg|travel|foundation","focusQuestion":true,"showWhatsApp":false}.',
   ].join("\n\n");
 
-  try {
-    const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
-        messages: [
-          { role: "system", content: ITERA_ASSISTANT_SYSTEM_PROMPT },
-          { role: "system", content: grounding },
-          ...recentConversation,
-          { role: "user", content: question },
-        ],
-        stream: false,
-      }),
-    });
-    if (!response.ok) throw new Error("gateway_" + response.status);
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-    const raw = payload.choices?.[0]?.message?.content || "";
-    if (!raw) throw new Error("gateway_empty");
-    return { reply: parseAiReply(raw, fallback, language), model: "openai/gpt-5.6-sol" };
-  } catch (error) {
-    console.error("iTERA AI gateway failed", {
-      message: error instanceof Error ? error.message : "unknown",
-    });
-    return { reply: fallback, model: "rules-fallback" };
-  }
+  const result = await callChatModel([
+    { role: "system", content: ITERA_ASSISTANT_SYSTEM_PROMPT },
+    { role: "system", content: grounding },
+    ...recentConversation,
+    { role: "user", content: question },
+  ]);
+  if (!result) return { reply: fallback, model: "rules-fallback" };
+  return { reply: parseAiReply(result.raw, fallback), model: result.model };
 }
 
 export async function GET(request: NextRequest) {
