@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import AppHomeButton from "../components/AppHomeButton";
 import { requireApprovedAccess } from "../lib/supabase/access";
+import { toolsAppMetadata } from "../lib/tools-app";
 import LeadFinder, { type QuotaStatus } from "./LeadFinder";
 
 export const dynamic = "force-dynamic";
@@ -8,10 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Prospector Prife",
   description: "Pesquisa privada de empresas locais por país, estado, cidade, bairro e segmento.",
-  robots: { index: false, follow: false },
-  manifest: "/apps/prospector.webmanifest",
-  appleWebApp: { capable: true, title: "Prospector", statusBarStyle: "black-translucent" },
-  icons: { icon: [{ url: "/apps/prospector-192.png", sizes: "192x192" }], apple: [{ url: "/apps/prospector-180.png", sizes: "180x180" }] },
+  robots: { index: false, follow: false }, ...toolsAppMetadata,
 };
 
 export default async function LeadsPage() {
@@ -22,10 +21,13 @@ export default async function LeadsPage() {
   ) as QuotaStatus | null;
 
   return (
+    <>
+    <AppHomeButton />
     <LeadFinder
       userDisplayName={user.displayName}
       signOutUrl="/auth/signout"
       initialQuota={initialQuota}
     />
+    </>
   );
 }

@@ -1,0 +1,75 @@
+{
+  "id": "/ferramentas",
+  "name": "Prife Ferramentas",
+  "short_name": "Prife Ferramentas",
+  "description": "Prospector, CRM, Sala ao vivo e PontoVivo em um só app.",
+  "start_url": "/ferramentas",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#01061b",
+  "theme_color": "#01061b",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/apps/ferramentas-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apps/ferramentas-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apps/ferramentas-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Prospector",
+      "url": "/leads",
+      "icons": [
+        {
+          "src": "/apps/ferramentas-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "CRM",
+      "url": "/crm",
+      "icons": [
+        {
+          "src": "/apps/ferramentas-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Sala ao vivo",
+      "url": "/reuniao",
+      "icons": [
+        {
+          "src": "/apps/ferramentas-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "PontoVivo",
+      "url": "/ponto-vivo",
+      "icons": [
+        {
+          "src": "/apps/ferramentas-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
