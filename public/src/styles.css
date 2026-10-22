@@ -269,9 +269,9 @@ h1 em { color: rgba(0, 0, 0, 0); background: linear-gradient(100deg, rgb(8, 189,
 .button:hover { transform: translateY(-2px); }
 .button.primary { color: rgb(2, 18, 28); background: linear-gradient(135deg,#64f4ff,var(--cyan)); box-shadow: rgba(18, 223, 243, 0.17) 0px 14px 35px; }
 .button.primary:hover { box-shadow: rgba(18, 223, 243, 0.3) 0px 18px 45px; }
-.hero-copy > .hero-presentation-cta { display: flex; width: max-content; max-width: 100%; min-width: 228px; min-height: 44px; margin: 16px 0 0 auto; padding: 0 18px; gap: 11px; color: #03142b; background: linear-gradient(115deg,#7bf7ff 0%,#25dce9 52%,#11bddb 100%); border-color: rgba(153, 250, 255, .72); box-shadow: 0 10px 28px rgba(4, 129, 216, .25), 0 0 22px rgba(18, 223, 243, .14), inset 0 1px rgba(255, 255, 255, .5); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
+.hero-copy .hero-presentation-cta { display: flex; width: max-content; max-width: 100%; min-width: 228px; min-height: 44px; margin: 16px 0 0 auto; padding: 0 18px; gap: 11px; color: #03142b; background: linear-gradient(115deg,#7bf7ff 0%,#25dce9 52%,#11bddb 100%); border-color: rgba(153, 250, 255, .72); box-shadow: 0 10px 28px rgba(4, 129, 216, .25), 0 0 22px rgba(18, 223, 243, .14), inset 0 1px rgba(255, 255, 255, .5); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
 .hero-presentation-cta svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
-.hero-copy > .hero-presentation-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(4, 129, 216, .34), 0 0 28px rgba(18, 223, 243, .24), inset 0 1px rgba(255, 255, 255, .62); }
+.hero-copy .hero-presentation-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(4, 129, 216, .34), 0 0 28px rgba(18, 223, 243, .24), inset 0 1px rgba(255, 255, 255, .62); }
 .hero-presentation-cta:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .business-presentation { text-transform: uppercase; letter-spacing: 0.055em; text-shadow: rgba(255, 255, 255, 0.32) 0px 0px 12px; min-width: 260px; min-height: 62px; color: rgb(255, 255, 255) !important; background: linear-gradient(115deg, rgb(8, 58, 165) 0%, rgb(7, 111, 197) 42%, rgb(11, 215, 236) 100%) !important; border-color: rgba(18, 223, 243, 0.64) !important; box-shadow: rgba(4, 80, 202, 0.3) 0px 16px 44px, rgba(18, 223, 243, 0.22) 0px 0px 34px, rgba(255, 255, 255, 0.22) 0px 1px inset !important; }
 .business-presentation::after { content: ""; z-index: -2; background: linear-gradient(105deg, rgba(0, 0, 0, 0) 40%, rgba(255, 255, 255, 0.44) 50%, rgba(0, 0, 0, 0) 60%); animation: 3s ease-in-out 0s infinite normal none running vipShine; position: absolute; inset: -90% -30%; }
@@ -1259,7 +1259,7 @@ body[data-site-scope="primary"] .footer-legal a:hover { color: #fff; text-shadow
   .eyebrow, .trust-row { justify-content: center; }
   h1 { margin-inline: auto; font-size: clamp(46px, 9vw, 66px); }
   .hero-copy > p { margin-inline: auto; }
-  .hero-copy > .hero-presentation-cta { margin-inline: auto; }
+  .hero-copy .hero-presentation-cta { margin-inline: auto; }
   .hero-visual { min-height: 540px; }
   .product-stage { height: 510px; }
   .hero-product-pair { width: min(100%, 650px); height: 500px; }
@@ -4328,3 +4328,10 @@ header *::before, header *::after, .button.primary::before { animation-play-stat
 header *:hover::before, header *:hover::after, header *:focus-visible::before, header *:focus-visible::after, .button.primary:hover::before { animation-play-state: running; }
 .hero-grid, .uses-grid-bg { animation: none !important; }
 .hero h1 em, .about-copy h2 em, .world-ref h2 em, .certs-heading h2 em { animation-iteration-count: 2; }
+/* CTA de WhatsApp na primeira dobra */
+.hero-copy > .hero-cta-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+.hero-cta-row .hero-presentation-cta { margin: 0 !important; }
+.hero-cta-row .hero-wa { min-height: 50px; padding-right: 18px; }
+.hero-cta-row .hero-wa .social-icon-3d { flex-basis: 34px; width: 34px; height: 34px; border-radius: 11px; }
+.hero-cta-row .hero-wa .social-icon-3d svg { width: 19px; height: 19px; }
+@media (width <= 900px) { .hero-copy > .hero-cta-row { justify-content: center; } }

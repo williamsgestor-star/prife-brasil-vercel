@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     url: "/apresentacao",
     title: "Apresentação da oportunidade Prife | Prife Brasil",
     description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.",
-    images: [{ url: "/og-prife-brasil.webp", alt: "Apresentação da oportunidade Prife | Prife Brasil" }],
+    images: [{ url: "/og-prife-brasil.jpg", alt: "Apresentação da oportunidade Prife | Prife Brasil" }],
   },
-  twitter: { card: "summary_large_image", title: "Apresentação da oportunidade Prife | Prife Brasil", description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.", images: ["/og-prife-brasil.webp"] },
+  twitter: { card: "summary_large_image", title: "Apresentação da oportunidade Prife | Prife Brasil", description: "Apresentação interativa do ecossistema Prife: tecnologias de bem-estar, ferramentas do distribuidor independente e como começar.", images: ["/og-prife-brasil.jpg"] },
 };
 
 export default async function PresentationPage() {

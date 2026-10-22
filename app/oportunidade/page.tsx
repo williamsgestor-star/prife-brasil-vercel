@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     url: "/oportunidade",
     title: "Seja distribuidor Prife: como funciona | Prife Brasil",
     description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.",
-    images: [{ url: "/og-prife-brasil.webp", alt: "Seja distribuidor Prife: como funciona | Prife Brasil" }],
+    images: [{ url: "/og-prife-brasil.jpg", alt: "Seja distribuidor Prife: como funciona | Prife Brasil" }],
   },
-  twitter: { card: "summary_large_image", title: "Seja distribuidor Prife: como funciona | Prife Brasil", description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.", images: ["/og-prife-brasil.webp"] },
+  twitter: { card: "summary_large_image", title: "Seja distribuidor Prife: como funciona | Prife Brasil", description: "Entenda como funciona ser distribuidor independente Prife: atividades, requisitos, custos, regras atuais e suporte. Informação clara, sem promessa de renda.", images: ["/og-prife-brasil.jpg"] },
 };
 
 export default async function OpportunityCapturePage() {

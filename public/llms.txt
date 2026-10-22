@@ -15,15 +15,27 @@ Atendimento: Brasil, Paraguai e demais países onde a Prife atua, pelo WhatsApp 
 - [Política de Privacidade](https://www.prife-brasil.com/privacidade)
 - [Sitemap](https://www.prife-brasil.com/sitemap.xml)
 
-## Tecnologias apresentadas
+## Tecnologias apresentadas e valores de venda (R$)
 
-- iTeraCare Classic e iTeraCare Classic Plus: aparelhos de terahertz para a rotina de bem-estar.
-- iTera-Bio Lite: tecnologia para relaxamento e bem-estar diário.
-- Vitality Energy: pulseiras de uso diário com geração de íons negativos.
-- Envy Sun e Envy Specs (Aurora): óculos com foco em conforto visual.
-- Renew Patch: patch não transdérmico.
-- MagnoSeek: tecnologia informativa e não invasiva de análise com IA.
-- iON Shield: ionizador de ar portátil.
+| Produto | O que é | Valor |
+|---|---|---|
+| iTeraCare Classic Plus | aparelho de terahertz para a rotina de bem-estar | R$ 4.500 |
+| iTera-Bio Lite | tecnologia para relaxamento e bem-estar diário | R$ 12.500 |
+| Vitality Energy | pulseira de uso diário com geração de íons negativos (consulte as cores) | R$ 899 |
+| Envy Sun (Aurora) | óculos de sol (consulte os modelos) | R$ 899 |
+| Envy Specs | óculos com foco em conforto visual (consulte os modelos) | R$ 749 |
+| Renew Patch | patch não transdérmico | R$ 460 |
+| MagnoSeek | tecnologia informativa e não invasiva de análise com IA | R$ 41.500 |
+| iON Shield | ionizador de ar portátil (consulte as cores) | R$ 2.900 |
+| Essência Ocular Vision | Vision Eye Essence, frasco de 5 ml | R$ 320 |
+| Cellfood Plus | gotas com água do mar e algas marinhas, 30 ml | R$ 511 |
+| Scalar Energy Shield | discos de energia escalar em estojo | R$ 350 |
+
+Valores de referência no Brasil; confirme condições atuais com o distribuidor do site.
+
+## Certificados e premiações
+
+O site exibe selos ligados a produtos e fabricantes da linha Prife: Halal Malaysia, FDA, ANAB, GMP, IAF, Kosher LA, ANSI, UL, NPA, International Hall of Fame (1997) e NARCC. Cada certificação se refere a produtos e fabricantes específicos.
 
 ## Perguntas frequentes
 
