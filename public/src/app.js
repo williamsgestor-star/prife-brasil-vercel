@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=109";
+} from "./content.js?v=110";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -343,6 +343,23 @@ function productTabsMarkup() {
     .join("");
 }
 
+function formatPrice(value) {
+  return `R$ ${Number(value).toLocaleString("pt-BR")}`;
+}
+
+function priceMarkup(product, title) {
+  if (!product.price) return "";
+  const h = copy[language].productHeading;
+  const value = formatPrice(product.price);
+  const note = product.priceNote && h.priceNotes ? h.priceNotes[product.priceNote] : "";
+  const message = (h.buyMsg || "").replace("{p}", title).replace("{v}", value);
+  return `
+      <div class="product-price">
+        <div class="product-price-value"><small>${h.price}</small><strong>${value}</strong>${note ? `<em>${note}</em>` : ""}</div>
+        <a class="product-buy" href="${whatsappUrl(message)}" target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" data-track-location="product" data-track-product="${product.id}">${socialIcon("whatsapp")}<span>${h.buy}</span></a>
+      </div>`;
+}
+
 function productCardMarkup() {
   const t = copy[language];
   const product = products[productIndex];
@@ -386,10 +403,11 @@ function productCardMarkup() {
       <span>${eyebrow}</span>
       <h3>${title}</h3>
       <p>${description}</p>
+      ${priceMarkup(product, title)}
       <div class="pdf-language-block">
         <strong>${t.productHeading.download}</strong>
         <div class="pdf-language-options">${pdfOptions}</div>
-        <small class="pdf-status pdf-ready">${t.productHeading.ready}</small>
+        <small class="pdf-status pdf-ready">${product.pdfs.pt ? t.productHeading.ready : t.productHeading.noPdf}</small>
       </div>
     </div>
     <div class="product-media ${product.className}">

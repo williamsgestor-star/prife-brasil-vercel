@@ -1,8 +1,8 @@
 export const siteConfig = {
   whatsappNumber: "5544998847361",
   whatsappDisplay: "+55 44 99884-7361",
-  instagramUrl: "https://www.instagram.com/wrcreativedigital/",
-  instagramHandle: "@wrcreativedigital",
+  instagramUrl: "https://www.instagram.com/wr.creative.digital/",
+  instagramHandle: "@wr.creative.digital",
   youtubeUrl: "https://www.youtube.com/@iTERACARE-BR",
   youtubeHandle: "@iTERACARE-BR",
   vipUrl: "https://prifevip.com/login",
@@ -17,6 +17,7 @@ export const languages = [
 export const products = [
   {
     id: "iteracare",
+    price: 4500,
     number: "01",
     className: "tall",
     images: ["products/current/iteracare-classic-plus.webp"],
@@ -24,6 +25,8 @@ export const products = [
   },
   {
     id: "vitality",
+    price: 899,
+    priceNote: "cores",
     number: "02",
     className: "wide",
     images: ["products/current/vitality-energy.webp"],
@@ -31,6 +34,8 @@ export const products = [
   },
   {
     id: "envy",
+    price: 899,
+    priceNote: "modelos",
     number: "03",
     className: "wide",
     images: ["products/current/envy-sun.webp"],
@@ -38,6 +43,7 @@ export const products = [
   },
   {
     id: "biolite",
+    price: 12500,
     number: "04",
     className: "wide",
     images: ["products/current/itera-bio-lite.webp"],
@@ -45,6 +51,7 @@ export const products = [
   },
   {
     id: "renew",
+    price: 460,
     number: "05",
     className: "renew",
     images: ["products/current/renew-patch.webp"],
@@ -52,6 +59,8 @@ export const products = [
   },
   {
     id: "envy-specs",
+    price: 749,
+    priceNote: "modelos",
     number: "06",
     className: "envy-specs",
     images: ["products/current/envy-specs.webp"],
@@ -59,6 +68,7 @@ export const products = [
   },
   {
     id: "magnoseek",
+    price: 41500,
     number: "07",
     className: "magnoseek",
     images: ["products/current/magnoseek.webp"],
@@ -66,10 +76,36 @@ export const products = [
   },
   {
     id: "ion-shield",
+    price: 2900,
+    priceNote: "cores",
     number: "08",
     className: "ion-shield",
     images: ["products/current/ion-shield-original.webp"],
     pdfs: { pt: "pdfs/08-ion-shield.pdf", es: null, en: null },
+  },
+  {
+    id: "vision-eye",
+    price: 320,
+    number: "09",
+    className: "vision-eye",
+    images: ["products/current/vision-eye-essence.webp"],
+    pdfs: { pt: null, es: null, en: null },
+  },
+  {
+    id: "cellfood",
+    price: 511,
+    number: "10",
+    className: "cellfood",
+    images: ["products/current/cellfood-plus.webp"],
+    pdfs: { pt: null, es: null, en: null },
+  },
+  {
+    id: "scalar-shield",
+    price: 350,
+    number: "11",
+    className: "scalar-shield",
+    images: ["products/current/scalar-energy-shield.webp"],
+    pdfs: { pt: null, es: null, en: null },
   },
 ];
 
@@ -185,6 +221,11 @@ export const copy = {
       download: "Baixar no idioma",
       ready: "Português disponível agora",
       soon: "Em breve",
+      price: "Valor",
+      priceNotes: { cores: "Consulte as cores disponíveis", modelos: "Consulte os modelos disponíveis" },
+      buy: "Quero este produto",
+      buyMsg: "Olá! Tenho interesse no {p} ({v}). Pode me passar mais informações?",
+      noPdf: "Material em breve",
     },
     productItems: [
       ["TECNOLOGIAS DE BEM-ESTAR", "iTeraCare Classic Plus", "Tecnologia de terahertz em um aparelho de design premium, desenvolvido para integrar a rotina de bem-estar."],
@@ -195,6 +236,9 @@ export const copy = {
       ["VISION SERIES", "Envy Specs", "Óculos de design moderno desenvolvidos para oferecer conforto visual, personalidade e a tecnologia da linha Prife."],
       ["INTELIGÊNCIA ARTIFICIAL • BIO-RESSONÂNCIA", "MagnoSeek", "Tecnologia inteligente e não invasiva que integra IA, bio-ressonância e análise de dados para uma experiência informativa de bem-estar."],
       ["AR PURO • PORTÁTIL", "iON Shield", "Ionizador de ar portátil, leve e silencioso, desenvolvido para acompanhar a rotina diária."],
+      ["VISION SERIES", "Essência Ocular Vision", "Vision Eye Essence em frasco de 5 ml, da linha Vision da Prife, para incluir no cuidado diário com os olhos."],
+      ["SINCE 1969 • GOTAS", "Cellfood Plus", "Gotas com água do mar e algas marinhas em frasco de 30 ml, uma fórmula tradicional presente no mercado desde 1969."],
+      ["QUANTUM SCIENCE • SCALAR ENERGY", "Scalar Energy Shield", "Discos com a tecnologia de energia escalar da Prife, em estojo premium, para levar na rotina do dia a dia."],
     ],
     gallery: {
       kicker: "EXPERIÊNCIA PRIFE",
@@ -368,6 +412,11 @@ export const copy = {
       download: "Descargar en el idioma",
       ready: "Portugués disponible ahora",
       soon: "Próximamente",
+      price: "Precio",
+      priceNotes: { cores: "Consulte los colores disponibles", modelos: "Consulte los modelos disponibles" },
+      buy: "Quiero este producto",
+      buyMsg: "¡Hola! Me interesa el {p} ({v}). ¿Me puede dar más información?",
+      noPdf: "Material próximamente",
     },
     productItems: [
       ["TECNOLOGÍAS DE BIENESTAR", "iTeraCare Classic Plus", "Tecnología de terahercios en un dispositivo de diseño premium, desarrollado para integrarse en la rutina de bienestar."],
@@ -378,6 +427,9 @@ export const copy = {
       ["VISION SERIES", "Envy Specs", "Gafas de diseño moderno creadas para ofrecer comodidad visual, personalidad y tecnología Prife."],
       ["INTELIGENCIA ARTIFICIAL • BIORRESONANCIA", "MagnoSeek", "Tecnología inteligente y no invasiva que integra IA, biorresonancia y análisis avanzado de datos."],
       ["AIRE PURO • PORTÁTIL", "iON Shield", "Ionizador de aire portátil, ligero y silencioso, diseñado para acompañar la rutina diaria."],
+      ["VISION SERIES", "Esencia Ocular Vision", "Vision Eye Essence en frasco de 5 ml, de la línea Vision de Prife, para incluir en el cuidado diario de los ojos."],
+      ["SINCE 1969 • GOTAS", "Cellfood Plus", "Gotas con agua de mar y algas marinas en frasco de 30 ml, una fórmula tradicional presente en el mercado desde 1969."],
+      ["QUANTUM SCIENCE • SCALAR ENERGY", "Scalar Energy Shield", "Discos con la tecnología de energía escalar de Prife, en estuche premium, para llevar en la rutina diaria."],
     ],
     gallery: {
       kicker: "EXPERIENCIA PRIFE",
@@ -524,6 +576,11 @@ export const copy = {
       download: "Download by language",
       ready: "Portuguese available now",
       soon: "Coming soon",
+      price: "Price",
+      priceNotes: { cores: "Ask about available colors", modelos: "Ask about available models" },
+      buy: "I want this product",
+      buyMsg: "Hi! I am interested in the {p} ({v}). Could you send me more information?",
+      noPdf: "Material coming soon",
     },
     productItems: [
       ["WELL-BEING TECHNOLOGIES", "iTeraCare Classic Plus", "Terahertz technology in a premium device designed to complement a well-being routine."],
@@ -534,6 +591,9 @@ export const copy = {
       ["VISION SERIES", "Envy Specs", "Modern eyewear designed for visual comfort, personality and Prife technology."],
       ["ARTIFICIAL INTELLIGENCE • BIORESONANCE", "MagnoSeek", "Smart, non-invasive technology integrating AI, bioresonance and advanced data analysis."],
       ["FRESH AIR • PORTABLE", "iON Shield", "A lightweight, quiet portable air ionizer designed for everyday use."],
+      ["VISION SERIES", "Vision Eye Essence", "Vision Eye Essence in a 5 ml vial, from the Prife Vision line, for your daily eye care routine."],
+      ["SINCE 1969 • DROPS", "Cellfood Plus", "Seawater and seaweed drops in a 30 ml bottle, a traditional formula on the market since 1969."],
+      ["QUANTUM SCIENCE • SCALAR ENERGY", "Scalar Energy Shield", "Discs with Prife scalar energy technology in a premium case, made to carry through your daily routine."],
     ],
     gallery: {
       kicker: "THE PRIFE EXPERIENCE",
