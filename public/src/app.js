@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=104";
+} from "./content.js?v=105";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -114,11 +114,12 @@ function applyVisualSettings() {
   const main = document.querySelector("main");
   if (!main) return;
   const sectionMap = {
-    hero: main.querySelector(".hero"), about: main.querySelector(".about-preview"), global: main.querySelector(".global-section"),
+    hero: main.querySelector(".hero"), world: main.querySelector(".world-ref"), about: main.querySelector(".about-preview"), global: main.querySelector(".global-section"),
     products: main.querySelector(".products-section"), gallery: main.querySelector(".gallery-section"), leader: main.querySelector(".williams-section"),
     journey: main.querySelector(".journey-section"), faq: main.querySelector(".faq-section"), contact: main.querySelector(".contact-section"),
   };
-  const order = Array.isArray(visualSettings.sections) ? visualSettings.sections : Object.keys(sectionMap);
+  const order = Array.isArray(visualSettings.sections) ? [...visualSettings.sections] : Object.keys(sectionMap);
+  if (!order.includes("world")) { const at = order.indexOf("hero"); order.splice(at >= 0 ? at + 1 : 0, 0, "world"); }
   const hidden = new Set(Array.isArray(visualSettings.hiddenSections) ? visualSettings.hiddenSections : []);
   order.forEach((key) => { const section = sectionMap[key]; if (section) { section.hidden = hidden.has(key); main.append(section); } });
   const texts = visualTexts;
@@ -875,6 +876,7 @@ function render() {
             <a class="button hero-presentation-cta" href="/apresentacao" data-track="hero_presentation_open">
               ${t.hero.presentationButton} ${icon("arrow")}
             </a>
+            ${t.world ? `<button class="world-badge" type="button" data-scroll="referencia"><span class="world-badge-dot"></span>${icon("globe")}<span>${t.world.badge}</span></button>` : ""}
           </div>
 
           <div class="hero-visual reveal-now" aria-label="Vídeo do iTeraCare Classic Plus com seus componentes internos">
@@ -889,8 +891,26 @@ function render() {
           </div>
         </div>
 
+        <div class="film-flare" aria-hidden="true"></div>
         <button class="scroll-cue" type="button" data-scroll="sobre" aria-label="Rolar para conhecer a Prife"><span>${t.hero.discover}</span><i></i></button>
       </section>
+
+      ${t.world ? `<section class="world-ref" id="referencia" aria-labelledby="world-title">
+        <div class="world-ref-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="world-ref-glow" aria-hidden="true"></div>
+        <div class="wrap world-ref-grid reveal">
+          <div class="world-ref-count">
+            <strong data-count="80">80<sup>+</sup></strong>
+            <span>${t.world.label}</span>
+          </div>
+          <div class="world-ref-copy">
+            <div class="section-kicker">${t.world.kicker}</div>
+            <h2 id="world-title">${t.world.before}<em>${t.world.emphasis}</em></h2>
+            <p>${t.world.text}</p>
+            <div class="world-ref-pills">${t.world.pills.map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("")}</div>
+          </div>
+        </div>
+      </section>` : ""}
 
       <section class="about-preview" id="sobre">
         <div class="wrap about-grid reveal">
@@ -1491,7 +1511,22 @@ function closeTutorialsDialog() {
   else dialog.removeAttribute("open");
 }
 
+function bindWorldCounter() {
+  const el = document.querySelector(".world-ref-count strong[data-count]");
+  if (!el || !("IntersectionObserver" in window)) return;
+  const target = Number(el.dataset.count) || 80;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return; io.disconnect();
+    const t0 = performance.now(), dur = 1800;
+    const tick = (now) => { const k = Math.min(1, (now - t0) / dur); const v = Math.round(target * (1 - Math.pow(1 - k, 3))); el.innerHTML = `${v}<sup>+</sup>`; if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }, { threshold: 0.4 });
+  io.observe(el);
+}
+
 function bindEvents() {
+  bindWorldCounter();
   document.querySelectorAll("[data-scroll]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.scroll === "galeria") loadGalleryImages();
