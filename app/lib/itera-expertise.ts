@@ -172,9 +172,9 @@ export function basicConversationReply(
   if (/^(oi|ola|bom dia|boa tarde|boa noite|e ai|hey|hello|hi|hola|buenos dias|buenas tardes|buenas noches)\b/.test(input)) {
     return {
       text: translated(language,
-        "Olá! 👋 Eu sou o Assistente iTERA. Posso explicar a PRIFE, comparar produtos, falar sobre segurança e autenticidade, esclarecer a oportunidade de negócio ou orientar seu próximo passo. O que você quer descobrir primeiro?",
-        "¡Hola! 👋 Soy el Asistente iTERA. Puedo explicar PRIFE, comparar productos, hablar sobre seguridad y autenticidad, aclarar la oportunidad de negocio u orientarte en el próximo paso. ¿Qué quieres descubrir primero?",
-        "Hello! 👋 I’m the iTERA Assistant. I can explain PRIFE, compare products, cover safety and authenticity, clarify the business opportunity, or guide your next step. What would you like to discover first?",
+        "Olá! 👋 Que bom te ver por aqui. Quer conhecer os produtos ou a oportunidade de negócio?",
+        "¡Hola! 👋 Qué bueno verte por aquí. ¿Quieres conocer los productos o la oportunidad de negocio?",
+        "Hi! 👋 Great to have you here. Would you like to explore the products or the business opportunity?",
       ),
     };
   }

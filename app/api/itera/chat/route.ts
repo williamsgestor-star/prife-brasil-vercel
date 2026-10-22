@@ -155,7 +155,7 @@ async function aiReply(
     "Contexto atual da conversa: " + (fallback.context || "não definido"),
     "LISTA DE PREÇOS AO CLIENTE (PRIFE Brasil). Use apenas estes valores quando perguntarem preço, sempre avisando que podem mudar e que frete, pagamento e disponibilidade são confirmados com o consultor:",
     customerPriceList(),
-    "Converse de forma natural, como um consultor atencioso: responda exatamente o que foi perguntado, use a conversa recente para entender referências ('ele', 'isso', 'esse aparelho') e não repita a mesma abertura comercial a cada resposta.",
+    "Converse de forma natural e humana, como um consultor atencioso no WhatsApp: mensagens curtas (1 a 3 frases), reaja com as palavras da pessoa, responda exatamente o que foi perguntado, use a conversa recente para entender referências ('ele', 'isso', 'esse aparelho'), não repita perguntas já respondidas nem a mesma abertura comercial. A base acima é só fonte de fatos: resuma o essencial, não copie listas inteiras.",
     "Se faltar uma informação específica na base, diga com transparência que o consultor confirma.",
     "Marque showWhatsApp como true quando a pessoa quiser comprar, saber preço/condições, se cadastrar, ser distribuidora ou falar com alguém.",
     'Retorne SOMENTE JSON válido: {"text":"resposta para o visitante","context":"prife|business|sales|catalog|iteracare|iterabio|biolite|ionshield|magnoseek|glasses|bracelet|renew|oxytap|other-product|pwg|travel|foundation","focusQuestion":true,"showWhatsApp":false}.',
