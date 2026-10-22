@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { freeQuestionReply, getIteraWelcomeMessage } from '../app/lib/itera-assistant.ts';
 
 test('uses the requested single welcome sentence', () => {
-  assert.equal(getIteraWelcomeMessage('pt'), 'Olá! Eu sou o Assistente iTERA. O que você quer conhecer?');
+  assert.equal(getIteraWelcomeMessage('pt'), 'Olá! 👋 Quer conhecer os produtos ou a oportunidade?');
 });
 
 test('keeps the selected product context in a natural follow-up', () => {
