@@ -141,6 +141,15 @@ export const copy = {
       wellbeing: "Tecnologia de bem-estar",
       discover: "DESCUBRA",
     },
+    world: {
+      badge: "Referência mundial em mais de 80 países e regiões",
+      kicker: "REFERÊNCIA MUNDIAL",
+      label: "países e regiões",
+      before: "Uma empresa de ",
+      emphasis: "referência mundial.",
+      text: "Com sede global em Kuala Lumpur, na Malásia, a Prife leva tecnologias de bem-estar e uma comunidade internacional a mais de 80 países e regiões. Agora, em expansão no Brasil.",
+      pills: [["Sede global", "Kuala Lumpur · Malásia"], ["Presença", "+80 países e regiões"], ["Brasil", "mercado em expansão"]],
+    },
     about: {
       headquarters: "SEDE PRINCIPAL",
       company: "PRIFE INTERNATIONAL",
@@ -319,6 +328,15 @@ export const copy = {
       wellbeing: "Tecnología de bienestar",
       discover: "DESCUBRE",
     },
+    world: {
+      badge: "Referencia mundial en más de 80 países y regiones",
+      kicker: "REFERENCIA MUNDIAL",
+      label: "países y regiones",
+      before: "Una empresa de ",
+      emphasis: "referencia mundial.",
+      text: "Con sede global en Kuala Lumpur, Malasia, Prife lleva tecnologías de bienestar y una comunidad internacional a más de 80 países y regiones. Ahora, en expansión en Brasil.",
+      pills: [["Sede global", "Kuala Lumpur · Malasia"], ["Presencia", "+80 países y regiones"], ["Brasil", "mercado en expansión"]],
+    },
     about: {
       headquarters: "SEDE PRINCIPAL",
       company: "PRIFE INTERNATIONAL",
@@ -465,6 +483,15 @@ export const copy = {
       highlight: "HIGHLIGHT",
       wellbeing: "Well-being technology",
       discover: "DISCOVER",
+    },
+    world: {
+      badge: "A global reference in more than 80 countries and regions",
+      kicker: "GLOBAL REFERENCE",
+      label: "countries and regions",
+      before: "A company that is a ",
+      emphasis: "global reference.",
+      text: "Headquartered in Kuala Lumpur, Malaysia, Prife brings wellness technologies and an international community to more than 80 countries and regions. Now expanding in Brazil.",
+      pills: [["Global HQ", "Kuala Lumpur · Malaysia"], ["Presence", "80+ countries and regions"], ["Brazil", "expanding market"]],
     },
     about: {
       headquarters: "HEADQUARTERS",
