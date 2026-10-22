@@ -177,6 +177,14 @@ export const copy = {
       wellbeing: "Tecnologia de bem-estar",
       discover: "DESCUBRA",
     },
+    certs: {
+      kicker: "CERTIFICADOS E PREMIAÇÕES",
+      before: "Qualidade reconhecida ",
+      emphasis: "no mundo todo.",
+      text: "Selos de qualidade, segurança e boas práticas e premiações internacionais ligados aos produtos e fabricantes da linha Prife.",
+      note: "Selos conforme o material oficial da Prife. Cada certificação se refere a produtos e fabricantes específicos.",
+      items: [["halal","Halal Malaysia"],["fda","FDA"],["anab","ANAB"],["gmp","GMP"],["iaf","IAF"],["kosher","Kosher LA"],["ansi","ANSI"],["ul","UL"],["npa","NPA"],["hall-of-fame","Hall of Fame 1997"],["narcc","NARCC"]],
+    },
     world: {
       badge: "Referência mundial em mais de 85 países e regiões",
       kicker: "REFERÊNCIA MUNDIAL",
@@ -372,6 +380,14 @@ export const copy = {
       wellbeing: "Tecnología de bienestar",
       discover: "DESCUBRE",
     },
+    certs: {
+      kicker: "CERTIFICADOS Y PREMIOS",
+      before: "Calidad reconocida ",
+      emphasis: "en todo el mundo.",
+      text: "Sellos de calidad, seguridad y buenas prácticas y premios internacionales vinculados a los productos y fabricantes de la línea Prife.",
+      note: "Sellos según el material oficial de Prife. Cada certificación se refiere a productos y fabricantes específicos.",
+      items: [["halal","Halal Malaysia"],["fda","FDA"],["anab","ANAB"],["gmp","GMP"],["iaf","IAF"],["kosher","Kosher LA"],["ansi","ANSI"],["ul","UL"],["npa","NPA"],["hall-of-fame","Hall of Fame 1997"],["narcc","NARCC"]],
+    },
     world: {
       badge: "Referencia mundial en más de 85 países y regiones",
       kicker: "REFERENCIA MUNDIAL",
@@ -535,6 +551,14 @@ export const copy = {
       highlight: "HIGHLIGHT",
       wellbeing: "Well-being technology",
       discover: "DISCOVER",
+    },
+    certs: {
+      kicker: "CERTIFICATIONS & AWARDS",
+      before: "Quality recognized ",
+      emphasis: "around the world.",
+      text: "Quality, safety and good-practice seals and international awards linked to the products and manufacturers of the Prife line.",
+      note: "Seals as shown in official Prife material. Each certification refers to specific products and manufacturers.",
+      items: [["halal","Halal Malaysia"],["fda","FDA"],["anab","ANAB"],["gmp","GMP"],["iaf","IAF"],["kosher","Kosher LA"],["ansi","ANSI"],["ul","UL"],["npa","NPA"],["hall-of-fame","Hall of Fame 1997"],["narcc","NARCC"]],
     },
     world: {
       badge: "A global reference in more than 85 countries and regions",

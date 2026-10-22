@@ -4267,7 +4267,7 @@ body::after { content: ""; position: fixed; inset: -50%; z-index: 80; pointer-ev
 .film-flare { position: absolute; z-index: 1; left: -20%; right: -20%; top: 46%; height: 2px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, rgba(18,223,243,0) 20%, rgba(18,223,243,.55) 45%, #fff 50%, rgba(18,223,243,.55) 55%, rgba(18,223,243,0) 80%, transparent 100%); filter: blur(.4px); box-shadow: 0 0 22px 2px rgba(18,223,243,.45); opacity: .55; animation: flareSweep 9s ease-in-out infinite; }
 @keyframes flareSweep { 0%, 100% { transform: translateX(-18%) scaleX(.7); opacity: .15; } 50% { transform: translateX(18%) scaleX(1); opacity: .6; } }
 /* Título com brilho metálico */
-.hero h1 em, .about-copy h2 em, .world-ref h2 em { background: linear-gradient(100deg, #7ff6ff 0%, #ffffff 22%, #12dff3 42%, #d8fbff 60%, #12dff3 80%, #7ff6ff 100%); background-size: 240% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: luxShine 7s ease-in-out infinite; }
+.hero h1 em, .about-copy h2 em, .world-ref h2 em, .certs-heading h2 em { background: linear-gradient(100deg, #7ff6ff 0%, #ffffff 22%, #12dff3 42%, #d8fbff 60%, #12dff3 80%, #7ff6ff 100%); background-size: 240% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: luxShine 7s ease-in-out infinite; }
 @keyframes luxShine { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
 /* Selo de referência mundial na abertura */
 .world-badge { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 10px 18px 10px 12px; border-radius: 999px; cursor: pointer; color: #eafcff; font-size: 13px; font-weight: 700; letter-spacing: .02em;
@@ -4307,3 +4307,16 @@ body::after { content: ""; position: fixed; inset: -50%; z-index: 80; pointer-ev
 .world-ref-count strong sup { -webkit-text-fill-color: #5ee9f7; color: #5ee9f7; text-shadow: 0 0 18px rgba(18,223,243,.6); }
 .world-ref-pills b { overflow-wrap: anywhere; }
 .product-media.scalar-shield .media-items img { filter: brightness(1.35) contrast(1.05) drop-shadow(rgba(0, 0, 0, 0.6) 0px 26px 26px) drop-shadow(rgba(120, 190, 255, 0.4) 0px 0px 34px); }
+/* ===== Certificados e premiações ===== */
+.certs-section { position: relative; padding: 110px 0 120px; background: radial-gradient(circle at 20% 0%, rgba(18, 223, 243, 0.08), rgba(0, 0, 0, 0) 38%), radial-gradient(circle at 85% 100%, rgba(14, 71, 190, 0.14), rgba(0, 0, 0, 0) 40%), rgb(3, 7, 28); overflow: hidden; border-top: 1px solid rgba(18, 223, 243, 0.08); }
+.certs-heading { max-width: 760px; margin: 0 auto 54px; text-align: center; }
+.certs-heading h2 { margin-bottom: 18px; }
+.certs-heading p { color: rgb(140, 154, 180); font-size: 15px; line-height: 1.75; max-width: 600px; margin: 0 auto; }
+.certs-grid { list-style: none; margin: 0 auto; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; max-width: 1130px; }
+.cert-card { position: relative; flex: 0 0 170px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 14px 14px 16px; border-radius: 20px; background: linear-gradient(145deg, rgba(12, 40, 102, 0.55), rgba(4, 11, 43, 0.9)); border: 1px solid rgba(72, 221, 255, 0.2); box-shadow: rgba(0, 0, 0, 0.28) 0px 14px 34px, rgba(255, 255, 255, 0.08) 0px 1px inset; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s, box-shadow 0.35s; }
+.cert-card:hover { transform: translateY(-6px); border-color: rgba(18, 223, 243, 0.62); box-shadow: rgba(0, 0, 0, 0.34) 0px 20px 44px, rgba(18, 223, 243, 0.22) 0px 0px 26px; }
+.cert-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 112px; border-radius: 14px; background: linear-gradient(180deg, #ffffff, #eef4fb); box-shadow: inset 0 1px rgba(255, 255, 255, 0.9), inset 0 -10px 20px rgba(14, 71, 190, 0.06); padding: 14px; }
+.cert-logo img { display: block; width: auto; height: auto; max-width: 100%; max-height: 84px; object-fit: contain; }
+.cert-card small { color: rgb(200, 222, 245); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; line-height: 1.3; }
+.certs-note { margin-top: 30px; text-align: center; color: rgb(110, 128, 158); font-size: 12px; }
+@media (width <= 560px) { .certs-section { padding: 80px 0 90px; } .certs-grid { gap: 12px; } .cert-card { flex: 0 0 calc(50% - 6px); padding: 10px 10px 12px; border-radius: 16px; } .cert-logo { height: 100px; } .cert-logo img { max-height: 74px; } }
