@@ -129,10 +129,14 @@ async function optimizeImage(file: File) {
   if (!context) throw new Error("Não foi possível preparar a imagem para envio.");
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
-  if (!blob) throw new Error("Não foi possível comprimir a imagem.");
-  const filename = `${file.name.replace(/\.[^.]+$/, "") || "imagem"}.webp`;
-  return new File([blob], filename, { type: "image/webp", lastModified: Date.now() });
+  // Safari não gera WebP no canvas e devolve PNG pesado: nesse caso usa JPEG e o tipo real do arquivo.
+  let blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
+  if (!blob || blob.type !== "image/webp") blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.86));
+  if (!blob || !blob.size) throw new Error("Não foi possível comprimir a imagem.");
+  const type = blob.type === "image/webp" ? "image/webp" : blob.type === "image/png" ? "image/png" : "image/jpeg";
+  const extension = type === "image/webp" ? "webp" : type === "image/png" ? "png" : "jpg";
+  const filename = `${file.name.replace(/\.[^.]+$/, "") || "imagem"}.${extension}`;
+  return new File([blob], filename, { type, lastModified: Date.now() });
 }
 
 function readableUploadError(error: unknown) {
@@ -704,5 +708,7 @@ export default function CompanyEditor({
 }
 
 function MediaUpload({ title, value, busy, accept, onUpload, onRemove }: { title: string; value: string | null; busy: boolean; accept: string; onUpload: (event: ChangeEvent<HTMLInputElement>) => void; onRemove: () => void }) {
-  return <article className={styles.mediaUpload}><div>{value ? <img src={value} alt={title} /> : <span>+</span>}</div><div><h3>{title}</h3><p><strong>Tamanho recomendado: 1080 × 1350 px</strong> (vertical, proporção 4:5).<br />JPG, PNG ou WebP — convertido automaticamente para WebP leve.</p><label className={styles.uploadButton}>{busy ? "Enviando…" : value ? "Trocar imagem" : "Enviar imagem"}<input type="file" accept={accept} onChange={onUpload} disabled={busy} /></label>{value && <button className={styles.removeMedia} type="button" onClick={onRemove}>Remover</button>}</div></article>;
+  const [broken, setBroken] = useState("");
+  const isBroken = !!value && broken === value;
+  return <article className={styles.mediaUpload}><div>{value && !isBroken ? <img src={value} alt={title} onError={() => setBroken(value)} /> : isBroken ? <span style={{ fontSize: 13, lineHeight: 1.4, padding: 16, textAlign: "center" }}>A imagem salva não abriu. Clique em Trocar imagem e envie de novo (JPG ou PNG).</span> : <span>+</span>}</div><div><h3>{title}</h3><p><strong>Tamanho recomendado: 1080 × 1350 px</strong> (vertical, proporção 4:5).<br />JPG, PNG ou WebP — convertido automaticamente para WebP leve.</p><label className={styles.uploadButton}>{busy ? "Enviando…" : value ? "Trocar imagem" : "Enviar imagem"}<input type="file" accept={accept} onChange={onUpload} disabled={busy} /></label>{value && <button className={styles.removeMedia} type="button" onClick={onRemove}>Remover</button>}</div></article>;
 }
