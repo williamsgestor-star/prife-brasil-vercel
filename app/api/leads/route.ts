@@ -641,95 +641,6 @@ function identityKey(name: string, phone: string | null, address: string | null)
     : `business:${normalize(name)}:${normalize(address ?? "")}`;
 }
 
-async function searchGooglePlaces({
-  niche,
-  searchLocation,
-  country,
-  limit,
-  language,
-}: {
-  niche: string;
-  searchLocation: string;
-  country: string;
-  limit: number;
-  language: ApiLanguage;
-}): Promise<SearchResult | null> {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY?.trim();
-  if (!apiKey) return null;
-
-  const response = await fetchWithTimeout(
-    "https://places.googleapis.com/v1/places:searchText",
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": [
-          "places.id",
-          "places.displayName",
-          "places.formattedAddress",
-          "places.nationalPhoneNumber",
-          "places.internationalPhoneNumber",
-          "places.websiteUri",
-          "places.googleMapsUri",
-          "places.businessStatus",
-          "places.location",
-        ].join(","),
-      },
-      body: JSON.stringify({
-        textQuery: `${niche} ${{ pt: "em", es: "en", en: "in" }[language]} ${searchLocation}`,
-        languageCode: language === "pt" ? "pt-BR" : language,
-        regionCode: country.toUpperCase(),
-        pageSize: Math.min(limit, 20),
-      }),
-      cache: "no-store",
-    },
-    15_000,
-  );
-
-  if (!response.ok) throw new Error(`GOOGLE_PLACES_${response.status}`);
-  const data = (await response.json()) as { places?: GooglePlace[] };
-  const seen = new Set<string>();
-  const leads = (data.places ?? [])
-    .filter((place) => place.businessStatus !== "CLOSED_PERMANENTLY")
-    .flatMap((place) => {
-      const name = place.displayName?.text?.trim();
-      const rawPhone = place.nationalPhoneNumber ?? place.internationalPhoneNumber ?? null;
-      const phone = rawPhone && rawPhone.replace(/\D/g, "").length >= 7 ? rawPhone : null;
-      if (!name || !phone) return [];
-      const address = place.formattedAddress ?? null;
-      const key = identityKey(name, phone, address);
-      if (seen.has(key)) return [];
-      seen.add(key);
-
-      return [{
-        sourceId: `google:${place.id}`,
-        name,
-        category: niche,
-        address,
-        phone,
-        website: normalizeWebsite(place.websiteUri ?? null),
-        sourceUrl: place.googleMapsUri ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`,
-        provider: "Google Places",
-        distanceKm: null,
-      }];
-    })
-    .slice(0, limit);
-
-  return {
-    leads,
-    meta: {
-      category: niche,
-      location: searchLocation,
-      radius: 0,
-      returned: leads.length,
-      attribution: "Google Maps",
-      provider: "Google Places",
-    },
-  };
-}
-
 async function searchMicrosoftMaps({
   niche,
   searchLocation,
@@ -1007,9 +918,9 @@ export async function POST(request: Request) {
   };
   const filters = { segment, city, region, neighborhood, country, requested_provider: provider };
 
-  // Fontes externas (OpenStreetMap e Google Places): reserva a franquia, busca e grava sem repetir leads.
-  async function attemptExternal(kind: "osm" | "google"): Promise<Attempt | null> {
-    if (kind === "google" && !process.env.GOOGLE_PLACES_API_KEY?.trim()) return null;
+  // OpenStreetMap: reserva a franquia, busca e grava sem repetir leads.
+  async function attemptExternal(): Promise<Attempt | null> {
+    const kind = "osm";
     const { data: reservationData, error: reservationError } = await user!.supabase.rpc(
       "consume_prospector_leads",
       { p_requested_count: 10 },
@@ -1025,21 +936,17 @@ export async function POST(request: Request) {
     }
     try {
       let searched: SearchResult | null = null;
-      if (kind === "google") {
-        searched = await searchGooglePlaces({ niche, searchLocation, country, limit: reservedCount, language });
-      } else {
-        const located = await geocodeBestLocation({ neighborhood, city, region, country });
-        if (located) {
-          searched = await searchNominatimBusinesses({
-            niche,
-            searchLocation: located.matchedQuery,
-            country,
-            limit: reservedCount,
-            language,
-            latitude: Number(located.location.lat),
-            longitude: Number(located.location.lon),
-          });
-        }
+      const located = await geocodeBestLocation({ neighborhood, city, region, country });
+      if (located) {
+        searched = await searchNominatimBusinesses({
+          niche,
+          searchLocation: located.matchedQuery,
+          country,
+          limit: reservedCount,
+          language,
+          latitude: Number(located.location.lat),
+          longitude: Number(located.location.lon),
+        });
       }
       if (!searched || !searched.leads.length) throw new Error(`${kind.toUpperCase()}_EMPTY`);
 
@@ -1062,7 +969,7 @@ export async function POST(request: Request) {
             distance_km: lead.distanceKm,
           })),
           p_reserved_count: reservedCount,
-          p_provider_billed_count: kind === "google" ? Math.min(reservedCount, searched.leads.length) : 0,
+          p_provider_billed_count: 0,
         },
       );
       if (saveError) throw saveError;
@@ -1098,9 +1005,10 @@ export async function POST(request: Request) {
     }
   }
 
-  // Fontes que rodam dentro do Supabase (a chave fica guardada no Vault).
-  async function attemptRpc(kind: "microsoft" | "crust"): Promise<Attempt | null> {
-    const rpcName = kind === "microsoft" ? "run_azure_maps_prospector_search" : "run_crustapi_prospector_search";
+  // Microsoft Azure Maps roda dentro do Supabase (a chave fica guardada no Vault).
+  async function attemptRpc(): Promise<Attempt | null> {
+    const kind = "microsoft";
+    const rpcName = "run_azure_maps_prospector_search";
     const { data, error: searchError } = await user!.supabase.rpc(rpcName, {
       p_query: queryText,
       p_country: country,
@@ -1124,17 +1032,16 @@ export async function POST(request: Request) {
     return { payload: result, leads };
   }
 
-  // Ordem: Microsoft (5.000 grátis/mês) → OpenStreetMap (grátis) → CrustAPI → Google Places.
+  // Ordem: Microsoft Azure Maps (5.000 buscas grátis/mês) → OpenStreetMap (grátis).
   // Se uma fonte falhar ou não trouxer nenhum lead novo, passa para a próxima.
-  type SourceId = "microsoft" | "osm" | "crust" | "google";
-  const defaultChain: SourceId[] = ["microsoft", "osm", "crust", "google"];
-  const first: SourceId = provider === "crust" ? "crust" : provider === "google" ? "google" : "microsoft";
-  const chain: SourceId[] = [first, ...defaultChain.filter((item) => item !== first)];
+  // Somente fontes gratuitas (as pagas, CrustAPI e Google Places, foram retiradas).
+  type SourceId = "microsoft" | "osm";
+  const chain: SourceId[] = ["microsoft", "osm"];
 
   let lastEmpty: Attempt | null = null;
   let success: Attempt | null = null;
   for (const source of chain) {
-    const attempt = source === "osm" || source === "google" ? await attemptExternal(source) : await attemptRpc(source);
+    const attempt = source === "osm" ? await attemptExternal() : await attemptRpc();
     if (!attempt) continue;
     if (attempt.quotaExhausted) {
       return NextResponse.json(attempt.payload, { status: 429, headers: { "Cache-Control": "no-store" } });
