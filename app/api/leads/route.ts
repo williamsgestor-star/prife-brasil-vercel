@@ -1126,9 +1126,10 @@ export async function POST(request: Request) {
 
   // Ordem: Microsoft (5.000 grátis/mês) → OpenStreetMap (grátis) → CrustAPI → Google Places.
   // Se uma fonte falhar ou não trouxer nenhum lead novo, passa para a próxima.
-  const defaultChain: Array<"microsoft" | "osm" | "crust" | "google"> = ["microsoft", "osm", "crust", "google"];
-  const first = provider === "crust" ? "crust" : provider === "google" ? "google" : "microsoft";
-  const chain = [first, ...defaultChain.filter((item) => item !== first)];
+  type SourceId = "microsoft" | "osm" | "crust" | "google";
+  const defaultChain: SourceId[] = ["microsoft", "osm", "crust", "google"];
+  const first: SourceId = provider === "crust" ? "crust" : provider === "google" ? "google" : "microsoft";
+  const chain: SourceId[] = [first, ...defaultChain.filter((item) => item !== first)];
 
   let lastEmpty: Attempt | null = null;
   let success: Attempt | null = null;
