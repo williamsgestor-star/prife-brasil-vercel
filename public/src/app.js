@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=106";
+} from "./content.js?v=107";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -69,10 +69,17 @@ const videos = hasCustomVideos
   : isPrimaryTenant ? primaryDefaultVideos.slice(0, 4) : [];
 const publicEmail = String(tenantSite.public_email || "").trim();
 const googleReviewUrl = safeAssetUrl(integrationConfig.googleReviewUrl);
-const leaderRole = tenantSite.leader_role || "LÍDER DE EXPANSÃO";
-const leaderHeading = tenantSite.leader_heading || "Conhecimento, direção e uma visão de futuro.";
-const leaderDescription = tenantSite.description || `Conheça o ecossistema Prife com ${ownerName}.`;
-const leaderQuote = tenantSite.leader_quote || "Mais do que conhecer produtos, é compreender uma nova forma de conectar bem-estar, inovação e oportunidade.";
+const leaderRoleOverride = tenantSite.leader_role || "";
+const leaderHeadingOverride = tenantSite.leader_heading || "";
+const leaderDescriptionOverride = tenantSite.description || "";
+const leaderQuoteOverride = tenantSite.leader_quote || "";
+const NAV_I18N = {
+  pt: { live: "Sala ao vivo", meeting: "REUNIÃO", mgmt: "GESTÃO EXCLUSIVA", panel: "PAINEL GERAL", members: "ÁREA DE MEMBROS", vip: "LOGIN PRIFE VIP", exclusive: "EXCLUSIVO!", agent: "AGENTE 3D", aMeeting: "Abrir sala de reunião ao vivo", aPonto: "Abrir PontoVivo 3D — assistente de acupressão segura", aPanel: "Abrir painel geral de empresas", aVip: "Acessar Login Prife VIP", aNav: "Navegação principal", aFoot: "Navegação do rodapé", aScroll: "Rolar para conhecer a Prife", aVideo: "Vídeo do iTeraCare Classic Plus com seus componentes internos", aHq: "Sede da Prife International em Kuala Lumpur, Malásia", aMap: "Mapa representando a presença internacional da Prife", aTravel: "Prife Travel Club — 5 benefícios em uma assinatura", of: "da Prife Brasil", aPdf: "Baixar PDF de depoimentos", aHome: "Voltar ao início", aMenu: "Abrir menu", aOpen: "Abrir", aAnim1: "Animação do iTeraCare Classic Plus desmontado", aAnim2: "Animação do iTeraCare Classic Plus abrindo e fechando", meet: (n) => `Conheça o ecossistema Prife com ${n}.` },
+  es: { live: "Sala en vivo", meeting: "REUNIÓN", mgmt: "GESTIÓN EXCLUSIVA", panel: "PANEL GENERAL", members: "ÁREA DE MIEMBROS", vip: "LOGIN PRIFE VIP", exclusive: "¡EXCLUSIVO!", agent: "AGENTE 3D", aMeeting: "Abrir sala de reunión en vivo", aPonto: "Abrir PontoVivo 3D — asistente de acupresión segura", aPanel: "Abrir panel general de empresas", aVip: "Acceder al Login Prife VIP", aNav: "Navegación principal", aFoot: "Navegación del pie de página", aScroll: "Desplazarse para conocer Prife", aVideo: "Video del iTeraCare Classic Plus con sus componentes internos", aHq: "Sede de Prife International en Kuala Lumpur, Malasia", aMap: "Mapa de la presencia internacional de Prife", aTravel: "Prife Travel Club — 5 beneficios en una suscripción", of: "de Prife Brasil", aPdf: "Descargar PDF de testimonios", aHome: "Volver al inicio", aMenu: "Abrir menú", aOpen: "Abrir", aAnim1: "Animación del iTeraCare Classic Plus desarmado", aAnim2: "Animación del iTeraCare Classic Plus abriéndose y cerrándose", meet: (n) => `Conoce el ecosistema Prife con ${n}.` },
+  en: { live: "Live room", meeting: "MEETING", mgmt: "EXCLUSIVE MANAGEMENT", panel: "MAIN PANEL", members: "MEMBERS AREA", vip: "PRIFE VIP LOGIN", exclusive: "EXCLUSIVE!", agent: "3D AGENT", aMeeting: "Open live meeting room", aPonto: "Open PontoVivo 3D — safe acupressure assistant", aPanel: "Open company panel", aVip: "Access Prife VIP Login", aNav: "Main navigation", aFoot: "Footer navigation", aScroll: "Scroll to discover Prife", aVideo: "iTeraCare Classic Plus video showing its internal components", aHq: "Prife International headquarters in Kuala Lumpur, Malaysia", aMap: "Map showing Prife's international presence", aTravel: "Prife Travel Club — 5 benefits in one subscription", of: "at Prife Brasil", aPdf: "Download testimonials PDF", aHome: "Back to top", aMenu: "Open menu", aOpen: "Open", aAnim1: "iTeraCare Classic Plus exploded animation", aAnim2: "iTeraCare Classic Plus opening and closing animation", meet: (n) => `Discover the Prife ecosystem with ${n}.` },
+};
+const navT = () => NAV_I18N[language] || NAV_I18N.pt;
+const leaderTexts = () => { const L = (copy[language] || copy.pt).leader || {}; return { role: leaderRoleOverride || L.role || "LÍDER DE EXPANSÃO", heading: leaderHeadingOverride || ((L.before || "") + (L.emphasis || "")) || "", description: leaderDescriptionOverride || navT().meet(ownerName), quote: leaderQuoteOverride || L.quote || "" }; };
 const leaderImage = safeAssetUrl(tenantSite.leader_image_url, isPrimaryTenant ? "/brand/williams-costa-leite.webp" : "/brand/prife-brasil-original.png");
 
 function personalized(value) {
@@ -444,7 +451,7 @@ function videosMarkup() {
             </button>`}
           </div>
           <div class="video-caption">
-            <small>VÍDEO ${String(index + 1).padStart(2, "0")}</small>
+            <small>${language === "en" ? "VIDEO" : language === "es" ? "VIDEO" : "VÍDEO"} ${String(index + 1).padStart(2, "0")}</small>
             <strong>${escapeHtml(title)}</strong>
             <span>${escapeHtml(description)}</span>
           </div>
@@ -768,8 +775,8 @@ function render() {
     <div class="progress" id="progress"></div>
 
     <header class="nav-shell">
-      <nav class="nav wrap" aria-label="Navegação principal">
-        <button class="brand" type="button" data-scroll="inicio" aria-label="Voltar ao início">
+      <nav class="nav wrap" aria-label="${navT().aNav}">
+        <button class="brand" type="button" data-scroll="inicio" aria-label="${navT().aHome}">
           <img src="/brand/prife-brasil-original.png" alt="Prife Brasil" />
         </button>
 
@@ -779,7 +786,7 @@ function render() {
           type="button"
           aria-expanded="false"
           aria-controls="main-menu"
-          aria-label="Abrir menu"
+          aria-label="${navT().aMenu}"
         ><span></span><span></span></button>
 
         <div class="nav-links" id="main-menu">
@@ -789,7 +796,7 @@ function render() {
           <button class="tutorials-trigger" type="button" aria-haspopup="dialog" aria-controls="tutorials-dialog">${t.nav.tutorials}</button>
           ${galleryImages.length ? `<button type="button" data-scroll="galeria">${t.nav.gallery}</button>` : ""}
           ${isPrimaryTenant
-            ? `<a class="testimonials-nav" href="pdfs/depoimentos-prife.pdf" download data-track="testimonial_pdf_download" aria-label="Baixar PDF de depoimentos">${icon("star")} ${t.nav.testimonials} ${icon("download")}</a>`
+            ? `<a class="testimonials-nav" href="pdfs/depoimentos-prife.pdf" download data-track="testimonial_pdf_download" aria-label="${navT().aPdf}">${icon("star")} ${t.nav.testimonials} ${icon("download")}</a>`
             : videos.length ? `<button class="testimonials-nav" type="button" data-scroll="depoimentos">${icon("star")} ${t.nav.testimonials}</button>` : ""}
 
           <div class="materials-picker">
@@ -829,30 +836,30 @@ function render() {
 
           <a class="lead-finder-nav" href="/leads" data-track="lead_finder_open" aria-label="Prospector Exclusivo">
             <span class="lead-finder-icon">${icon("search")}</span>
-            <span>Prospector <strong>EXCLUSIVO!</strong></span>
+            <span>Prospector <strong>${navT().exclusive}</strong></span>
             <i class="exclusive-status" aria-hidden="true"></i>
           </a>
 
-          <a class="lead-finder-nav meeting-room-nav" href="/reuniao" aria-label="Abrir sala de reunião ao vivo">
+          <a class="lead-finder-nav meeting-room-nav" href="/reuniao" aria-label="${navT().aMeeting}">
             <span class="lead-finder-icon">${icon("video")}</span>
-            <span>Sala ao vivo <strong>REUNIÃO</strong></span>
+            <span>${navT().live} <strong>${navT().meeting}</strong></span>
             <i class="exclusive-status" aria-hidden="true"></i>
           </a>
 
-          <a class="acupressure-nav" href="/ponto-vivo" aria-label="Abrir PontoVivo 3D — assistente de acupressão segura">
+          <a class="acupressure-nav" href="/ponto-vivo" aria-label="${navT().aPonto}">
             <span class="acupressure-nav-icon">${icon("sparkle")}</span>
-            <span>PontoVivo <strong>AGENTE 3D</strong></span>
+            <span>PontoVivo <strong>${navT().agent}</strong></span>
           </a>
 
-          <a class="admin-panel-nav" id="admin-panel-nav" href="/admin/empresas" aria-label="Abrir painel geral de empresas" data-track="admin_panel_open" ${isPrimaryTenant ? "" : "hidden"}>
+          <a class="admin-panel-nav" id="admin-panel-nav" href="/admin/empresas" aria-label="${navT().aPanel}" data-track="admin_panel_open" ${isPrimaryTenant ? "" : "hidden"}>
             <span class="admin-panel-icon">${icon("shield")}</span>
-            <span><small>GESTÃO EXCLUSIVA</small><strong>PAINEL GERAL</strong></span>
+            <span><small>${navT().mgmt}</small><strong>${navT().panel}</strong></span>
             <i aria-hidden="true"></i>
           </a>
 
-          <a class="vip-login vip-login-primary" href="${siteConfig.vipUrl}" target="_blank" rel="noopener noreferrer" aria-label="Acessar Login Prife VIP" data-track="vip_login">
+          <a class="vip-login vip-login-primary" href="${siteConfig.vipUrl}" target="_blank" rel="noopener noreferrer" aria-label="${navT().aVip}" data-track="vip_login">
             <span class="vip-login-icon">${icon("login")}</span>
-            <span><small>ÁREA DE MEMBROS</small><strong>LOGIN PRIFE VIP</strong></span>
+            <span><small>${navT().members}</small><strong>${navT().vip}</strong></span>
             ${icon("arrow")}
           </a>
         </div>
@@ -876,23 +883,22 @@ function render() {
             <a class="button hero-presentation-cta" href="/apresentacao" data-track="hero_presentation_open">
               ${t.hero.presentationButton} ${icon("arrow")}
             </a>
-            ${t.world ? `<button class="world-badge" type="button" data-scroll="referencia"><span class="world-badge-dot"></span>${icon("globe")}<span>${t.world.badge}</span></button>` : ""}
           </div>
 
-          <div class="hero-visual reveal-now" aria-label="Vídeo do iTeraCare Classic Plus com seus componentes internos">
+          <div class="hero-visual reveal-now" aria-label="${navT().aVideo}">
             <div class="halo halo-a"></div><div class="halo halo-b"></div>
             <div class="product-stage">
               <div class="energy-wave wave-a"></div><div class="energy-wave wave-b"></div>
               <div class="energy-scan"></div>
               <div class="stage-label"><span>${t.hero.highlight}</span><strong>iTeraCare<br />Classic Plus</strong></div>
-              <div class="hero-video-shell"><video class="hero-product-video" autoplay muted loop playsinline preload="none" poster="/videos/iteracare-original-clean-top-v97-poster.webp" aria-label="Animação do iTeraCare Classic Plus desmontado"><source data-src="/videos/iteracare-original-clean-top-v97.webm" type="video/webm" /></video><video class="hero-product-video-mobile" autoplay muted loop playsinline preload="none" disablepictureinpicture poster="/videos/iteracare-mobile-ios-v102-poster.webp" aria-label="Animação do iTeraCare Classic Plus abrindo e fechando"><source data-src="/videos/iteracare-mobile-ios-v102.mp4" type="video/mp4" /></video><picture><source media="(max-width: 900px)" srcset="/videos/iteracare-mobile-fluid-v100.webp" /><img class="hero-product-animation-mobile" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Animação transparente do iTeraCare Classic Plus abrindo e fechando" decoding="async" fetchpriority="high" /></picture><img class="hero-product-static" src="/products/current/iteracare-classic-plus.webp" alt="iTeraCare Classic Plus" decoding="async" fetchpriority="high" /><span class="hero-video-orbit" aria-hidden="true"></span></div>
+              <div class="hero-video-shell"><video class="hero-product-video" autoplay muted loop playsinline preload="none" poster="/videos/iteracare-original-clean-top-v97-poster.webp" aria-label="${navT().aAnim1}"><source data-src="/videos/iteracare-original-clean-top-v97.webm" type="video/webm" /></video><video class="hero-product-video-mobile" autoplay muted loop playsinline preload="none" disablepictureinpicture poster="/videos/iteracare-mobile-ios-v102-poster.webp" aria-label="${navT().aAnim2}"><source data-src="/videos/iteracare-mobile-ios-v102.mp4" type="video/mp4" /></video><picture><source media="(max-width: 900px)" srcset="/videos/iteracare-mobile-fluid-v100.webp" /><img class="hero-product-animation-mobile" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${navT().aAnim2}" decoding="async" fetchpriority="high" /></picture><img class="hero-product-static" src="/products/current/iteracare-classic-plus.webp" alt="iTeraCare Classic Plus" decoding="async" fetchpriority="high" /><span class="hero-video-orbit" aria-hidden="true"></span></div>
               <div class="stage-chip"><i></i>${t.hero.wellbeing}</div>
             </div>
           </div>
         </div>
 
         <div class="film-flare" aria-hidden="true"></div>
-        <button class="scroll-cue" type="button" data-scroll="sobre" aria-label="Rolar para conhecer a Prife"><span>${t.hero.discover}</span><i></i></button>
+        <button class="scroll-cue" type="button" data-scroll="sobre" aria-label="${navT().aScroll}"><span>${t.hero.discover}</span><i></i></button>
       </section>
 
       ${t.world ? `<section class="world-ref" id="referencia" aria-labelledby="world-title">
@@ -915,7 +921,7 @@ function render() {
       <section class="about-preview" id="sobre">
         <div class="wrap about-grid reveal">
           <div class="about-image">
-            <img src="brand/sede-prife-malaysia.webp" alt="Sede da Prife International em Kuala Lumpur, Malásia" loading="lazy" decoding="async" />
+            <img src="brand/sede-prife-malaysia.webp" alt="${navT().aHq}" loading="lazy" decoding="async" />
             <div class="image-badge headquarters-badge">
               ${icon("globe")}
               <div class="headquarters-copy">
@@ -938,7 +944,7 @@ function render() {
       </section>
 
       <section class="global-section" id="pwg">
-        <img class="global-bg" src="brand/presenca-global-v77.webp" alt="Mapa representando a presença internacional da Prife" loading="lazy" decoding="async" />
+        <img class="global-bg" src="brand/presenca-global-v77.webp" alt="${navT().aMap}" loading="lazy" decoding="async" />
         <div class="global-overlay"></div>
         <div class="global-radar" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="global-scan" aria-hidden="true"></div>
@@ -981,23 +987,23 @@ function render() {
         <div class="wrap williams-grid reveal">
           <div class="portrait-card">
             <div class="portrait-lines"></div>
-            <img src="${escapeHtml(leaderImage)}" alt="${escapeHtml(ownerName)}, ${escapeHtml(leaderRole)} da Prife Brasil" loading="lazy" decoding="async" />
-            <div class="name-plate"><span>${escapeHtml(leaderRole)}</span><strong>${escapeHtml(ownerName).replace(/\s+(?=[^\s]+$)/, "<br />")}</strong></div>
+            <img src="${escapeHtml(leaderImage)}" alt="${escapeHtml(ownerName)}, ${escapeHtml(leaderTexts().role)} ${navT().of}" loading="lazy" decoding="async" />
+            <div class="name-plate"><span>${escapeHtml(leaderTexts().role)}</span><strong>${escapeHtml(ownerName).replace(/\s+(?=[^\s]+$)/, "<br />")}</strong></div>
           </div>
           <div class="williams-copy">
             <div class="section-kicker">${t.leader.kicker}</div>
-            <h2>${escapeHtml(leaderHeading)}</h2>
-            <p>${escapeHtml(leaderDescription)}</p>
-            <blockquote>“${escapeHtml(leaderQuote).replace(/^“|”$/g, "")}”</blockquote>
+            <h2>${escapeHtml(leaderTexts().heading)}</h2>
+            <p>${escapeHtml(leaderTexts().description)}</p>
+            <blockquote>“${escapeHtml(leaderTexts().quote).replace(/^“|”$/g, "")}”</blockquote>
             <button class="button primary" type="button" data-scroll="contato">${t.leader.button} ${icon("arrow")}</button>
           </div>
         </div>
       </section>
 
-      <section class="journey-section travel-club-section" aria-label="Prife Travel Club — 5 benefícios em uma assinatura">
+      <section class="journey-section travel-club-section" aria-label="${navT().aTravel}">
         <div class="wrap travel-club-promo reveal">
           <div class="travel-club-scene">
-            <video class="travel-club-art" muted loop playsinline preload="none" disablepictureinpicture poster="travel/prife-travel-club-enhanced-v84-poster.webp" aria-label="Prife Travel Club — 5 benefícios em uma assinatura"><source data-src="travel/prife-travel-club-original-v87.mp4" type="video/mp4" /></video>
+            <video class="travel-club-art" muted loop playsinline preload="none" disablepictureinpicture poster="travel/prife-travel-club-enhanced-v84-poster.webp" aria-label="${navT().aTravel}"><source data-src="travel/prife-travel-club-original-v87.mp4" type="video/mp4" /></video>
           </div>
         </div>
       </section>
@@ -1055,8 +1061,8 @@ function render() {
           </div>
           <div class="contact-actions contact-secondary">
             <a class="social-button whatsapp-button" id="contact-whatsapp" href="${whatsappUrl(t.contact.intents[contactIntentIndex][2])}" target="_blank" rel="noopener noreferrer" aria-label="${t.contact.whatsapp}" data-track="whatsapp_click" data-track-location="contact" data-track-intent="products">${socialIcon("whatsapp")}<span class="social-copy">${t.contact.whatsapp}<strong id="contact-selected-intent">${t.contact.intents[contactIntentIndex][0]}</strong></span></a>
-            ${siteConfig.instagramUrl ? `<a class="social-button instagram-button" href="${siteConfig.instagramUrl}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram ${escapeHtml(siteConfig.instagramHandle)}" data-track="social_click" data-track-network="instagram">${socialIcon("instagram")}<span class="social-copy">Instagram<strong>${escapeHtml(siteConfig.instagramHandle)}</strong></span></a>` : ""}
-            ${siteConfig.youtubeUrl ? `<a class="social-button youtube-button" href="${siteConfig.youtubeUrl}" target="_blank" rel="noopener noreferrer" aria-label="Abrir canal YouTube ${escapeHtml(siteConfig.youtubeHandle)}" data-track="social_click" data-track-network="youtube">${socialIcon("youtube")}<span class="social-copy">YouTube<strong>${escapeHtml(siteConfig.youtubeHandle)}</strong></span></a>` : ""}
+            ${siteConfig.instagramUrl ? `<a class="social-button instagram-button" href="${siteConfig.instagramUrl}" target="_blank" rel="noopener noreferrer" aria-label="${navT().aOpen} Instagram ${escapeHtml(siteConfig.instagramHandle)}" data-track="social_click" data-track-network="instagram">${socialIcon("instagram")}<span class="social-copy">Instagram<strong>${escapeHtml(siteConfig.instagramHandle)}</strong></span></a>` : ""}
+            ${siteConfig.youtubeUrl ? `<a class="social-button youtube-button" href="${siteConfig.youtubeUrl}" target="_blank" rel="noopener noreferrer" aria-label="${navT().aOpen} YouTube ${escapeHtml(siteConfig.youtubeHandle)}" data-track="social_click" data-track-network="youtube">${socialIcon("youtube")}<span class="social-copy">YouTube<strong>${escapeHtml(siteConfig.youtubeHandle)}</strong></span></a>` : ""}
           </div>
         </div>
       </section>
@@ -1065,8 +1071,8 @@ function render() {
     <footer>
       <div class="wrap footer-grid">
         <img src="/brand/prife-brasil-original.png" alt="Prife Brasil" />
-        <p>${escapeHtml(leaderRole)}<br />${escapeHtml(ownerName)}${t.footer.independent ? `<br /><span class="footer-independent">${t.footer.independent}</span>` : ""}${publicEmail ? `<br />${contactLabels.email}: <a href="mailto:${escapeHtml(publicEmail)}">${escapeHtml(publicEmail)}</a>` : ""}${siteConfig.whatsappNumber ? `<br />WhatsApp: <a href="${whatsappUrl()}">${escapeHtml(siteConfig.whatsappDisplay)}</a>` : ""}</p>
-        <nav aria-label="Navegação do rodapé"><button type="button" data-scroll="sobre">${t.footer.company}</button><button type="button" data-scroll="produtos">${t.footer.products}</button><button type="button" data-scroll="galeria">${t.footer.gallery}</button><a href="/privacidade">${contactLabels.privacy}</a><a href="/leads" data-track="lead_finder_open">${t.nav.leads}</a>${googleReviewUrl ? `<a href="${escapeHtml(googleReviewUrl)}" target="_blank" rel="noopener noreferrer" data-track="google_review_open">${contactLabels.review}</a>` : ""}${siteConfig.instagramUrl ? `<a href="${siteConfig.instagramUrl}" target="_blank" rel="noopener noreferrer" data-track="social_click" data-track-network="instagram">${escapeHtml(siteConfig.instagramHandle)}</a>` : ""}</nav>
+        <p>${escapeHtml(leaderTexts().role)}<br />${escapeHtml(ownerName)}${t.footer.independent ? `<br /><span class="footer-independent">${t.footer.independent}</span>` : ""}${publicEmail ? `<br />${contactLabels.email}: <a href="mailto:${escapeHtml(publicEmail)}">${escapeHtml(publicEmail)}</a>` : ""}${siteConfig.whatsappNumber ? `<br />WhatsApp: <a href="${whatsappUrl()}">${escapeHtml(siteConfig.whatsappDisplay)}</a>` : ""}</p>
+        <nav aria-label="${navT().aFoot}"><button type="button" data-scroll="sobre">${t.footer.company}</button><button type="button" data-scroll="produtos">${t.footer.products}</button><button type="button" data-scroll="galeria">${t.footer.gallery}</button><a href="/privacidade">${contactLabels.privacy}</a><a href="/leads" data-track="lead_finder_open">${t.nav.leads}</a>${googleReviewUrl ? `<a href="${escapeHtml(googleReviewUrl)}" target="_blank" rel="noopener noreferrer" data-track="google_review_open">${contactLabels.review}</a>` : ""}${siteConfig.instagramUrl ? `<a href="${siteConfig.instagramUrl}" target="_blank" rel="noopener noreferrer" data-track="social_click" data-track-network="instagram">${escapeHtml(siteConfig.instagramHandle)}</a>` : ""}</nav>
         <span class="footer-legal">${t.footer.rights.replace(/^©\s*\d{4}\s*•\s*/, "")}<i aria-hidden="true">•</i><a href="https://wa.me/595976945533" target="_blank" rel="noopener noreferrer" data-track="creative_credit_click">WR CREATIVE DIGITAL<sup>®</sup></a></span>
       </div>
     </footer>
@@ -1078,7 +1084,7 @@ function render() {
         <div class="pwg-locations-grid">
           <article class="pwg-location-panel">
             <div class="pwg-dialog-media">
-              <img src="/brand/prife-wellness-gallery-cacoal.webp" alt="Prife Wellness Gallery em Cacoal, Rondônia" loading="lazy" decoding="async" />
+              <img src="/brand/prife-wellness-gallery-cacoal.webp" alt="Prife Wellness Gallery · Cacoal, Rondônia" loading="lazy" decoding="async" />
               <span>PRIFE WELLNESS GALLERY</span>
             </div>
             <div class="pwg-dialog-content">
@@ -1099,7 +1105,7 @@ function render() {
 
           <article class="pwg-location-panel">
             <div class="pwg-dialog-media">
-              <img src="/brand/prife-wellness-gallery-ji-parana.webp" alt="Prife Wellness Gallery em Ji-Paraná, Rondônia" loading="lazy" decoding="async" />
+              <img src="/brand/prife-wellness-gallery-ji-parana.webp" alt="Prife Wellness Gallery · Ji-Paraná, Rondônia" loading="lazy" decoding="async" />
               <span>PRIFE WELLNESS GALLERY</span>
             </div>
             <div class="pwg-dialog-content">
