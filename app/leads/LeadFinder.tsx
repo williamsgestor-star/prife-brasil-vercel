@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { useSiteLanguage, type SiteLanguage } from "../lib/site-language";
+import LeadMap from "./LeadMap";
 import styles from "./LeadFinder.module.css";
 import { REGIONS } from "./geo-data";
 
@@ -23,6 +24,8 @@ type Lead = {
   distanceKm?: number;
   country?: string;
   deliveredAt?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 type SearchMeta = {
@@ -811,9 +814,20 @@ export default function LeadFinder({
                   <p>{copy.noResultsText}</p>
                 </div>
               ) : (
+                <>
+                <LeadMap
+                  leads={leads}
+                  title={meta ? `${meta.category} · ${meta.location}` : viewingHistory ? copy.history : copy.result}
+                  onSelect={(index) => {
+                    const card = document.getElementById(`lead-card-${index}`);
+                    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    card?.classList.add(styles.leadCardFlash);
+                    window.setTimeout(() => card?.classList.remove(styles.leadCardFlash), 1600);
+                  }}
+                />
                 <div className={styles.leadList}>
                   {leads.map((lead, index) => (
-                    <article className={styles.leadCard} key={lead.sourceId}>
+                    <article className={styles.leadCard} key={lead.sourceId} id={`lead-card-${index}`}>
                       <div className={styles.leadNumber}>{String(index + 1).padStart(2, "0")}</div>
                       <div className={styles.leadMain}>
                         <div className={styles.leadTitle}>
@@ -836,6 +850,7 @@ export default function LeadFinder({
                     </article>
                   ))}
                 </div>
+                </>
               )}
             </>
           )}

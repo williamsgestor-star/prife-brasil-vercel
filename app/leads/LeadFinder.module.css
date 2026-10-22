@@ -450,3 +450,6 @@
 .resaleStepper output { min-width: 22px; text-align: center; color: #fff; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .simulatorMainResult > small { font-size: 10px; }
 .simulatorDisclaimer { font-size: 9px !important; }
+
+/* Card destacado quando o ponto é tocado no mapa */
+.leadCardFlash { box-shadow: 0 0 0 2px #ef3b3b, 0 0 28px rgba(239, 59, 59, 0.35) !important; transition: box-shadow .3s ease; }

@@ -1,0 +1,55 @@
+.wrap {
+  position: relative;
+  margin: 0 0 18px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(18, 223, 243, 0.22);
+  background: #0d1020;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+.map { height: clamp(300px, 46vh, 460px); width: 100%; background: #0d1020; }
+.badges {
+  position: absolute;
+  z-index: 500;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.place, .count {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(15, 17, 30, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #eef3ff;
+  font-size: 12px;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+  max-width: 70%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.place i { width: 10px; height: 10px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #ef3b3b; flex: none; }
+.count { color: #4ade80; border-color: rgba(74, 222, 128, 0.45); background: rgba(10, 40, 24, 0.88); }
+.failed { margin: 0; padding: 60px 20px; text-align: center; color: #9fb0cc; font-size: 13px; }
+.wrap :global(.leaflet-popup-content-wrapper) { background: #12162a; color: #eef3ff; border: 1px solid rgba(18, 223, 243, 0.3); border-radius: 14px; }
+.wrap :global(.leaflet-popup-tip) { background: #12162a; }
+.wrap :global(.leaflet-popup-content) { margin: 12px 14px; font-size: 13px; line-height: 1.45; }
+.wrap :global(.leaflet-popup-content span) { color: #7cf7ff; font-size: 11px; }
+.wrap :global(.leaflet-popup-content small) { color: #9fb0cc; }
+.wrap :global(.leaflet-container a.leaflet-popup-close-button) { color: #9fb0cc; }
+.wrap :global(.leaflet-control-attribution) { background: rgba(13, 16, 32, 0.75); color: #8090aa; font-size: 9px; }
+.wrap :global(.leaflet-control-attribution a) { color: #9fb0cc; }
+.wrap :global(.leaflet-bar a) { background: #12162a; color: #eef3ff; border-color: rgba(255, 255, 255, 0.12); }
+@media (max-width: 600px) {
+  .map { height: 320px; }
+  .place, .count { font-size: 11px; min-height: 28px; padding: 0 10px; }
+}
