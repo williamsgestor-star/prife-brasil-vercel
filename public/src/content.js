@@ -148,7 +148,7 @@ export const copy = {
       before: "Uma empresa de ",
       emphasis: "referência mundial.",
       text: "Com sede global em Kuala Lumpur, na Malásia, a Prife leva tecnologias de bem-estar e uma comunidade internacional a mais de 85 países e regiões. Agora, em expansão no Brasil, Paraguai, Bolívia e Argentina.",
-      pills: [["Sede global", "Kuala Lumpur · Malásia"], ["Presença", "+85 países e regiões"], ["América do Sul", "Brasil · Paraguai · Bolívia · Argentina"]],
+      pills: [["Sede global", "Kuala Lumpur · Malásia"], ["Presença", "+85 países e regiões"], ["América do Sul", "Brasil, Paraguai, Bolívia e Argentina"]],
     },
     about: {
       headquarters: "SEDE PRINCIPAL",
@@ -335,7 +335,7 @@ export const copy = {
       before: "Una empresa de ",
       emphasis: "referencia mundial.",
       text: "Con sede global en Kuala Lumpur, Malasia, Prife lleva tecnologías de bienestar y una comunidad internacional a más de 85 países y regiones. Ahora, en expansión en Brasil, Paraguay, Bolivia y Argentina.",
-      pills: [["Sede global", "Kuala Lumpur · Malasia"], ["Presencia", "+85 países y regiones"], ["Sudamérica", "Brasil · Paraguay · Bolivia · Argentina"]],
+      pills: [["Sede global", "Kuala Lumpur · Malasia"], ["Presencia", "+85 países y regiones"], ["Sudamérica", "Brasil, Paraguay, Bolivia y Argentina"]],
     },
     about: {
       headquarters: "SEDE PRINCIPAL",
@@ -491,7 +491,7 @@ export const copy = {
       before: "A company that is a ",
       emphasis: "global reference.",
       text: "Headquartered in Kuala Lumpur, Malaysia, Prife brings wellness technologies and an international community to more than 85 countries and regions. Now expanding in Brazil, Paraguay, Bolivia and Argentina.",
-      pills: [["Global HQ", "Kuala Lumpur · Malaysia"], ["Presence", "85+ countries and regions"], ["South America", "Brazil · Paraguay · Bolivia · Argentina"]],
+      pills: [["Global HQ", "Kuala Lumpur · Malaysia"], ["Presence", "85+ countries and regions"], ["South America", "Brazil, Paraguay, Bolivia and Argentina"]],
     },
     about: {
       headquarters: "HEADQUARTERS",
