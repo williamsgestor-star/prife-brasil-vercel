@@ -923,7 +923,7 @@ export async function POST(request: Request) {
     const kind = "osm";
     const { data: reservationData, error: reservationError } = await user!.supabase.rpc(
       "consume_prospector_leads",
-      { p_requested_count: 10 },
+      { p_requested_count: 20 },
     );
     if (reservationError) {
       console.error("Prospector quota reservation failed", reservationError);
@@ -1014,7 +1014,7 @@ export async function POST(request: Request) {
       p_country: country,
       p_language: country === "br" ? "pt" : "es",
       p_filters: { ...filters, automatic_provider: kind },
-      p_limit: 10,
+      p_limit: 20,
     });
     if (searchError) {
       console.error(`Prospector source ${kind} RPC error`, searchError);
