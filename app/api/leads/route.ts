@@ -1000,36 +1000,55 @@ export async function POST(request: Request) {
     .join(", ");
   const queryText = `${niche} em ${searchLocation}`;
 
-  const externalProvider = provider === "google" ? provider : null;
-  if (externalProvider) {
-    if (externalProvider === "google" && !process.env.GOOGLE_PLACES_API_KEY?.trim()) {
-      return jsonError("Google Places está preparado, mas ainda precisa da chave da API.", 503);
-    }
+  type Attempt = {
+    payload: Record<string, unknown>;
+    leads: Array<Record<string, unknown>>;
+    quotaExhausted?: boolean;
+  };
+  const filters = { segment, city, region, neighborhood, country, requested_provider: provider };
 
-    const { data: reservationData, error: reservationError } = await user.supabase.rpc(
+  // Fontes externas (OpenStreetMap e Google Places): reserva a franquia, busca e grava sem repetir leads.
+  async function attemptExternal(kind: "osm" | "google"): Promise<Attempt | null> {
+    if (kind === "google" && !process.env.GOOGLE_PLACES_API_KEY?.trim()) return null;
+    const { data: reservationData, error: reservationError } = await user!.supabase.rpc(
       "consume_prospector_leads",
       { p_requested_count: 10 },
     );
     if (reservationError) {
       console.error("Prospector quota reservation failed", reservationError);
-      return jsonError("Não foi possível reservar sua franquia agora.", 502);
+      return null;
     }
     const reservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
     const reservedCount = Number(reservation?.allowed_count || 0);
     if (reservedCount < 1) {
-      return NextResponse.json({ error: "Sua franquia mensal de leads foi atingida.", quota: reservation }, { status: 429, headers: { "Cache-Control": "no-store" } });
+      return { payload: { error: "Sua franquia mensal de leads foi atingida.", quota: reservation }, leads: [], quotaExhausted: true };
     }
-
     try {
-      const searched = await searchGooglePlaces({ niche, searchLocation, country, limit: reservedCount, language });
-      if (!searched) throw new Error("GOOGLE_PLACES_NOT_CONFIGURED");
+      let searched: SearchResult | null = null;
+      if (kind === "google") {
+        searched = await searchGooglePlaces({ niche, searchLocation, country, limit: reservedCount, language });
+      } else {
+        const located = await geocodeBestLocation({ neighborhood, city, region, country });
+        if (located) {
+          searched = await searchNominatimBusinesses({
+            niche,
+            searchLocation: located.matchedQuery,
+            country,
+            limit: reservedCount,
+            language,
+            latitude: Number(located.location.lat),
+            longitude: Number(located.location.lon),
+          });
+        }
+      }
+      if (!searched || !searched.leads.length) throw new Error(`${kind.toUpperCase()}_EMPTY`);
 
-      const { data: savedData, error: saveError } = await user.supabase.rpc(
+      const { data: savedData, error: saveError } = await user!.supabase.rpc(
         "save_external_prospector_candidates",
         {
           p_provider: searched.meta.provider,
           p_query_text: queryText,
-          p_filters: { segment, city, region, neighborhood, country, requested_provider: provider },
+          p_filters: filters,
           p_candidates: searched.leads.map((lead) => ({
             source_id: lead.sourceId,
             name: lead.name,
@@ -1043,7 +1062,7 @@ export async function POST(request: Request) {
             distance_km: lead.distanceKm,
           })),
           p_reserved_count: reservedCount,
-          p_provider_billed_count: Math.min(reservedCount, searched.leads.length),
+          p_provider_billed_count: kind === "google" ? Math.min(reservedCount, searched.leads.length) : 0,
         },
       );
       if (saveError) throw saveError;
@@ -1057,128 +1076,81 @@ export async function POST(request: Request) {
         phone: typeof row.phone === "string" ? row.phone : null,
         website: typeof row.website === "string" ? row.website : null,
         sourceUrl: String(row.source_url || ""),
-        provider: String(row.provider || searched.meta.provider),
+        provider: String(row.provider || searched!.meta.provider),
         latitude: typeof row.latitude === "number" ? row.latitude : null,
         longitude: typeof row.longitude === "number" ? row.longitude : null,
         distanceKm: typeof row.distance_km === "number" ? row.distance_km : null,
       }));
-      const { data: quotaData } = await user.supabase.rpc("get_prospector_quota");
+      const { data: quotaData } = await user!.supabase.rpc("get_prospector_quota");
       const quota = Array.isArray(quotaData) ? quotaData[0] : quotaData;
-      const crmRows = crmRowsFromLeads(
-        leads as unknown as Array<Record<string, unknown>>,
-        country,
-        String(reservation?.tenant_id || ""),
-        String(user.claims.sub),
-      );
-      if (crmRows.length) {
-        const { error: crmSyncError } = await user.supabase
-          .from("crm_leads")
-          .upsert(crmRows, { onConflict: "tenant_id,phone", ignoreDuplicates: false });
-        if (crmSyncError) console.error("Automatic CRM sync failed", crmSyncError);
-      }
-      return NextResponse.json({
-        leads,
-        meta: { ...searched.meta, returned: leads.length },
-        quota,
-        historySaved: true,
-      }, { headers: { "Cache-Control": "no-store" } });
+      return {
+        payload: { leads, meta: { ...searched.meta, returned: leads.length }, quota, historySaved: true },
+        leads: leads as unknown as Array<Record<string, unknown>>,
+      };
     } catch (providerError) {
-      console.error("External Prospector provider failed", providerError);
-      await user.supabase.rpc("settle_prospector_quota", {
+      console.error(`Prospector source ${kind} failed`, providerError);
+      await user!.supabase.rpc("settle_prospector_quota", {
         p_reserved_count: reservedCount,
         p_delivered_count: 0,
         p_provider_billed_count: 0,
       });
-      return jsonError("A fonte selecionada não respondeu agora. Sua franquia não foi consumida.", 502);
+      return null;
     }
   }
 
-  let activeProvider: ProviderId = provider;
-  if (provider === "auto") {
-    const { data: lastSearch, error: lastSearchError } = await user.supabase
-      .from("prospector_searches")
-      .select("provider")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (lastSearchError) {
-      console.error("Automatic provider rotation lookup failed", lastSearchError);
-    }
-
-    const lastProvider = String(lastSearch?.provider || "").toLocaleLowerCase("en-US");
-    const lastUsedCrust = /crustapi|google maps/.test(lastProvider);
-    activeProvider = lastUsedCrust ? "microsoft" : "crust";
-  }
-
-  const rpcName = activeProvider === "microsoft"
-    ? "run_azure_maps_prospector_search"
-    : "run_crustapi_prospector_search";
-  const { data, error: searchError } = await user.supabase.rpc(
-    rpcName,
-    {
+  // Fontes que rodam dentro do Supabase (a chave fica guardada no Vault).
+  async function attemptRpc(kind: "microsoft" | "crust"): Promise<Attempt | null> {
+    const rpcName = kind === "microsoft" ? "run_azure_maps_prospector_search" : "run_crustapi_prospector_search";
+    const { data, error: searchError } = await user!.supabase.rpc(rpcName, {
       p_query: queryText,
       p_country: country,
       p_language: country === "br" ? "pt" : "es",
-      p_filters: {
-        segment,
-        city,
-        region,
-        neighborhood,
-        country,
-        requested_provider: provider,
-        automatic_provider: provider === "auto" ? activeProvider : null,
-      },
+      p_filters: { ...filters, automatic_provider: kind },
       p_limit: 10,
-    },
-  );
-
-  if (searchError) {
-    console.error("CrustAPI RPC error:", searchError);
-    return jsonError(
-      "Não foi possível consultar as empresas agora. Tente novamente.",
-      502,
-    );
+    });
+    if (searchError) {
+      console.error(`Prospector source ${kind} RPC error`, searchError);
+      return null;
+    }
+    const result = (data || {}) as Record<string, unknown>;
+    if (result.error === "monthly_quota_exhausted") {
+      return { payload: { error: String(result.message || "Sua franquia mensal de leads foi atingida."), quota: result.quota }, leads: [], quotaExhausted: true };
+    }
+    if (result.error) {
+      console.error(`Prospector source ${kind} returned error`, result.error);
+      return null;
+    }
+    const leads = Array.isArray(result.leads) ? result.leads as Array<Record<string, unknown>> : [];
+    return { payload: result, leads };
   }
 
-  const result = data as {
-    error?: string;
-    message?: string;
-    leads?: unknown[];
-    quota?: unknown;
-    meta?: unknown;
-  };
+  // Ordem: Microsoft (5.000 grátis/mês) → OpenStreetMap (grátis) → CrustAPI → Google Places.
+  // Se uma fonte falhar ou não trouxer nenhum lead novo, passa para a próxima.
+  type SourceId = "microsoft" | "osm" | "crust" | "google";
+  const defaultChain: SourceId[] = ["microsoft", "osm", "crust", "google"];
+  const first: SourceId = provider === "crust" ? "crust" : provider === "google" ? "google" : "microsoft";
+  const chain: SourceId[] = [first, ...defaultChain.filter((item) => item !== first)];
 
-  if (result?.error === "monthly_quota_exhausted") {
-    return NextResponse.json(
-      {
-        error: result.message || "Sua franquia mensal de leads foi atingida.",
-        quota: result.quota,
-      },
-      {
-        status: 429,
-        headers: { "Cache-Control": "no-store" },
-      },
-    );
+  let lastEmpty: Attempt | null = null;
+  let success: Attempt | null = null;
+  for (const source of chain) {
+    const attempt = source === "osm" || source === "google" ? await attemptExternal(source) : await attemptRpc(source);
+    if (!attempt) continue;
+    if (attempt.quotaExhausted) {
+      return NextResponse.json(attempt.payload, { status: 429, headers: { "Cache-Control": "no-store" } });
+    }
+    if (attempt.leads.length) { success = attempt; break; }
+    lastEmpty = attempt;
   }
 
-  if (result?.error) {
-    return NextResponse.json(
-      {
-        error: result.message || "Não foi possível concluir a pesquisa.",
-        quota: result.quota,
-      },
-      {
-        status: 502,
-        headers: { "Cache-Control": "no-store" },
-      },
-    );
+  if (!success) {
+    if (lastEmpty) return NextResponse.json(lastEmpty.payload, { headers: { "Cache-Control": "no-store" } });
+    return jsonError("Nenhuma fonte respondeu agora. Sua franquia não foi consumida. Tente novamente em instantes.", 502);
   }
 
-  const resultLeads = Array.isArray(result?.leads) ? result.leads as Array<Record<string, unknown>> : [];
-  const resultQuota = Array.isArray(result?.quota) ? result.quota[0] : result?.quota;
+  const resultQuota = Array.isArray(success.payload.quota) ? (success.payload.quota as unknown[])[0] : success.payload.quota;
   const crmRows = crmRowsFromLeads(
-    resultLeads,
+    success.leads,
     country,
     String((resultQuota as Record<string, unknown> | undefined)?.tenant_id || user.profile?.tenant_id || ""),
     String(user.claims.sub),
@@ -1190,7 +1162,7 @@ export async function POST(request: Request) {
     if (crmSyncError) console.error("Automatic CRM sync failed", crmSyncError);
   }
 
-  return NextResponse.json(result, {
+  return NextResponse.json(success.payload, {
     headers: { "Cache-Control": "no-store" },
   });
 }
