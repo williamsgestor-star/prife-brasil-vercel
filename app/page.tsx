@@ -60,8 +60,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=120", { as: "script" });
-  preloadModule("/src/content.js?v=107", { as: "script" });
+  preloadModule("/src/app.js?v=121", { as: "script" });
+  preloadModule("/src/content.js?v=108", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
     return (
@@ -147,7 +147,7 @@ export default async function Home() {
             <section className="seo-section" id="pwg">
               <p>PWG • PRESENÇA GLOBAL</p>
               <h2>Faça parte de algo maior. Um ecossistema em expansão.</h2>
-              <p>Com sede na Malásia e presença internacional informada em mais de 80 países e regiões, a Prife conecta comunidade, tecnologia e novas possibilidades profissionais.</p>
+              <p>Com sede na Malásia e presença internacional informada em mais de 85 países e regiões, a Prife conecta comunidade, tecnologia e novas possibilidades profissionais.</p>
             </section>
 
             <section className="seo-section" id="produtos">

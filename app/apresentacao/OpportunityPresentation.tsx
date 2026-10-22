@@ -90,7 +90,7 @@ export default function OpportunityPresentation({ ownerName, whatsappNumber }: P
               <div className={styles.split}>
                 <Image className={styles.featureImage} src="/brand/sede-prife-malaysia.webp" alt="Sede internacional da Prife em Kuala Lumpur, Malásia" width={900} height={600} unoptimized />
                 <div className={styles.factGrid}>
-                  <article><strong>80+</strong><span>países e regiões conforme materiais institucionais.</span></article>
+                  <article><strong>85+</strong><span>países e regiões conforme materiais institucionais.</span></article>
                   <article><strong>3</strong><span>idiomas disponíveis no ecossistema digital.</span></article>
                   <article><strong>1</strong><span>jornada acompanhada pelo seu distribuidor.</span></article>
                 </div>

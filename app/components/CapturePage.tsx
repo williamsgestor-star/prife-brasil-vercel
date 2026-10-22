@@ -119,7 +119,7 @@ export default function CapturePage({ variant, ownerName, whatsappNumber, leader
         </section>
 
         <section className={styles.proof} aria-label="Informações verificáveis">
-          <article><strong>80+</strong><span>países e regiões conforme materiais institucionais fornecidos.</span></article>
+          <article><strong>85+</strong><span>países e regiões conforme materiais institucionais fornecidos.</span></article>
           <article><strong>PWG</strong><span>Prife Wellness Gallery com espaço físico em Cacoal, Rondônia.</span></article>
           <article><strong>3 idiomas</strong><span>Conteúdo e orientação disponíveis em português, espanhol e inglês.</span></article>
         </section>
