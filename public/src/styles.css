@@ -465,6 +465,19 @@ h2 { font-family: var(--font-geist),sans-serif; letter-spacing: -0.05em; margin-
 .product-media.magnoseek .media-items img { filter: drop-shadow(rgba(0, 0, 0, 0.72) 0px 32px 30px) drop-shadow(rgba(18, 223, 243, 0.28) 0px 0px 28px); }
 .product-media.ion-shield .media-items { width: 78%; height: 78%; }
 .product-media.ion-shield .media-items img { filter: drop-shadow(rgba(0, 0, 0, 0.62) 0px 28px 28px) drop-shadow(rgba(66, 178, 255, 0.32) 0px 0px 30px); }
+.product-media.vision-eye .media-items { width: 60%; height: 80%; }
+.product-media.cellfood .media-items { width: 58%; height: 80%; }
+.product-media.scalar-shield .media-items { width: 88%; height: 66%; }
+.product-media.vision-eye .media-items img, .product-media.cellfood .media-items img, .product-media.scalar-shield .media-items img { filter: drop-shadow(rgba(0, 0, 0, 0.62) 0px 28px 28px) drop-shadow(rgba(66, 178, 255, 0.26) 0px 0px 28px); }
+.product-price { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin-top: 22px; }
+.product-price-value { display: grid; gap: 2px; }
+.product-price-value small { color: var(--cyan); font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.product-price-value strong { color: #fff; font-size: clamp(28px, 3vw, 38px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; text-shadow: 0 0 22px rgba(18, 223, 243, 0.28); }
+.product-price-value em { color: rgb(140, 160, 192); font-size: 12px; font-style: normal; }
+.product-buy { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 18px; border-radius: 14px; color: #fff; font-size: 13px; font-weight: 750; text-decoration: none; background: linear-gradient(180deg, #25d366, #128c4a); box-shadow: inset 0 1px rgba(255, 255, 255, 0.28), 0 10px 26px rgba(37, 211, 102, 0.28); transition: transform 0.25s, box-shadow 0.25s; }
+.product-buy:hover { transform: translateY(-2px); box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), 0 14px 32px rgba(37, 211, 102, 0.38); }
+.product-buy svg { width: 18px; height: 18px; flex: none; }
+@media (width > 900px) { .product-selector { gap: 6px; } .product-selector button { min-height: 56px; } }
 .product-media.vitality-set .media-items { grid-template-columns: repeat(3, 1fr); gap: 0px; width: 88%; height: 72%; }
 .product-media.vitality-set .media-items img { grid-area: auto; width: 135%; max-width: none; margin-inline: -17%; }
 .product-media.vitality-set .media-items img:first-child { transform: rotate(-8deg) translate(8%); }
