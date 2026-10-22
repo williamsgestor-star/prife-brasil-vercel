@@ -781,3 +781,112 @@
     margin-right: 0;
   }
 }
+
+
+/* ===== Tamanho das letras (botão Aa) ===== */
+:global(html[data-crm-size="1"]) .page { zoom: 1.12; }
+:global(html[data-crm-size="2"]) .page { zoom: 1.25; }
+
+/* ===== Tema claro (botão Aa) ===== */
+:global(html[data-crm-theme="light"]) .page { color: #0d1524; background: radial-gradient(circle at 75% 0, rgba(12, 106, 224, 0.12), transparent 32%), #f2f5fa; }
+:global(html[data-crm-theme="light"]) .header { border-bottom-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .header nav a, :global(html[data-crm-theme="light"]) .actions a, :global(html[data-crm-theme="light"]) .actions button { color: #0b4a8f; border-color: rgba(11, 91, 211, 0.3); background: #ffffff; }
+:global(html[data-crm-theme="light"]) .hero small { color: #0b7fa6; }
+:global(html[data-crm-theme="light"]) .hero h1 em { color: #0b8fb3; }
+:global(html[data-crm-theme="light"]) .hero p { color: #4a5b74; }
+:global(html[data-crm-theme="light"]) .actions .aiButton { color: #ffffff; border-color: #0b5bd3; background: linear-gradient(135deg, #1f74ff, #0b5bd3); box-shadow: 0 6px 18px rgba(11, 91, 211, 0.25); }
+:global(html[data-crm-theme="light"]) .notice { background: #e8f4ff; color: #0b4a8f; border-color: rgba(11, 91, 211, 0.25); }
+:global(html[data-crm-theme="light"]) .metrics article { background: #ffffff; border-color: #dfe5ee; box-shadow: 0 6px 18px rgba(13, 21, 36, 0.05); }
+:global(html[data-crm-theme="light"]) .metrics small { color: #5d6b80; }
+:global(html[data-crm-theme="light"]) .metrics strong { color: #0d1524; }
+:global(html[data-crm-theme="light"]) .toolbar input, :global(html[data-crm-theme="light"]) .toolbar select { color: #0d1524; background: #ffffff; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="light"]) .column { background: #e9eef5; border-color: #dbe2ec; }
+:global(html[data-crm-theme="light"]) .column > header { color: #0b4a8f; background: #e9eef5; }
+:global(html[data-crm-theme="light"]) .column > header input { color: #0b4a8f; }
+:global(html[data-crm-theme="light"]) .column > header span { background: #d4e2f7; color: #0b4a8f; }
+:global(html[data-crm-theme="light"]) .emptyColumn { color: #7b8aa3; }
+:global(html[data-crm-theme="light"]) .card { background: #ffffff; border-color: #dfe5ee; box-shadow: 0 4px 14px rgba(13, 21, 36, 0.05); }
+:global(html[data-crm-theme="light"]) .card h2 { color: #0d1524; }
+:global(html[data-crm-theme="light"]) .card small { color: #0b7fa6; }
+:global(html[data-crm-theme="light"]) .card > a { color: #0f8a5f; }
+:global(html[data-crm-theme="light"]) .card p { color: #5d6b80; }
+:global(html[data-crm-theme="light"]) .sourceBadge { color: #4a5b74; background: #eef2f7; }
+:global(html[data-crm-theme="light"]) .card select, :global(html[data-crm-theme="light"]) .detailsPanel input, :global(html[data-crm-theme="light"]) .detailsPanel textarea { color: #0d1524; background: #f7f9fc; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="light"]) .detailsButton { color: #0b4a8f; background: #eaf2ff; }
+:global(html[data-crm-theme="light"]) .aiCardButton { color: #0b4a8f; border-color: rgba(11, 91, 211, 0.3); background: #eaf2ff; }
+:global(html[data-crm-theme="light"]) .deleteButton { color: #c0263e; background: #fff0f2; }
+:global(html[data-crm-theme="light"]) .detailsPanel { border-top-color: #e6eaf2; }
+:global(html[data-crm-theme="light"]) .detailsPanel label span { color: #5d6b80; }
+:global(html[data-crm-theme="light"]) .coachBackdrop { background: rgba(13, 21, 36, 0.45); }
+:global(html[data-crm-theme="light"]) .coachPanel { color: #0d1524; background: #ffffff; border-color: #dfe5ee; box-shadow: 0 30px 80px rgba(13, 21, 36, 0.25); }
+:global(html[data-crm-theme="light"]) .coachPanel h2 { color: #0d1524; }
+:global(html[data-crm-theme="light"]) .coachPanel > header small { color: #0b7fa6; }
+:global(html[data-crm-theme="light"]) .coachPanel > header button { color: #0d1524; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .coachPanel > p, :global(html[data-crm-theme="light"]) .coachResult .coachGuidance { color: #4a5b74; }
+:global(html[data-crm-theme="light"]) .coachGrid label, :global(html[data-crm-theme="light"]) .coachContext { color: #1c2a40; }
+:global(html[data-crm-theme="light"]) .coachGrid select, :global(html[data-crm-theme="light"]) .coachGrid input, :global(html[data-crm-theme="light"]) .coachContext select, :global(html[data-crm-theme="light"]) .coachContext input, :global(html[data-crm-theme="light"]) .coachContext textarea { color: #0d1524; background: #f7f9fc; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="light"]) .coachModeTabs button { color: #4a5b74; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .coachResult { background: #f7f9fc; border-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .coachResult p { color: #1c2a40; }
+:global(html[data-crm-theme="light"]) .clearMemoryButton { color: #4a5b74; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .coachMemory { background: #f7f9fc; border-color: #dfe5ee; }
+:global(html[data-crm-theme="light"]) .coachMemoryHeader strong { color: #0d1524; }
+:global(html[data-crm-theme="light"]) .coachMemory > p { color: #7b8aa3; }
+:global(html[data-crm-theme="light"]) .memoryUser { background: #eaf2ff; border-color: #d4e2f7; }
+:global(html[data-crm-theme="light"]) .memoryAssistant { background: #e9f8f2; border-color: #cfeee1; }
+:global(html[data-crm-theme="light"]) .memoryUser small, :global(html[data-crm-theme="light"]) .memoryAssistant small { color: #0b7fa6; }
+:global(html[data-crm-theme="light"]) .memoryUser p, :global(html[data-crm-theme="light"]) .memoryAssistant p { color: #1c2a40; }
+:global(html[data-crm-theme="light"]) .transformButton { color: #0b4a8f; background: #eaf2ff; border-color: rgba(11, 91, 211, 0.3); }
+:global(html[data-crm-theme="light"]) .coachError { color: #c0263e; background: #fff0f2; }
+@media (prefers-color-scheme: light) {
+:global(html[data-crm-theme="auto"]) .page { color: #0d1524; background: radial-gradient(circle at 75% 0, rgba(12, 106, 224, 0.12), transparent 32%), #f2f5fa; }
+:global(html[data-crm-theme="auto"]) .header { border-bottom-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .header nav a, :global(html[data-crm-theme="auto"]) .actions a, :global(html[data-crm-theme="auto"]) .actions button { color: #0b4a8f; border-color: rgba(11, 91, 211, 0.3); background: #ffffff; }
+:global(html[data-crm-theme="auto"]) .hero small { color: #0b7fa6; }
+:global(html[data-crm-theme="auto"]) .hero h1 em { color: #0b8fb3; }
+:global(html[data-crm-theme="auto"]) .hero p { color: #4a5b74; }
+:global(html[data-crm-theme="auto"]) .actions .aiButton { color: #ffffff; border-color: #0b5bd3; background: linear-gradient(135deg, #1f74ff, #0b5bd3); box-shadow: 0 6px 18px rgba(11, 91, 211, 0.25); }
+:global(html[data-crm-theme="auto"]) .notice { background: #e8f4ff; color: #0b4a8f; border-color: rgba(11, 91, 211, 0.25); }
+:global(html[data-crm-theme="auto"]) .metrics article { background: #ffffff; border-color: #dfe5ee; box-shadow: 0 6px 18px rgba(13, 21, 36, 0.05); }
+:global(html[data-crm-theme="auto"]) .metrics small { color: #5d6b80; }
+:global(html[data-crm-theme="auto"]) .metrics strong { color: #0d1524; }
+:global(html[data-crm-theme="auto"]) .toolbar input, :global(html[data-crm-theme="auto"]) .toolbar select { color: #0d1524; background: #ffffff; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="auto"]) .column { background: #e9eef5; border-color: #dbe2ec; }
+:global(html[data-crm-theme="auto"]) .column > header { color: #0b4a8f; background: #e9eef5; }
+:global(html[data-crm-theme="auto"]) .column > header input { color: #0b4a8f; }
+:global(html[data-crm-theme="auto"]) .column > header span { background: #d4e2f7; color: #0b4a8f; }
+:global(html[data-crm-theme="auto"]) .emptyColumn { color: #7b8aa3; }
+:global(html[data-crm-theme="auto"]) .card { background: #ffffff; border-color: #dfe5ee; box-shadow: 0 4px 14px rgba(13, 21, 36, 0.05); }
+:global(html[data-crm-theme="auto"]) .card h2 { color: #0d1524; }
+:global(html[data-crm-theme="auto"]) .card small { color: #0b7fa6; }
+:global(html[data-crm-theme="auto"]) .card > a { color: #0f8a5f; }
+:global(html[data-crm-theme="auto"]) .card p { color: #5d6b80; }
+:global(html[data-crm-theme="auto"]) .sourceBadge { color: #4a5b74; background: #eef2f7; }
+:global(html[data-crm-theme="auto"]) .card select, :global(html[data-crm-theme="auto"]) .detailsPanel input, :global(html[data-crm-theme="auto"]) .detailsPanel textarea { color: #0d1524; background: #f7f9fc; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="auto"]) .detailsButton { color: #0b4a8f; background: #eaf2ff; }
+:global(html[data-crm-theme="auto"]) .aiCardButton { color: #0b4a8f; border-color: rgba(11, 91, 211, 0.3); background: #eaf2ff; }
+:global(html[data-crm-theme="auto"]) .deleteButton { color: #c0263e; background: #fff0f2; }
+:global(html[data-crm-theme="auto"]) .detailsPanel { border-top-color: #e6eaf2; }
+:global(html[data-crm-theme="auto"]) .detailsPanel label span { color: #5d6b80; }
+:global(html[data-crm-theme="auto"]) .coachBackdrop { background: rgba(13, 21, 36, 0.45); }
+:global(html[data-crm-theme="auto"]) .coachPanel { color: #0d1524; background: #ffffff; border-color: #dfe5ee; box-shadow: 0 30px 80px rgba(13, 21, 36, 0.25); }
+:global(html[data-crm-theme="auto"]) .coachPanel h2 { color: #0d1524; }
+:global(html[data-crm-theme="auto"]) .coachPanel > header small { color: #0b7fa6; }
+:global(html[data-crm-theme="auto"]) .coachPanel > header button { color: #0d1524; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .coachPanel > p, :global(html[data-crm-theme="auto"]) .coachResult .coachGuidance { color: #4a5b74; }
+:global(html[data-crm-theme="auto"]) .coachGrid label, :global(html[data-crm-theme="auto"]) .coachContext { color: #1c2a40; }
+:global(html[data-crm-theme="auto"]) .coachGrid select, :global(html[data-crm-theme="auto"]) .coachGrid input, :global(html[data-crm-theme="auto"]) .coachContext select, :global(html[data-crm-theme="auto"]) .coachContext input, :global(html[data-crm-theme="auto"]) .coachContext textarea { color: #0d1524; background: #f7f9fc; border-color: #d5dde8; color-scheme: light; }
+:global(html[data-crm-theme="auto"]) .coachModeTabs button { color: #4a5b74; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .coachResult { background: #f7f9fc; border-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .coachResult p { color: #1c2a40; }
+:global(html[data-crm-theme="auto"]) .clearMemoryButton { color: #4a5b74; background: #f2f5fa; border-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .coachMemory { background: #f7f9fc; border-color: #dfe5ee; }
+:global(html[data-crm-theme="auto"]) .coachMemoryHeader strong { color: #0d1524; }
+:global(html[data-crm-theme="auto"]) .coachMemory > p { color: #7b8aa3; }
+:global(html[data-crm-theme="auto"]) .memoryUser { background: #eaf2ff; border-color: #d4e2f7; }
+:global(html[data-crm-theme="auto"]) .memoryAssistant { background: #e9f8f2; border-color: #cfeee1; }
+:global(html[data-crm-theme="auto"]) .memoryUser small, :global(html[data-crm-theme="auto"]) .memoryAssistant small { color: #0b7fa6; }
+:global(html[data-crm-theme="auto"]) .memoryUser p, :global(html[data-crm-theme="auto"]) .memoryAssistant p { color: #1c2a40; }
+:global(html[data-crm-theme="auto"]) .transformButton { color: #0b4a8f; background: #eaf2ff; border-color: rgba(11, 91, 211, 0.3); }
+:global(html[data-crm-theme="auto"]) .coachError { color: #c0263e; background: #fff0f2; }
+}
