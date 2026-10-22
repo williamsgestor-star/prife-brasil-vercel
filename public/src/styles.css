@@ -4289,3 +4289,4 @@ body::after { content: ""; position: fixed; inset: -50%; z-index: 80; pointer-ev
 @media (prefers-reduced-motion: reduce) { body::after, .film-flare, .hero h1 em, .about-copy h2 em, .world-ref h2 em, .world-badge, .world-badge-dot, .world-ref-lines i { animation: none !important; } }
 @media (max-width: 760px) { body::after { animation: none; opacity: .045; } .film-flare { display: none; } }
 .world-ref-count strong sup { -webkit-text-fill-color: #5ee9f7; color: #5ee9f7; text-shadow: 0 0 18px rgba(18,223,243,.6); }
+.world-ref-pills b { overflow-wrap: anywhere; }

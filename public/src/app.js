@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=105";
+} from "./content.js?v=106";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -900,7 +900,7 @@ function render() {
         <div class="world-ref-glow" aria-hidden="true"></div>
         <div class="wrap world-ref-grid reveal">
           <div class="world-ref-count">
-            <strong data-count="80">80<sup>+</sup></strong>
+            <strong data-count="85">85<sup>+</sup></strong>
             <span>${t.world.label}</span>
           </div>
           <div class="world-ref-copy">
@@ -1514,7 +1514,7 @@ function closeTutorialsDialog() {
 function bindWorldCounter() {
   const el = document.querySelector(".world-ref-count strong[data-count]");
   if (!el || !("IntersectionObserver" in window)) return;
-  const target = Number(el.dataset.count) || 80;
+  const target = Number(el.dataset.count) || 85;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const io = new IntersectionObserver((entries) => {
     if (!entries.some((e) => e.isIntersecting)) return; io.disconnect();

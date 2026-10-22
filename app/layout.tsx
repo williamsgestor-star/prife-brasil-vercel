@@ -120,7 +120,7 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link rel="stylesheet" href="/src/styles.css?v=perf-118" />
+        <link rel="stylesheet" href="/src/styles.css?v=perf-119" />
       </head>
       <body>
         {children}
