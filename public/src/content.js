@@ -1,8 +1,8 @@
 export const siteConfig = {
   whatsappNumber: "5544998847361",
   whatsappDisplay: "+55 44 99884-7361",
-  instagramUrl: "https://www.instagram.com/gestor.integrativo/",
-  instagramHandle: "@gestor.integrativo",
+  instagramUrl: "https://www.instagram.com/wrcreativedigital/",
+  instagramHandle: "@wrcreativedigital",
   youtubeUrl: "https://www.youtube.com/@iTERACARE-BR",
   youtubeHandle: "@iTERACARE-BR",
   vipUrl: "https://prifevip.com/login",
