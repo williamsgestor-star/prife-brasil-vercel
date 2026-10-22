@@ -8,7 +8,7 @@ export default function AppBootstrap() {
 
     const script = document.createElement("script");
     script.type = "module";
-    script.src = "/src/app.js?v=125";
+    script.src = "/src/app.js?v=126";
     script.dataset.prifeApp = "true";
     document.body.appendChild(script);
   }, []);

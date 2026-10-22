@@ -258,6 +258,27 @@ function thoughtIcon() {
   return `<span class="thought-icon-3d"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14.4 32.8c-5.1 0-9.2-3.7-9.2-8.4 0-4.2 3.2-7.6 7.5-8.3C14.6 10.8 19.1 7.4 24.6 7.4c6 0 10.9 4 12.2 9.5 3.8 1 6.5 4.2 6.5 8 0 4.6-4 8-9 8H14.4Z"/><circle cx="15.8" cy="38.1" r="3.2"/><circle cx="10.2" cy="43" r="1.9"/><circle class="thought-dot" cx="19" cy="23" r="2.2"/><circle class="thought-dot" cx="25" cy="23" r="2.2"/><circle class="thought-dot" cx="31" cy="23" r="2.2"/></svg></span>`;
 }
 
+/* Pausa animações e vídeos das seções que estão fora da tela (o site fica leve em celular fraco). */
+let offscreenObserver = null;
+function pauseOffscreenSections() {
+  if (!("IntersectionObserver" in window)) return;
+  if (offscreenObserver) offscreenObserver.disconnect();
+  const sections = document.querySelectorAll("main > section, main > header, footer");
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target; const off = !entry.isIntersecting;
+      el.classList.toggle("is-offscreen", off);
+      el.querySelectorAll("video").forEach((v) => {
+        if (!v.loop && !v.autoplay) return;
+        if (off) { if (!v.paused) { v.dataset.autoPaused = "1"; v.pause(); } }
+        else if (v.dataset.autoPaused) { delete v.dataset.autoPaused; v.play().catch(() => {}); }
+      });
+    });
+  }, { rootMargin: "200px 0px" });
+  sections.forEach((s) => io.observe(s));
+  offscreenObserver = io;
+}
+
 function scrollToSection(id) {
   trackEvent("section_navigation", { section: id });
   document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth" });
@@ -1179,6 +1200,7 @@ function render() {
   bindEvents();
   setupGalleryImages();
   setupReveal();
+  pauseOffscreenSections();
   startProductRotation();
   updateScrollProgress();
   syncAdminNavigation();
