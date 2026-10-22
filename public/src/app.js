@@ -356,7 +356,7 @@ function priceMarkup(product, title) {
   return `
       <div class="product-price">
         <div class="product-price-value"><small>${h.price}</small><strong>${value}</strong>${note ? `<em>${note}</em>` : ""}</div>
-        <a class="product-buy" href="${whatsappUrl(message)}" target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" data-track-location="product" data-track-product="${product.id}">${socialIcon("whatsapp")}<span>${h.buy}</span></a>
+        <a class="social-button whatsapp-button product-buy" href="${whatsappUrl(message)}" target="_blank" rel="noopener noreferrer" aria-label="${h.buy} — WhatsApp" data-track="whatsapp_click" data-track-location="product" data-track-product="${product.id}">${socialIcon("whatsapp")}<span class="social-copy">WhatsApp<strong>${h.buy}</strong></span></a>
       </div>`;
 }
 
