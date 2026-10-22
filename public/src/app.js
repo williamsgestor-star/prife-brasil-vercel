@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=110";
+} from "./content.js?v=111";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -122,11 +122,12 @@ function applyVisualSettings() {
   if (!main) return;
   const sectionMap = {
     hero: main.querySelector(".hero"), world: main.querySelector(".world-ref"), about: main.querySelector(".about-preview"), global: main.querySelector(".global-section"),
-    products: main.querySelector(".products-section"), gallery: main.querySelector(".gallery-section"), leader: main.querySelector(".williams-section"),
+    products: main.querySelector(".products-section"), certs: main.querySelector(".certs-section"), gallery: main.querySelector(".gallery-section"), leader: main.querySelector(".williams-section"),
     journey: main.querySelector(".journey-section"), faq: main.querySelector(".faq-section"), contact: main.querySelector(".contact-section"),
   };
   const order = Array.isArray(visualSettings.sections) ? [...visualSettings.sections] : Object.keys(sectionMap);
   if (!order.includes("world")) { const at = order.indexOf("hero"); order.splice(at >= 0 ? at + 1 : 0, 0, "world"); }
+  if (!order.includes("certs")) { const at = order.indexOf("products"); order.splice(at >= 0 ? at + 1 : order.length, 0, "certs"); }
   const hidden = new Set(Array.isArray(visualSettings.hiddenSections) ? visualSettings.hiddenSections : []);
   order.forEach((key) => { const section = sectionMap[key]; if (section) { section.hidden = hidden.has(key); main.append(section); } });
   const texts = visualTexts;
@@ -986,6 +987,20 @@ function render() {
           <article class="featured-product" id="featured-product">${productCardMarkup()}</article>
         </div>
       </section>
+
+      ${t.certs ? `<section class="certs-section" id="certificados" aria-labelledby="certs-title">
+        <div class="wrap">
+          <div class="certs-heading reveal">
+            <div class="section-kicker">${t.certs.kicker}</div>
+            <h2 id="certs-title">${t.certs.before}<em>${t.certs.emphasis}</em></h2>
+            <p>${t.certs.text}</p>
+          </div>
+          <ul class="certs-grid reveal" role="list">
+            ${t.certs.items.map(([file, name]) => `<li class="cert-card"><span class="cert-logo"><img src="brand/certificados/${file}.webp" alt="${escapeHtml(name)}" loading="lazy" decoding="async" /></span><small>${escapeHtml(name)}</small></li>`).join("")}
+          </ul>
+          <p class="certs-note reveal">${t.certs.note}</p>
+        </div>
+      </section>` : ""}
 
       ${galleryImages.length || videos.length ? `<section class="gallery-section" id="galeria">
         <div class="wrap gallery-heading reveal">
