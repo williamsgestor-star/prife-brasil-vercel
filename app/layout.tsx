@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     "Envy Specs",
     "MagnoSeek",
     "iON Shield",
+    "Essência Ocular Vision",
+    "Cellfood Plus",
+    "Scalar Energy Shield",
     "distribuidor independente Prife",
     "como ser distribuidor Prife",
     "iTeraCare preço",
@@ -49,7 +52,7 @@ export const metadata: Metadata = {
       "Conheça o iTeraCare e as tecnologias de bem-estar Prife com Williams Costa Leite, distribuidor independente PRIFE.",
     images: [
       {
-        url: "/og-prife-brasil.webp",
+        url: "/og-prife-brasil.jpg",
         width: 1200,
         height: 630,
         alt: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
@@ -61,7 +64,7 @@ export const metadata: Metadata = {
     title: "Prife Brasil: iTeraCare e tecnologias de bem-estar",
     description:
       "Conheça o iTeraCare e as tecnologias de bem-estar Prife com um distribuidor independente PRIFE.",
-    images: ["/og-prife-brasil.webp"],
+    images: ["/og-prife-brasil.jpg"],
   },
   robots: {
     index: true,
@@ -120,7 +123,7 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link rel="stylesheet" href="/src/styles.css?v=perf-124" />
+        <link rel="stylesheet" href="/src/styles.css?v=perf-125" />
       </head>
       <body>
         {children}

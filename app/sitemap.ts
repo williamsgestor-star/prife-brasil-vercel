@@ -5,7 +5,7 @@ import { isPrimaryOrigin, requestPublicOrigin } from "./lib/public-origin";
 export const dynamic = "force-dynamic";
 
 // Data da última revisão de conteúdo e SEO. Atualize quando mudar textos das páginas públicas.
-const lastModified = new Date("2026-10-21");
+const lastModified = new Date("2026-10-22");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = await requestPublicOrigin();
@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified,
     changeFrequency: "weekly",
     priority: 1,
-    images: [`${origin}/og-prife-brasil.webp`, `${origin}/products/iteracare-plus.webp`],
+    images: [`${origin}/og-prife-brasil.jpg`, `${origin}/products/iteracare-plus.webp`],
   };
   // Nos subdomínios só a página inicial é própria; as demais apontam (canonical) para o site principal.
   if (!isPrimaryOrigin(origin)) return [home];

@@ -5,15 +5,18 @@ import { requestPublicOrigin } from "./lib/public-origin";
 import ITeraAssistant from "./components/ITeraAssistant";
 import { getCurrentTenantSiteProfile, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
 
-const products = [
-  ["iTeraCare Classic Plus", "Tecnologia de terahertz em um aparelho de design premium para a rotina de bem-estar."],
-  ["Vitality Energy", "Pulseiras de uso diário em três modelos, com design elegante e geração de íons negativos."],
-  ["Envy Sun", "Óculos solares que combinam proteção, conforto visual e a assinatura Prife."],
-  ["iTera-Bio Lite", "Tecnologia criada para uma experiência de relaxamento e bem-estar diário."],
-  ["Renew Patch", "Patch não transdérmico desenvolvido com tecnologia de biofield e ressonância."],
-  ["Envy Specs", "Óculos de design moderno voltados ao conforto visual e à personalidade."],
-  ["MagnoSeek", "Tecnologia informativa e não invasiva que integra IA, bio-ressonância e análise de dados."],
-  ["iON Shield", "Ionizador de ar portátil, leve e silencioso, desenvolvido para acompanhar a rotina diária."],
+const products: [string, string, number][] = [
+  ["iTeraCare Classic Plus", "Tecnologia de terahertz em um aparelho de design premium para a rotina de bem-estar.", 4500],
+  ["Vitality Energy", "Pulseiras de uso diário em três modelos, com design elegante e geração de íons negativos.", 899],
+  ["Envy Sun", "Óculos solares que combinam proteção, conforto visual e a assinatura Prife.", 899],
+  ["iTera-Bio Lite", "Tecnologia criada para uma experiência de relaxamento e bem-estar diário.", 12500],
+  ["Renew Patch", "Patch não transdérmico desenvolvido com tecnologia de biofield e ressonância.", 460],
+  ["Envy Specs", "Óculos de design moderno voltados ao conforto visual e à personalidade.", 749],
+  ["MagnoSeek", "Tecnologia informativa e não invasiva que integra IA, bio-ressonância e análise de dados.", 41500],
+  ["iON Shield", "Ionizador de ar portátil, leve e silencioso, desenvolvido para acompanhar a rotina diária.", 2900],
+  ["Essência Ocular Vision", "Vision Eye Essence em frasco de 5 ml, da linha Vision da Prife.", 320],
+  ["Cellfood Plus", "Gotas com água do mar e algas marinhas em frasco de 30 ml, fórmula presente no mercado desde 1969.", 511],
+  ["Scalar Energy Shield", "Discos com a tecnologia de energia escalar da Prife, em estojo premium.", 350],
 ];
 
 const faq = [
@@ -52,16 +55,16 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       locale: "pt_BR",
       alternateLocale: ["es_ES", "en_US"],
-      images: [{ url: `${origin}/og-prife-brasil.webp`, width: 1200, height: 630, alt: title }],
+      images: [{ url: `${origin}/og-prife-brasil.jpg`, width: 1200, height: 630, alt: title }],
     },
-    twitter: { card: "summary_large_image", title, description, images: [`${origin}/og-prife-brasil.webp`] },
+    twitter: { card: "summary_large_image", title, description, images: [`${origin}/og-prife-brasil.jpg`] },
   };
 }
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=126", { as: "script" });
-  preloadModule("/src/content.js?v=111", { as: "script" });
+  preloadModule("/src/app.js?v=127", { as: "script" });
+  preloadModule("/src/content.js?v=112", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
     return (
@@ -89,7 +92,7 @@ export default async function Home() {
       { "@type": "WebSite", "@id": `${origin}/#website`, url: origin, name: tenant?.business_name || "Prife Brasil", alternateName: "Prife Brasil", inLanguage: ["pt-BR", "es", "en"], description },
       { "@type": "Organization", "@id": `${origin}/#organization`, name: tenant?.business_name || "Prife Brasil", url: origin, logo: `${origin}/favicon-512.png`, description, sameAs: socialProfiles, contactPoint: { "@type": "ContactPoint", telephone: `+${whatsapp}`, contactType: "customer service", availableLanguage: ["Portuguese", "Spanish", "English"] } },
       { "@type": "Person", "@id": `${origin}/#representative`, name: ownerName, jobTitle: role, description: "Distribuidor independente PRIFE", knowsAbout: ["iTeraCare", "tecnologias de bem-estar Prife", "distribuição independente Prife"], image: portrait.startsWith("http") ? portrait : `${origin}${portrait.startsWith("/") ? "" : "/"}${portrait}`, worksFor: { "@id": `${origin}/#organization` }, sameAs: socialProfiles },
-      { "@type": "ItemList", name: "Tecnologias de bem-estar Prife", numberOfItems: products.length, itemListElement: products.map(([name, itemDescription], index) => ({ "@type": "ListItem", position: index + 1, item: { "@type": "Product", name, description: itemDescription } })) },
+      { "@type": "ItemList", name: "Tecnologias de bem-estar Prife", numberOfItems: products.length, itemListElement: products.map(([name, itemDescription, price], index) => ({ "@type": "ListItem", position: index + 1, item: { "@type": "Product", name, description: itemDescription, brand: { "@type": "Brand", name: "Prife" }, offers: { "@type": "Offer", price: price.toFixed(2), priceCurrency: "BRL", availability: "https://schema.org/InStock", url: `${origin}/#produtos`, seller: { "@id": `${origin}/#organization` } } } })) },
       { "@type": "FAQPage", mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
     ],
   };

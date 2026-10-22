@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=111";
+} from "./content.js?v=112";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -920,9 +920,12 @@ function render() {
             <div class="eyebrow"><span></span>${t.hero.eyebrow}</div>
             <h1>${t.hero.before}<em>${t.hero.emphasis}</em>${t.hero.after}</h1>
             <p class="hero-intro">${renderHeroDescription(t.hero)}</p>
-            <a class="button hero-presentation-cta" href="/apresentacao" data-track="hero_presentation_open">
-              ${t.hero.presentationButton} ${icon("arrow")}
-            </a>
+            <div class="hero-cta-row">
+              <a class="social-button whatsapp-button product-buy hero-wa" href="${whatsappUrl()}" target="_blank" rel="noopener noreferrer" data-track="whatsapp_click" data-track-location="hero">${socialIcon("whatsapp")}<span class="social-copy">WhatsApp<strong>${t.hero.waButton || "Falar comigo"}</strong></span></a>
+              <a class="button hero-presentation-cta" href="/apresentacao" data-track="hero_presentation_open">
+                ${t.hero.presentationButton} ${icon("arrow")}
+              </a>
+            </div>
           </div>
 
           <div class="hero-visual reveal-now" aria-label="${navT().aVideo}">

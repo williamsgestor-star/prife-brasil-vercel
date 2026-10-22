@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     url: "/produto",
     title: "iTeraCare Classic Plus: modelos e cuidados | Prife Brasil",
     description: "Conheça o iTeraCare Classic Plus: modelos, características, cuidados de uso e condições atuais. Tire dúvidas com um distribuidor independente PRIFE pelo WhatsApp.",
-    images: [{ url: "/og-prife-brasil.webp", alt: "iTeraCare Classic Plus: modelos e cuidados | Prife Brasil" }],
+    images: [{ url: "/og-prife-brasil.jpg", alt: "iTeraCare Classic Plus: modelos e cuidados | Prife Brasil" }],
   },
-  twitter: { card: "summary_large_image", title: "iTeraCare Classic Plus: modelos e cuidados | Prife Brasil", description: "Conheça o iTeraCare Classic Plus: modelos, características, cuidados de uso e condições atuais. Tire dúvidas com um distribuidor independente PRIFE pelo WhatsApp.", images: ["/og-prife-brasil.webp"] },
+  twitter: { card: "summary_large_image", title: "iTeraCare Classic Plus: modelos e cuidados | Prife Brasil", description: "Conheça o iTeraCare Classic Plus: modelos, características, cuidados de uso e condições atuais. Tire dúvidas com um distribuidor independente PRIFE pelo WhatsApp.", images: ["/og-prife-brasil.jpg"] },
 };
 
 export default async function ProductCapturePage() {
