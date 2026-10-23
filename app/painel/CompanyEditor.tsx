@@ -730,7 +730,21 @@ function AccountAccess({ tenantId, slug }: { tenantId: string; slug: string }) {
       setState("idle");
     } catch { setState("error"); setMessage("Falha de conexão. Tente novamente."); }
   }
-  const copy = (text: string) => { navigator.clipboard?.writeText(text).catch(() => {}); };
+  const [copied, setCopied] = useState(false);
+  const copy = async (text: string) => {
+    let ok = false;
+    try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; } } catch { ok = false; }
+    if (!ok) {
+      const area = document.createElement("textarea");
+      area.value = text; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.top = "-1000px";
+      document.body.appendChild(area); area.select();
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      area.remove();
+    }
+    setCopied(ok);
+    setMessage(ok ? "Acesso copiado. Agora é só colar no WhatsApp." : "Não consegui copiar automaticamente. Selecione o texto da caixa acima e copie.");
+    if (ok) window.setTimeout(() => setCopied(false), 2500);
+  };
   const accessText = email && password ? `Acesso ao painel Prife\nEndereço: https://www.prife-brasil.com/login\nE-mail: ${email}\nSenha provisória: ${password}\nSeu site: https://${slug}.prife-brasil.com` : "";
   return (
     <div className={styles.section}>
@@ -738,14 +752,16 @@ function AccountAccess({ tenantId, slug }: { tenantId: string; slug: string }) {
       <div className={styles.formGrid}>
         <label>E-mail de login<input readOnly value={email} placeholder="Clique em Ver e-mail" /></label>
         <label>Último acesso<input readOnly value={lastSignIn ? new Date(lastSignIn).toLocaleString("pt-BR") : email ? "Nunca entrou" : ""} /></label>
-        {password && <label className={styles.full}>Nova senha provisória<input readOnly value={password} /></label>}
+        {password && <label className={styles.full}>Nova senha provisória<input readOnly value={password} onFocus={(e) => e.currentTarget.select()} /></label>}
+        {accessText && <label className={styles.full}>Mensagem para enviar<textarea readOnly rows={5} value={accessText} onFocus={(e) => e.currentTarget.select()} /></label>}
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
         <button type="button" className={styles.uploadButton} disabled={state === "loading"} onClick={() => call("info")}>{state === "loading" ? "Aguarde…" : "Ver e-mail"}</button>
         <button type="button" className={styles.uploadButton} disabled={state === "loading"} onClick={() => { if (window.confirm("Gerar uma nova senha? A senha antiga deixa de funcionar.")) call("reset", generateTemporaryPassword()); }}>Gerar nova senha</button>
-        {accessText && <button type="button" className={styles.uploadButton} onClick={() => copy(accessText)}>Copiar acesso para enviar</button>}
+        {accessText && <button type="button" className={styles.uploadButton} onClick={() => { void copy(accessText); }}>{copied ? "Copiado ✓" : "Copiar acesso para enviar"}</button>}
+        {accessText && <a className={styles.uploadButton} href={`https://wa.me/?text=${encodeURIComponent(accessText)}`} target="_blank" rel="noreferrer">Enviar pelo WhatsApp</a>}
       </div>
-      {message && <p style={{ marginTop: 10, color: state === "error" ? "#ff8a8a" : undefined, fontSize: 13 }}>{message}</p>}
+      {message && <p style={{ marginTop: 10, color: state === "error" ? "#ff8a8a" : "#9df9ff", fontSize: 13 }}>{message}</p>}
     </div>
   );
 }
