@@ -607,6 +607,7 @@ export default function CompanyEditor({
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
 
+        {adminMode && <AccountAccess key={`acc-${selected.tenantId}`} tenantId={selected.tenantId} slug={selected.slug} />}
         {adminMode && <SubscriptionPanel key={selected.tenantId} tenantId={selected.tenantId} slug={selected.slug} subscription={selected.subscription} now={billingNow} onChange={subscription => setCompanies(current => current.map(company => company.tenantId === selected.tenantId ? { ...company, subscription } : company))} />}
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>01</b><div><h2>Perfil apresentado no site</h2><p>Foto, nome e textos do líder exibidos no subdomínio.</p></div><a className={styles.tenantLink} href={`https://${selected.slug}.prife-brasil.com`} target="_blank" rel="noreferrer" title="Abrir o subdomínio em uma nova aba"><span>LINK DO SUBDOMÍNIO</span><strong>{selected.slug}.prife-brasil.com</strong><i aria-hidden="true">↗</i></a></div>
@@ -614,6 +615,7 @@ export default function CompanyEditor({
             <MediaUpload title="Foto principal do líder" value={profile.leader_image_url} busy={busy === "leader"} accept={IMAGE_ACCEPT} onUpload={(e) => upload(e, "leader")} onRemove={() => updateProfile("leader_image_url", null)} />
             <div className={styles.formGrid}>
               <label>Nome apresentado<input value={selected.ownerName} onChange={(e) => updateCompany({ ownerName: e.target.value })} /></label>
+              <label>Nome da empresa<input value={selected.businessName} maxLength={120} onChange={(e) => updateCompany({ businessName: e.target.value })} placeholder="Prife Nome" /></label>
               <label>Cargo ou função<input value={profile.leader_role ?? ""} onChange={(e) => updateProfile("leader_role", e.target.value)} placeholder="Líder de Expansão" /></label>
               <label className={styles.full}>Título principal<input value={profile.leader_heading ?? ""} maxLength={220} onChange={(e) => updateProfile("leader_heading", e.target.value)} /></label>
               <label className={styles.full}>Texto de apresentação<textarea rows={5} maxLength={1500} value={profile.description ?? ""} onChange={(e) => updateProfile("description", e.target.value)} /><small>{profile.description?.length ?? 0}/1500</small></label>
@@ -703,6 +705,47 @@ export default function CompanyEditor({
         {error && <p role="alert">{error}</p>}
         {success && <p role="status">{success}</p>}
       </section>
+    </div>
+  );
+}
+
+function AccountAccess({ tenantId, slug }: { tenantId: string; slug: string }) {
+  const [email, setEmail] = useState("");
+  const [lastSignIn, setLastSignIn] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+  const [message, setMessage] = useState("");
+  async function call(action: "info" | "reset", temporaryPassword?: string) {
+    setState("loading"); setMessage("");
+    try {
+      const response = await fetch("/api/admin/account-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenantId, action, temporaryPassword }) });
+      const data = await response.json().catch(() => ({})) as { email?: string; lastSignIn?: string | null; reset?: boolean; error?: string };
+      if (!response.ok || data.error) {
+        const missing = response.status === 404 && !data.error;
+        setState("error"); setMessage(missing ? "Publique a função admin-account-access no Supabase para usar este recurso." : `Não foi possível concluir (${data.error || response.status}).`); return;
+      }
+      if (data.email) setEmail(data.email);
+      if (action === "info") setLastSignIn(data.lastSignIn ?? null);
+      if (action === "reset" && temporaryPassword) setPassword(temporaryPassword);
+      setState("idle");
+    } catch { setState("error"); setMessage("Falha de conexão. Tente novamente."); }
+  }
+  const copy = (text: string) => { navigator.clipboard?.writeText(text).catch(() => {}); };
+  const accessText = email && password ? `Acesso ao painel Prife\nEndereço: https://www.prife-brasil.com/login\nE-mail: ${email}\nSenha provisória: ${password}\nSeu site: https://${slug}.prife-brasil.com` : "";
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionTitle}><b>ID</b><div><h2>Acesso do distribuidor</h2><p>E-mail de login e nova senha provisória. Só a administração vê esta área.</p></div></div>
+      <div className={styles.formGrid}>
+        <label>E-mail de login<input readOnly value={email} placeholder="Clique em Ver e-mail" /></label>
+        <label>Último acesso<input readOnly value={lastSignIn ? new Date(lastSignIn).toLocaleString("pt-BR") : email ? "Nunca entrou" : ""} /></label>
+        {password && <label className={styles.full}>Nova senha provisória<input readOnly value={password} /></label>}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
+        <button type="button" className={styles.uploadButton} disabled={state === "loading"} onClick={() => call("info")}>{state === "loading" ? "Aguarde…" : "Ver e-mail"}</button>
+        <button type="button" className={styles.uploadButton} disabled={state === "loading"} onClick={() => { if (window.confirm("Gerar uma nova senha? A senha antiga deixa de funcionar.")) call("reset", generateTemporaryPassword()); }}>Gerar nova senha</button>
+        {accessText && <button type="button" className={styles.uploadButton} onClick={() => copy(accessText)}>Copiar acesso para enviar</button>}
+      </div>
+      {message && <p style={{ marginTop: 10, color: state === "error" ? "#ff8a8a" : undefined, fontSize: 13 }}>{message}</p>}
     </div>
   );
 }
