@@ -595,9 +595,12 @@ export default function CompanyEditor({
       {adminMode && <aside className={styles.companyList}>
         <div><small>EMPRESAS</small><strong>{companies.length} espaços</strong></div>
         <button className={styles.newCompanyButton} type="button" onClick={openCreateCompany}><span>+</span><div><strong>Criar empresa e acesso</strong><small>Sem cadastro prévio</small></div></button>
-        {companies.map((company) => <button key={company.tenantId} type="button" className={[company.tenantId === selectedId ? styles.activeCompany : "", isSubscriptionInactive(company.subscription, billingNow) ? styles.inactiveCompany : ""].filter(Boolean).join(" ")} onClick={() => { setSelectedId(company.tenantId); setError(""); setSuccess(""); }}>
-          <span>{company.ownerName.slice(0, 1).toUpperCase()}</span><div><strong>{company.businessName}</strong><small>{company.slug}.prife-brasil.com</small><small>{subscriptionStatus(company.subscription, billingNow)}</small></div>
-        </button>)}
+        {[...companies].sort((x, y) => (x.slug === "williams" ? -1 : y.slug === "williams" ? 1 : 0)).map((company) => {
+          const isMain = company.slug === "williams";
+          return <button key={company.tenantId} type="button" className={[company.tenantId === selectedId ? styles.activeCompany : "", isMain ? styles.mainCompany : "", isSubscriptionInactive(company.subscription, billingNow) ? styles.inactiveCompany : ""].filter(Boolean).join(" ")} onClick={() => { setSelectedId(company.tenantId); setError(""); setSuccess(""); }}>
+            <span>{isMain ? "★" : company.ownerName.slice(0, 1).toUpperCase()}</span><div>{isMain && <em className={styles.mainBadge}>SITE PRINCIPAL · BASE</em>}<strong>{company.businessName}</strong><small>{isMain ? "www.prife-brasil.com" : `${company.slug}.prife-brasil.com`}</small><small>{isMain ? "Padrão visual de todos os subdomínios" : subscriptionStatus(company.subscription, billingNow)}</small></div>
+          </button>;
+        })}
       </aside>}
 
       {showCreateCompany && <div className={styles.modalBackdrop} role="presentation" onMouseDown={closeCreateCompany}><form className={styles.createCompanyModal} onSubmit={createCompany} onMouseDown={(event) => event.stopPropagation()}>

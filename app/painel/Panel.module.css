@@ -31,3 +31,8 @@
 .galleryEditor .mediaActions button{position:static;top:auto;right:auto;width:auto;height:auto}
 .galleryEditor .mediaActions .uploadButton{min-height:34px;padding:0 14px;color:#9df9ff;border:1px solid rgba(67,224,241,.32);border-radius:11px;background:rgba(21,139,175,.13);font-size:10px;font-weight:900}
 .galleryEditor .mediaActions .removeMedia{margin-left:0;padding:0;color:#ff9bac;border:0;background:none;font-size:10px;font-weight:700}
+
+@media(min-width:1051px){.companyList{max-height:calc(100vh - 48px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(66,218,239,.35) transparent}}
+.companyList button.mainCompany{margin-bottom:12px;border-color:rgba(255,206,92,.45);background:linear-gradient(135deg,rgba(255,206,92,.12),rgba(66,218,239,.06))}
+.companyList button.mainCompany>span{color:#3a2600;background:linear-gradient(135deg,#ffe7a3,#ffbf3c)}
+.mainBadge{font-style:normal;color:#ffd36b;font-size:8.5px;font-weight:900;letter-spacing:.14em}
