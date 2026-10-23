@@ -1487,7 +1487,6 @@ function mediaRatioClass(width, height) {
 
 function bindAdaptiveMediaRatios() {
   document.querySelectorAll(".photo-gallery figure").forEach((figure) => {
-    if (figure.dataset.fixedOrientation) return;
     const image = figure.querySelector("img");
     if (!image) return;
     const applyRatio = () => {
@@ -1500,7 +1499,6 @@ function bindAdaptiveMediaRatios() {
   });
 
   document.querySelectorAll(".video-card").forEach((card) => {
-    if (card.dataset.fixedOrientation) return;
     const video = card.querySelector("video");
     if (!video) return;
     const applyRatio = () => {
