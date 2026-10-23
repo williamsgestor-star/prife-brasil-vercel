@@ -15,7 +15,9 @@ const ASSISTANT_MASCOT_VIDEO = "/assistant/itera-assistant-alpha-v7.webm";
 const ASSISTANT_MASCOT_POSTER = "/assistant/itera-mascot-transparent.webp";
 const ASSISTANT_MASCOT_MOBILE = "/assistant/itera-assistant-mobile-alpha-v8.webp";
 
-function AssistantMascot({ className }: { className?: string }) {
+function AssistantMascot({ className, still = false }: { className?: string; still?: boolean }) {
+  // Nas mensagens usa a imagem parada: um vídeo com transparência por mensagem deixava o chat travando.
+  if (still) return <img className={className} src={ASSISTANT_MASCOT_POSTER} alt="" aria-hidden="true" draggable={false} loading="lazy" decoding="async" />;
   return (
     <>
       <video
@@ -430,7 +432,7 @@ function ITeraAssistantSession({
               >
                 {message.role === "assistant" ? (
                   <span className={styles.messageAvatar} aria-hidden="true">
-                    <AssistantMascot className={styles.messageAvatarMedia} />
+                    <AssistantMascot className={styles.messageAvatarMedia} still />
                   </span>
                 ) : null}
                 <div className={message.role === "assistant" ? styles.assistantMessage : styles.visitorMessage}>
@@ -453,7 +455,7 @@ function ITeraAssistantSession({
             {busy ? (
               <div className={`${styles.messageRow} ${styles.assistantRow}`}>
                 <span className={styles.messageAvatar} aria-hidden="true">
-                  <AssistantMascot className={styles.messageAvatarMedia} />
+                  <AssistantMascot className={styles.messageAvatarMedia} still />
                 </span>
                 <div className={styles.typing} role="status" aria-live="polite">
                   <span /><span /><span />
