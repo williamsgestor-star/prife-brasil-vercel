@@ -9,7 +9,16 @@ import {
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
-const visualSettings = tenantSite.visual_settings && typeof tenantSite.visual_settings === "object" ? tenantSite.visual_settings : {};
+/* Todos os sites usam o visual do site principal; cada distribuidor mantém só seus dados (foto, textos, contatos, galeria). */
+const ownVisualSettings = tenantSite.visual_settings && typeof tenantSite.visual_settings === "object" ? tenantSite.visual_settings : {};
+const standardVisualSettings = window.__PRIFE_STANDARD_VISUAL__ && typeof window.__PRIFE_STANDARD_VISUAL__ === "object" ? window.__PRIFE_STANDARD_VISUAL__ : {};
+const ownHasGallery = Array.isArray(tenantSite.gallery_urls) && tenantSite.gallery_urls.length > 0;
+const ownHasVideos = Array.isArray(tenantSite.video_urls) && tenantSite.video_urls.length > 0;
+const visualSettings = {
+  ...standardVisualSettings,
+  galleryOrientations: ownHasGallery ? ownVisualSettings.galleryOrientations : standardVisualSettings.galleryOrientations,
+  videoOrientations: ownHasVideos ? ownVisualSettings.videoOrientations : standardVisualSettings.videoOrientations,
+};
 const visualTexts = visualSettings.texts && typeof visualSettings.texts === "object" ? visualSettings.texts : {};
 const digits = (value) => String(value || "").replace(/\D/g, "");
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
@@ -61,12 +70,12 @@ const galleryOrientations = Array.isArray(visualSettings.galleryOrientations) ? 
 const videoOrientations = Array.isArray(visualSettings.videoOrientations) ? visualSettings.videoOrientations : [];
 const galleryImages = hasCustomGallery
   ? tenantSite.gallery_urls.slice(0, 8).map((url) => safeAssetUrl(url)).filter(Boolean)
-  : isPrimaryTenant ? primaryGalleryImages.slice(0, 8) : [];
+  : primaryGalleryImages.slice(0, 8);
 const hasCustomVideos = Array.isArray(tenantSite.video_urls) && tenantSite.video_urls.length > 0;
 const primaryDefaultVideos = [...defaultVideos, { src: "videos/prife-brasil-palco-internacional.mp4", poster: "videos/prife-brasil-palco-internacional-poster.webp", orientation: "horizontal" }];
 const videos = hasCustomVideos
   ? tenantSite.video_urls.slice(0, 4).map((url, index) => ({ src: safeAssetUrl(url), poster: "", orientation: ["horizontal", "vertical"].includes(videoOrientations[index]) ? videoOrientations[index] : "adaptive" })).filter((video) => video.src)
-  : isPrimaryTenant ? primaryDefaultVideos.slice(0, 4) : [];
+  : primaryDefaultVideos.slice(0, 4);
 const publicEmail = String(tenantSite.public_email || "").trim();
 const googleReviewUrl = safeAssetUrl(integrationConfig.googleReviewUrl);
 const leaderRoleOverride = tenantSite.leader_role || "";
@@ -835,7 +844,7 @@ function render() {
           <button type="button" data-scroll="produtos">${t.nav.technologies}</button>
           <button class="tutorials-trigger" type="button" aria-haspopup="dialog" aria-controls="tutorials-dialog">${t.nav.tutorials}</button>
           ${galleryImages.length ? `<button type="button" data-scroll="galeria">${t.nav.gallery}</button>` : ""}
-          ${isPrimaryTenant
+          ${true
             ? `<a class="testimonials-nav" href="pdfs/depoimentos-prife.pdf" download data-track="testimonial_pdf_download" aria-label="${navT().aPdf}">${icon("star")} ${t.nav.testimonials} ${icon("download")}</a>`
             : videos.length ? `<button class="testimonials-nav" type="button" data-scroll="depoimentos">${icon("star")} ${t.nav.testimonials}</button>` : ""}
 

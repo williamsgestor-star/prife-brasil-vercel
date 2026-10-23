@@ -3,7 +3,7 @@ import { preloadModule } from "react-dom";
 import AppBootstrap from "./AppBootstrap";
 import { requestPublicOrigin } from "./lib/public-origin";
 import ITeraAssistant from "./components/ITeraAssistant";
-import { getCurrentTenantSiteProfile, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
+import { getCurrentTenantSiteProfile, getStandardVisualSettings, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
 
 const products: [string, string, number][] = [
   ["iTeraCare Classic Plus", "Tecnologia de terahertz em um aparelho de design premium para a rotina de bem-estar.", 4500],
@@ -63,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=127", { as: "script" });
+  preloadModule("/src/app.js?v=128", { as: "script" });
   preloadModule("/src/content.js?v=112", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
@@ -79,6 +79,7 @@ export default async function Home() {
     );
   }
   const tenant = resolution.profile;
+  const standardVisual = await getStandardVisualSettings(tenant);
   const ownerName = tenant?.owner_name || "Williams Costa Leite";
   const ownerFirstName = ownerName.split(/\s+/)[0] || "Williams";
   const role = tenant?.leader_role || "Líder de Expansão";
@@ -109,7 +110,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <script dangerouslySetInnerHTML={{ __html: `window.__PRIFE_TENANT__=${publicProfileScript(tenant)};window.__PRIFE_INTEGRATIONS__=${JSON.stringify({ googleReviewUrl: process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "" }).replace(/</g, "\\u003c")};` }} />
+      <script dangerouslySetInnerHTML={{ __html: `window.__PRIFE_TENANT__=${publicProfileScript(tenant)};window.__PRIFE_INTEGRATIONS__=${JSON.stringify({ googleReviewUrl: process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "" }).replace(/</g, "\\u003c")};window.__PRIFE_STANDARD_VISUAL__=${JSON.stringify(standardVisual ?? null).replace(/</g, "\\u003c")};` }} />
       <div id="app">
         <div className="seo-fallback">
           <header className="seo-nav">
