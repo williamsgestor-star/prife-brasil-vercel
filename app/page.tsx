@@ -3,6 +3,7 @@ import { preloadModule } from "react-dom";
 import AppBootstrap from "./AppBootstrap";
 import { requestPublicOrigin } from "./lib/public-origin";
 import ITeraAssistant from "./components/ITeraAssistant";
+import LaunchPopup from "./components/LaunchPopup";
 import { getCurrentTenantSiteProfile, getStandardVisualSettings, internationalWhatsAppNumber, publicProfileScript, resolveCurrentTenantSite } from "./lib/tenant-site";
 
 const products: [string, string, number][] = [
@@ -193,6 +194,7 @@ export default async function Home() {
       </div>
       <AppBootstrap />
       <ITeraAssistant whatsappNumber={whatsapp} distributorName={ownerFirstName} />
+      <LaunchPopup whatsappNumber={whatsapp} distributorName={ownerFirstName} />
     </>
   );
 }
