@@ -60,6 +60,20 @@ export async function resolveCurrentTenantSite(): Promise<CurrentTenantSiteResol
   }
 }
 
+/* Visual padrão de todos os sites = o do site principal (slug "williams"). */
+export async function getStandardVisualSettings(current: PublicTenantSiteProfile | null) {
+  if (current?.slug === "williams") return (current as { visual_settings?: unknown }).visual_settings ?? null;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("get_public_tenant_site_profile", { p_slug: "williams" });
+    if (error) return null;
+    const row = (Array.isArray(data) ? data[0] : data) as { visual_settings?: unknown } | null;
+    return row?.visual_settings ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getCurrentTenantSiteProfile() {
   return (await resolveCurrentTenantSite()).profile;
 }
