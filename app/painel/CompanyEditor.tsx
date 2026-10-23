@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import SubscriptionPanel from "./SubscriptionPanel";
 import { isSubscriptionInactive, subscriptionStatus } from "../lib/site-subscription";
 import { createClient } from "../lib/supabase/client";
@@ -179,6 +179,9 @@ export default function CompanyEditor({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const replaceSlot = useRef<{ kind: "gallery" | "videos"; index: number } | null>(null);
+  const replacePhotoInput = useRef<HTMLInputElement>(null);
+  const replaceVideoInput = useRef<HTMLInputElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showCreateCompany, setShowCreateCompany] = useState(false);
   const [newOwnerEmail, setNewOwnerEmail] = useState("");
@@ -421,14 +424,16 @@ export default function CompanyEditor({
   }
 
   async function upload(event: ChangeEvent<HTMLInputElement>, kind: "leader" | "gallery" | "videos") {
-    const files = Array.from(event.target.files ?? []);
+    const target = replaceSlot.current && replaceSlot.current.kind === kind ? replaceSlot.current : null;
+    replaceSlot.current = null;
+    const files = Array.from(event.target.files ?? []).slice(0, target ? 1 : undefined);
     event.target.value = "";
     if (!selected || files.length === 0) return;
     const isVideo = kind === "videos";
-    if (kind === "gallery" && selected.profile.gallery_urls.length + files.length > MAX_GALLERY_PHOTOS) {
+    if (!target && kind === "gallery" && selected.profile.gallery_urls.length + files.length > MAX_GALLERY_PHOTOS) {
       setError("A galeria permite no máximo 8 fotos."); return;
     }
-    if (kind === "videos" && selected.profile.video_urls.length + files.length > MAX_GALLERY_VIDEOS) {
+    if (!target && kind === "videos" && selected.profile.video_urls.length + files.length > MAX_GALLERY_VIDEOS) {
       setError("A área de vídeos permite no máximo 4 itens."); return;
     }
     const allowedTypes = isVideo ? VIDEO_TYPES : IMAGE_TYPES;
@@ -470,6 +475,13 @@ export default function CompanyEditor({
       setBusy(""); setUploadProgress(0); setError(readableUploadError(uploadError)); return;
     }
     if (kind === "leader") updateProfile("leader_image_url", urls[0]);
+    if (target && urls[0]) {
+      const base = target.kind === "gallery" ? galleryBase(selected.profile) : videoBase(selected.profile);
+      base.urls[target.index] = urls[0];
+      updateCompany({ profile: applyBase(selected.profile, target.kind, base) });
+      setBusy(""); setUploadProgress(0); setSuccess(`${target.kind === "gallery" ? "Foto" : "Vídeo"} ${target.index + 1} trocado. Clique em Salvar alterações para concluir.`);
+      return;
+    }
     if (kind === "gallery") {
       const start = selected.profile.gallery_urls.length;
       const currentVisual = { ...defaultVisualSettings, ...(selected.profile.visual_settings ?? {}) };
@@ -543,6 +555,17 @@ export default function CompanyEditor({
     const list = [...(visual[key] ?? [])];
     list[index] = value;
     updateVisual({ [key]: list });
+  }
+
+  function pickReplacement(kind: "gallery" | "videos", index: number) {
+    replaceSlot.current = { kind, index };
+    (kind === "gallery" ? replacePhotoInput.current : replaceVideoInput.current)?.click();
+  }
+
+  function removeStandardItem(kind: "gallery" | "videos", index: number) {
+    const base = kind === "gallery" ? galleryBase(profile) : videoBase(profile);
+    (["urls", "titles", "descriptions", "orientations"] as const).forEach((key) => base[key].splice(index, 1));
+    updateCompany({ profile: applyBase(profile, kind, base) });
   }
 
   function removeGalleryItem(index: number) {
@@ -642,11 +665,13 @@ export default function CompanyEditor({
         </div>
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>03</b><div><h2>Galeria de fotos</h2><p>Estas imagens e legendas substituem a galeria do subdomínio.</p></div></div>
-          <div className={styles.mediaHeader}><div><h3>8 espaços de fotos</h3><p>Até 8 fotos; escolha horizontal ou vertical para cada imagem.</p></div><label className={styles.uploadButton}>{busy === "gallery" ? "Enviando…" : "+ Adicionar fotos"}<input type="file" accept={IMAGE_ACCEPT} multiple onChange={(e) => upload(e, "gallery")} disabled={Boolean(busy) || profile.gallery_urls.length >= MAX_GALLERY_PHOTOS} /></label></div>
+          <div className={styles.mediaHeader}><div><h3>8 espaços de fotos</h3><p>Até 8 fotos; escolha horizontal ou vertical para cada imagem.</p></div><label className={styles.uploadButton}>{busy === "gallery" ? "Enviando…" : "+ Enviar fotos"}<input type="file" accept={IMAGE_ACCEPT} multiple onChange={(e) => upload(e, "gallery")} disabled={Boolean(busy) || profile.gallery_urls.length >= MAX_GALLERY_PHOTOS} /></label></div>
+          <input ref={replacePhotoInput} type="file" accept={IMAGE_ACCEPT} hidden onChange={(e) => upload(e, "gallery")} />
+          <input ref={replaceVideoInput} type="file" accept={VIDEO_ACCEPT} hidden onChange={(e) => upload(e, "videos")} />
           <div className={styles.galleryEditor}>
-            {profile.gallery_urls.slice(0, MAX_GALLERY_PHOTOS).map((url, index) => <article key={`${url}-${index}`}><div><img src={url} alt={`Foto ${index + 1}`} /><button type="button" aria-label={`Remover foto ${index + 1}`} onClick={() => removeGalleryItem(index)}>×</button></div><label>Formato recomendado (largura × altura)<select value={visual.galleryOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("gallery", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1600 × 1000 px</option><option value="vertical">Vertical — 1200 × 1600 px</option></select></label><label>Título<input value={profile.gallery_titles[index] ?? ""} onChange={(e) => updateListItem("gallery_titles", index, e.target.value)} /></label><label>Legenda<input value={profile.gallery_descriptions[index] ?? ""} onChange={(e) => updateListItem("gallery_descriptions", index, e.target.value)} /></label></article>)}
+            {profile.gallery_urls.slice(0, MAX_GALLERY_PHOTOS).map((url, index) => <article key={`${url}-${index}`}><div><img src={url} alt={`Foto ${index + 1}`} /></div><div style={{ display: "flex", gap: 8, margin: "8px 0" }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("gallery", index)}>Trocar foto</button><button type="button" className={styles.removeMedia} onClick={() => removeGalleryItem(index)}>Remover</button></div><label>Formato recomendado (largura × altura)<select value={visual.galleryOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("gallery", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1600 × 1000 px</option><option value="vertical">Vertical — 1200 × 1600 px</option></select></label><label>Título<input value={profile.gallery_titles[index] ?? ""} onChange={(e) => updateListItem("gallery_titles", index, e.target.value)} /></label><label>Legenda<input value={profile.gallery_descriptions[index] ?? ""} onChange={(e) => updateListItem("gallery_descriptions", index, e.target.value)} /></label></article>)}
             {profile.gallery_urls.length > 0 && Array.from({ length: Math.max(0, MAX_GALLERY_PHOTOS - profile.gallery_urls.length) }, (_, index) => <article className={styles.emptyMediaSlot} key={`empty-photo-${index}`}><span>+</span><strong>Foto {profile.gallery_urls.length + index + 1}</strong><small>Horizontal: 1600 × 1000 px · Vertical: 1200 × 1600 px</small></article>)}
-            {profile.gallery_urls.length === 0 && STANDARD_GALLERY.map((src, index) => <article key={`std-photo-${index}`} style={{ opacity: .92 }}><div><img src={src} alt={`Foto padrão ${index + 1}`} /></div><small style={{ color: "#7fe9f5", fontSize: 11 }}>Foto {index + 1} · padrão do site principal</small></article>)}
+            {profile.gallery_urls.length === 0 && STANDARD_GALLERY.map((src, index) => <article key={`std-photo-${index}`}><div><img src={src} alt={`Foto padrão ${index + 1}`} /></div><small style={{ color: "#7fe9f5", fontSize: 11 }}>Foto {index + 1} · padrão do site principal</small><div style={{ display: "flex", gap: 8, marginTop: 8 }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("gallery", index)}>Trocar foto</button><button type="button" className={styles.removeMedia} onClick={() => removeStandardItem("gallery", index)}>Remover</button></div></article>)}
           </div>
           {profile.gallery_urls.length === 0 && <p style={{ marginTop: 12, color: "#9df9ff", fontSize: 13 }}>Este site mostra agora as fotos padrão do site principal (acima). Ao clicar em <b>+ Adicionar fotos</b>, as suas fotos passam a aparecer no lugar delas.</p>}
         </div>
@@ -654,7 +679,7 @@ export default function CompanyEditor({
         <div className={styles.section}><div className={styles.sectionTitle}><b>04</b><div><h2>Galeria de vídeos</h2><p>Envie vídeos ou use links do YouTube e Vimeo.</p></div></div>
           <div className={styles.mediaHeader}><div><h3>4 espaços de vídeos</h3><p>Até 4 vídeos de 50 MB. Para carregar mais rápido no celular, prefira um link do YouTube ou Vimeo.</p></div></div>
           <div className={styles.videoActions}><label className={styles.uploadButton}>{busy === "videos" ? `Enviando ${uploadProgress}%` : "+ Enviar vídeo"}<input type="file" accept={VIDEO_ACCEPT} multiple onChange={(e) => upload(e, "videos")} disabled={Boolean(busy) || profile.video_urls.length >= MAX_GALLERY_VIDEOS} /></label><div><input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Cole um link do YouTube ou Vimeo" disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS} /><button type="button" onClick={addVideoUrl} disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS}>Adicionar</button></div></div>
-          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}><VideoThumb url={url} /><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a></div><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></article>)}{profile.video_urls.length === 0 && <div style={{ margin: "4px 0 12px" }}><p style={{ color: "#9df9ff", fontSize: 13, margin: "0 0 10px" }}>Este site mostra agora os vídeos padrão do site principal. Ao enviar um vídeo ou colar um link, os seus passam a aparecer no lugar deles.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>{STANDARD_VIDEOS.map((v) => <video key={v.src} src={v.src} poster={v.poster} preload="none" muted playsInline controls style={{ width: 180, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 12, background: "#020c26", border: "1px solid rgba(66,218,239,.22)" }} />)}</div></div>}{Array.from({ length: Math.max(0, MAX_GALLERY_VIDEOS - profile.video_urls.length) }, (_, index) => <article className={styles.emptyVideoSlot} key={`empty-video-${index}`}><span>{String(profile.video_urls.length + index + 1).padStart(2, "0")}</span><div><strong>Vídeo disponível</strong><small>Horizontal: 1920 × 1080 px · Vertical: 1080 × 1920 px</small></div></article>)}</div>
+          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}><VideoThumb url={url} /><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a></div><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><div style={{ display: "grid", gap: 8, alignContent: "start" }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("videos", index)}>Trocar vídeo</button><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></div></article>)}{profile.video_urls.length === 0 && <div style={{ margin: "4px 0 12px" }}><p style={{ color: "#9df9ff", fontSize: 13, margin: "0 0 10px" }}>Este site mostra agora os vídeos padrão do site principal. Ao enviar um vídeo ou colar um link, os seus passam a aparecer no lugar deles.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>{STANDARD_VIDEOS.map((v, index) => <div key={v.src} style={{ display: "grid", gap: 8 }}><video src={v.src} poster={v.poster} preload="none" muted playsInline controls style={{ width: 180, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 12, background: "#020c26", border: "1px solid rgba(66,218,239,.22)" }} /><small style={{ color: "#7fe9f5", fontSize: 11 }}>Vídeo {index + 1} · padrão</small><div style={{ display: "flex", gap: 8 }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("videos", index)}>Trocar vídeo</button><button type="button" className={styles.removeMedia} onClick={() => removeStandardItem("videos", index)}>Remover</button></div></div>)}</div></div>}{Array.from({ length: Math.max(0, MAX_GALLERY_VIDEOS - profile.video_urls.length) }, (_, index) => <article className={styles.emptyVideoSlot} key={`empty-video-${index}`}><span>{String(profile.video_urls.length + index + 1).padStart(2, "0")}</span><div><strong>Vídeo disponível</strong><small>Horizontal: 1920 × 1080 px · Vertical: 1080 × 1920 px</small></div></article>)}</div>
         </div>
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>05</b><div><h2>Editor visual completo</h2><p>Personalize aparência, conteúdo, ordem e efeitos sem mexer em código.</p></div></div>
@@ -713,10 +738,10 @@ export default function CompanyEditor({
 
 const STANDARD_GALLERY = ["lancamento-grupo", "palco-prife", "corte-fita", "reconhecimento", "comunidade-prife", "lancamento-celebracao", "malasia-aniversario-01", "malasia-aniversario-02"].map((name) => `/gallery/${name}.webp`);
 const STANDARD_VIDEOS = [
-  { src: "/videos/prife-lancamento-01.mp4", poster: "/videos/poster-01.jpg" },
-  { src: "/videos/prife-lancamento-02.mp4", poster: "/videos/poster-02.jpg" },
-  { src: "/videos/prife-lancamento-03.mp4", poster: "/videos/poster-03.jpg" },
-  { src: "/videos/prife-brasil-palco-internacional.mp4", poster: "/videos/prife-brasil-palco-internacional-poster.webp" },
+  { src: "/videos/prife-lancamento-01.mp4", poster: "/videos/poster-01.jpg", orientation: "vertical" as MediaOrientation },
+  { src: "/videos/prife-lancamento-02.mp4", poster: "/videos/poster-02.jpg", orientation: "vertical" as MediaOrientation },
+  { src: "/videos/prife-lancamento-03.mp4", poster: "/videos/poster-03.jpg", orientation: "vertical" as MediaOrientation },
+  { src: "/videos/prife-brasil-palco-internacional.mp4", poster: "/videos/prife-brasil-palco-internacional-poster.webp", orientation: "horizontal" as MediaOrientation },
 ];
 function youtubeId(url: string) {
   try {
@@ -732,6 +757,24 @@ function VideoThumb({ url }: { url: string }) {
   if (id) return <a href={url} target="_blank" rel="noreferrer" style={box}><img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="Prévia do vídeo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></a>;
   if (/vimeo\.com/.test(url)) return <a href={url} target="_blank" rel="noreferrer" style={{ ...box, display: "grid", placeItems: "center", color: "#9df9ff", fontSize: 12, textDecoration: "none" }}>Vimeo ↗</a>;
   return <video src={`${url}#t=0.5`} preload="metadata" muted playsInline controls style={{ ...box, objectFit: "cover", display: "block" }} />;
+}
+
+type MediaBase = { urls: string[]; titles: string[]; descriptions: string[]; orientations: MediaOrientation[] };
+function galleryBase(p: TenantSiteProfile): MediaBase {
+  const visual = { ...defaultVisualSettings, ...(p.visual_settings ?? {}) };
+  if (p.gallery_urls.length) return { urls: [...p.gallery_urls], titles: [...p.gallery_titles], descriptions: [...p.gallery_descriptions], orientations: [...(visual.galleryOrientations ?? [])] as MediaOrientation[] };
+  return { urls: [...STANDARD_GALLERY], titles: STANDARD_GALLERY.map((_, i) => `Foto ${i + 1}`), descriptions: STANDARD_GALLERY.map(() => "Experiência Prife"), orientations: STANDARD_GALLERY.map(() => "horizontal" as MediaOrientation) };
+}
+function videoBase(p: TenantSiteProfile): MediaBase {
+  const visual = { ...defaultVisualSettings, ...(p.visual_settings ?? {}) };
+  if (p.video_urls.length) return { urls: [...p.video_urls], titles: [...p.video_titles], descriptions: [...p.video_descriptions], orientations: [...(visual.videoOrientations ?? [])] as MediaOrientation[] };
+  return { urls: STANDARD_VIDEOS.map((v) => v.src), titles: STANDARD_VIDEOS.map((_, i) => `Vídeo ${i + 1}`), descriptions: STANDARD_VIDEOS.map(() => "História em movimento"), orientations: STANDARD_VIDEOS.map((v) => v.orientation) };
+}
+function applyBase(p: TenantSiteProfile, kind: "gallery" | "videos", base: MediaBase): TenantSiteProfile {
+  const visual = { ...defaultVisualSettings, ...(p.visual_settings ?? {}) };
+  while (base.orientations.length < base.urls.length) base.orientations.push("horizontal");
+  if (kind === "gallery") return { ...p, gallery_urls: base.urls, gallery_titles: base.titles, gallery_descriptions: base.descriptions, visual_settings: { ...visual, galleryOrientations: base.orientations.slice(0, base.urls.length) } };
+  return { ...p, video_urls: base.urls, video_titles: base.titles, video_descriptions: base.descriptions, visual_settings: { ...visual, videoOrientations: base.orientations.slice(0, base.urls.length) } };
 }
 
 function AccountAccess({ tenantId, slug }: { tenantId: string; slug: string }) {
