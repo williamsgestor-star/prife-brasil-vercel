@@ -452,6 +452,7 @@ export default function CompanyEditor({
     }
 
     setBusy(kind); setUploadProgress(0); setError(""); setSuccess("");
+    const detected: MediaOrientation[] = kind === "leader" ? [] : await Promise.all(files.map((file) => detectOrientation(file)));
     const urls: string[] = [];
     const uploadedPaths: string[] = [];
     try {
@@ -478,6 +479,7 @@ export default function CompanyEditor({
     if (target && urls[0]) {
       const base = target.kind === "gallery" ? galleryBase(selected.profile) : videoBase(selected.profile);
       base.urls[target.index] = urls[0];
+      base.orientations[target.index] = detected[0] ?? "horizontal";
       updateCompany({ profile: applyBase(selected.profile, target.kind, base) });
       setBusy(""); setUploadProgress(0); setSuccess(`${target.kind === "gallery" ? "Foto" : "Vídeo"} ${target.index + 1} trocado. Clique em Salvar alterações para concluir.`);
       return;
@@ -490,7 +492,7 @@ export default function CompanyEditor({
         gallery_urls: [...selected.profile.gallery_urls, ...urls],
         gallery_titles: [...selected.profile.gallery_titles, ...urls.map((_, index) => `Foto ${start + index + 1}`)],
         gallery_descriptions: [...selected.profile.gallery_descriptions, ...urls.map(() => "Experiência Prife")],
-        visual_settings: { ...currentVisual, galleryOrientations: [...(currentVisual.galleryOrientations ?? []), ...urls.map(() => "horizontal" as const)] },
+        visual_settings: { ...currentVisual, galleryOrientations: [...(currentVisual.galleryOrientations ?? []), ...urls.map((_, i) => detected[i] ?? "horizontal")] },
       }});
     }
     if (kind === "videos") {
@@ -501,7 +503,7 @@ export default function CompanyEditor({
         video_urls: [...selected.profile.video_urls, ...urls],
         video_titles: [...selected.profile.video_titles, ...urls.map((_, index) => `Vídeo ${start + index + 1}`)],
         video_descriptions: [...selected.profile.video_descriptions, ...urls.map(() => "História em movimento")],
-        visual_settings: { ...currentVisual, videoOrientations: [...(currentVisual.videoOrientations ?? []), ...urls.map(() => "horizontal" as const)] },
+        visual_settings: { ...currentVisual, videoOrientations: [...(currentVisual.videoOrientations ?? []), ...urls.map((_, i) => detected[i] ?? "horizontal")] },
       }});
     }
     setBusy(""); setUploadProgress(0); setSuccess("Arquivo enviado. Clique em Salvar alterações para concluir.");
@@ -679,7 +681,7 @@ export default function CompanyEditor({
         <div className={styles.section}><div className={styles.sectionTitle}><b>04</b><div><h2>Galeria de vídeos</h2><p>Envie vídeos ou use links do YouTube e Vimeo.</p></div></div>
           <div className={styles.mediaHeader}><div><h3>4 espaços de vídeos</h3><p>Até 4 vídeos de 50 MB. Para carregar mais rápido no celular, prefira um link do YouTube ou Vimeo.</p></div></div>
           <div className={styles.videoActions}><label className={styles.uploadButton}>{busy === "videos" ? `Enviando ${uploadProgress}%` : "+ Enviar vídeo"}<input type="file" accept={VIDEO_ACCEPT} multiple onChange={(e) => upload(e, "videos")} disabled={Boolean(busy) || profile.video_urls.length >= MAX_GALLERY_VIDEOS} /></label><div><input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Cole um link do YouTube ou Vimeo" disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS} /><button type="button" onClick={addVideoUrl} disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS}>Adicionar</button></div></div>
-          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}><VideoThumb url={url} /><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a></div><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><div style={{ display: "grid", gap: 8, alignContent: "start" }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("videos", index)}>Trocar vídeo</button><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></div></article>)}{profile.video_urls.length === 0 && <div style={{ margin: "4px 0 12px" }}><p style={{ color: "#9df9ff", fontSize: 13, margin: "0 0 10px" }}>Este site mostra agora os vídeos padrão do site principal. Ao enviar um vídeo ou colar um link, os seus passam a aparecer no lugar deles.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>{STANDARD_VIDEOS.map((v, index) => <div key={v.src} style={{ display: "grid", gap: 8, padding: 10, border: "1px solid rgba(67,207,237,.16)", borderRadius: 16, background: "rgba(1,16,48,.58)" }}><video src={v.src} poster={v.poster} preload="none" muted playsInline controls style={{ width: 180, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 12, background: "#020c26", border: "1px solid rgba(66,218,239,.22)" }} /><small style={{ color: "#7fe9f5", fontSize: 11 }}>Vídeo {index + 1} · padrão · {v.orientation === "vertical" ? "Vertical 1080 × 1920" : "Horizontal 1920 × 1080"}</small><div style={{ display: "flex", gap: 8 }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("videos", index)}>Trocar vídeo</button><button type="button" className={styles.removeMedia} onClick={() => removeStandardItem("videos", index)}>Remover</button></div></div>)}</div></div>}</div>
+          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}><VideoThumb url={url} onDetect={(o) => { if ((visual.videoOrientations?.[index] ?? "horizontal") !== o) updateMediaOrientation("video", index, o); }} /><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a></div><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><div style={{ display: "grid", gap: 8, alignContent: "start" }}><button type="button" className={styles.uploadButton} onClick={() => pickReplacement("videos", index)}>Trocar vídeo</button><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></div></article>)}{profile.video_urls.length === 0 && <div style={{ margin: "4px 0 12px" }}><p style={{ color: "#9df9ff", fontSize: 13, margin: "0 0 10px" }}>Este site mostra agora os vídeos padrão do site principal. Ao enviar um vídeo ou colar um link, os seus passam a aparecer no lugar deles.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>{STANDARD_VIDEOS.map((v, index) => <StandardVideoCard key={v.src} src={v.src} poster={v.poster} initial={v.orientation} index={index} onReplace={() => pickReplacement("videos", index)} onRemove={() => removeStandardItem("videos", index)} />)}</div></div>}</div>
         </div>
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>05</b><div><h2>Editor visual completo</h2><p>Personalize aparência, conteúdo, ordem e efeitos sem mexer em código.</p></div></div>
@@ -740,9 +742,43 @@ const STANDARD_GALLERY = ["lancamento-grupo", "palco-prife", "corte-fita", "reco
 const STANDARD_VIDEOS = [
   { src: "/videos/prife-lancamento-01.mp4", poster: "/videos/poster-01.jpg", orientation: "vertical" as MediaOrientation },
   { src: "/videos/prife-lancamento-02.mp4", poster: "/videos/poster-02.jpg", orientation: "vertical" as MediaOrientation },
-  { src: "/videos/prife-lancamento-03.mp4", poster: "/videos/poster-03.jpg", orientation: "vertical" as MediaOrientation },
+  { src: "/videos/prife-lancamento-03.mp4", poster: "/videos/poster-03.jpg", orientation: "horizontal" as MediaOrientation },
   { src: "/videos/prife-brasil-palco-internacional.mp4", poster: "/videos/prife-brasil-palco-internacional-poster.webp", orientation: "horizontal" as MediaOrientation },
 ];
+/* Descobre sozinho se a foto ou o vídeo é horizontal ou vertical. */
+async function detectOrientation(file: File): Promise<MediaOrientation> {
+  try {
+    if (file.type.startsWith("image/")) {
+      const bitmap = await createImageBitmap(file);
+      const vertical = bitmap.height > bitmap.width; bitmap.close();
+      return vertical ? "vertical" : "horizontal";
+    }
+    const url = URL.createObjectURL(file);
+    const result = await new Promise<MediaOrientation>((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "metadata"; video.muted = true;
+      const done = (o: MediaOrientation) => { URL.revokeObjectURL(url); resolve(o); };
+      video.onloadedmetadata = () => done(video.videoHeight > video.videoWidth ? "vertical" : "horizontal");
+      video.onerror = () => done("horizontal");
+      window.setTimeout(() => done("horizontal"), 8000);
+      video.src = url;
+    });
+    return result;
+  } catch { return "horizontal"; }
+}
+function formatLabel(o: MediaOrientation, kind: "photo" | "video") {
+  if (kind === "video") return o === "vertical" ? "Vertical 1080 × 1920" : "Horizontal 1920 × 1080";
+  return o === "vertical" ? "Vertical 1200 × 1600" : "Horizontal 1600 × 1000";
+}
+function StandardVideoCard({ src, poster, initial, index, onReplace, onRemove }: { src: string; poster: string; initial: MediaOrientation; index: number; onReplace: () => void; onRemove: () => void }) {
+  const [orientation, setOrientation] = useState<MediaOrientation>(initial);
+  return <div style={{ display: "grid", gap: 8, padding: 10, border: "1px solid rgba(67,207,237,.16)", borderRadius: 16, background: "rgba(1,16,48,.58)" }}>
+    <video src={src} poster={poster} preload="metadata" muted playsInline controls onLoadedMetadata={(e) => setOrientation(e.currentTarget.videoHeight > e.currentTarget.videoWidth ? "vertical" : "horizontal")} style={{ width: 180, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 12, background: "#020c26", border: "1px solid rgba(66,218,239,.22)" }} />
+    <small style={{ color: "#7fe9f5", fontSize: 11 }}>Vídeo {index + 1} · padrão · {formatLabel(orientation, "video")}</small>
+    <div style={{ display: "flex", gap: 8 }}><button type="button" className={styles.uploadButton} onClick={onReplace}>Trocar vídeo</button><button type="button" className={styles.removeMedia} onClick={onRemove}>Remover</button></div>
+  </div>;
+}
+
 function youtubeId(url: string) {
   try {
     const u = new URL(url);
@@ -751,12 +787,12 @@ function youtubeId(url: string) {
   } catch { /* link inválido */ }
   return "";
 }
-function VideoThumb({ url }: { url: string }) {
+function VideoThumb({ url, onDetect }: { url: string; onDetect?: (o: MediaOrientation) => void }) {
   const id = youtubeId(url);
   const box: CSSProperties = { width: 180, aspectRatio: "16 / 9", borderRadius: 12, overflow: "hidden", background: "#020c26", border: "1px solid rgba(66,218,239,.22)", flex: "none" };
   if (id) return <a href={url} target="_blank" rel="noreferrer" style={box}><img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="Prévia do vídeo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></a>;
   if (/vimeo\.com/.test(url)) return <a href={url} target="_blank" rel="noreferrer" style={{ ...box, display: "grid", placeItems: "center", color: "#9df9ff", fontSize: 12, textDecoration: "none" }}>Vimeo ↗</a>;
-  return <video src={`${url}#t=0.5`} preload="metadata" muted playsInline controls style={{ ...box, objectFit: "cover", display: "block" }} />;
+  return <video src={`${url}#t=0.5`} preload="metadata" muted playsInline controls onLoadedMetadata={(e) => onDetect?.(e.currentTarget.videoHeight > e.currentTarget.videoWidth ? "vertical" : "horizontal")} style={{ ...box, objectFit: "cover", display: "block" }} />;
 }
 
 type MediaBase = { urls: string[]; titles: string[]; descriptions: string[]; orientations: MediaOrientation[] };
