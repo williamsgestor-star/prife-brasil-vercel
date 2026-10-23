@@ -84,6 +84,8 @@ export function salesCoachReply(
   const input = normalizeIteraQuestion(question);
   const detectedContext = detectIteraContext(input);
   const context = detectedContext || previousContext;
+  // Pergunta de preço de distribuidor/revenda é dúvida do visitante, não pedido de roteiro de vendas.
+  if (/\b(distribuidor|distribuidora|revenda|revendedor|atacado|consultor paga|preco de custo|valor de custo|distribuidor|mayorista|distributor|wholesale|reseller)\b/.test(input)) return null;
   const asksForApproach = SALES_APPROACH_TERMS.test(input);
   const asksForObjectionHelp = SALES_OBJECTION_TERMS.test(input) || (
     previousContext === "sales" &&

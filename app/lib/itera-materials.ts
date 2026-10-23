@@ -76,7 +76,8 @@ Aviso oficial: o MagnoSeek NÃO é dispositivo médico, não diagnostica, não t
   },
 ];
 
-const CATALOG_INDEX = `Produtos do site com valor de venda no Brasil: iTeraCare Classic Plus R$ 4.500; iTera-Bio Lite R$ 12.500; Vitality Energy (pulseira) R$ 899; Envy Sun / Aurora (óculos de sol) R$ 899; Envy Specs R$ 749; Renew Patch R$ 460 (caixa); MagnoSeek R$ 41.500; iON Shield R$ 2.900; Essência Ocular Vision R$ 320; Cellfood Plus R$ 511; Scalar Energy Shield R$ 350.`;
+const CATALOG_INDEX = `Produtos do site com valor de venda no Brasil: iTeraCare Classic Plus R$ 4.500; iTera-Bio Lite R$ 12.500; Vitality Energy (pulseira) R$ 899; Envy Sun / Aurora (óculos de sol) R$ 899; Envy Specs R$ 749; Renew Patch R$ 460 (caixa); MagnoSeek R$ 41.500; iON Shield R$ 2.900; Essência Ocular Vision R$ 320; Cellfood Plus R$ 511; Scalar Energy Shield R$ 350.
+Valor de distribuidor / preço de revenda / quanto o consultor paga: NÃO é divulgado no site; varia pelo plano de cadastro na Prife. Se perguntarem, diga isso com naturalidade e ofereça falar com o Williams no WhatsApp para receber a tabela de distribuidor e as condições de cadastro. Não invente valores nem descontos.`;
 
 /* Escolhe os materiais pela pergunta atual e, se ela for curta ou vaga ("ele", "modelo"), pelo assunto anterior. */
 export function materialsFor(question: string, previous: string[] = [], context?: string | null) {
