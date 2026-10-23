@@ -4335,3 +4335,6 @@ header *:hover::before, header *:hover::after, header *:focus-visible::before, h
 .hero-cta-row .hero-wa .social-icon-3d { flex-basis: 34px; width: 34px; height: 34px; border-radius: 11px; }
 .hero-cta-row .hero-wa .social-icon-3d svg { width: 19px; height: 19px; }
 @media (width <= 900px) { .hero-copy > .hero-cta-row { justify-content: center; } }
+
+/* Chat aberto: pausa as animações da página atrás para a rolagem do chat ficar leve */
+body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-itera-open] main *::after,body[data-itera-open] .site-header *{animation-play-state:paused!important}

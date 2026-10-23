@@ -206,12 +206,55 @@ function ITeraAssistantSession({
   ]);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const messageId = useRef(1);
   const chatSessionId = useRef("");
   const chatSessionKey = useRef("");
   const safeWhatsapp = whatsappNumber.replace(/\D/g, "");
   const whatsappMessage = copy.whatsappMessages[leadIntent || "generic"];
   const whatsappHref = `https://wa.me/${safeWhatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
+
+  /* Rola só a caixa de mensagens (sem mexer na página atrás). */
+  function scrollToEnd() {
+    const box = messagesRef.current;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+  }
+
+  /* Roda do mouse mais suave: cada "clique" da roda anda ~70px em vez de pular a tela inteira.
+     Touchpad e celular continuam com a rolagem nativa. Enquanto o chat está aberto, a página
+     atrás pausa as animações para a rolagem não travar. */
+  useEffect(() => {
+    if (!open) return;
+    document.body.dataset.iteraOpen = "1";
+    const box = messagesRef.current;
+    let target = box ? box.scrollTop : 0;
+    let frame = 0;
+    const step = () => {
+      if (!box) return;
+      const diff = target - box.scrollTop;
+      if (Math.abs(diff) < 1) { box.scrollTop = target; frame = 0; return; }
+      box.scrollTop += diff * 0.28;
+      frame = window.requestAnimationFrame(step);
+    };
+    const onWheel = (event: WheelEvent) => {
+      if (!box || event.ctrlKey) return;
+      const lineMode = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? box.clientHeight : 1;
+      const delta = event.deltaY * lineMode;
+      const isMouseWheel = event.deltaMode !== 0 || Math.abs(delta) >= 50;
+      if (!isMouseWheel) return;
+      event.preventDefault();
+      if (!frame) target = box.scrollTop;
+      const max = box.scrollHeight - box.clientHeight;
+      target = Math.max(0, Math.min(max, target + Math.sign(delta) * Math.min(Math.abs(delta) * 0.6, 90)));
+      if (!frame) frame = window.requestAnimationFrame(step);
+    };
+    box?.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      delete document.body.dataset.iteraOpen;
+      box?.removeEventListener("wheel", onWheel);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [open]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowWelcome(true), 900);
@@ -306,7 +349,7 @@ function ITeraAssistantSession({
       setLeadIntent(resolvedIntent);
       if (resolvedIntent !== leadIntent) dispatchAnalytics("assistant_intent_select", { intent: resolvedIntent });
     }
-    window.requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
+    window.requestAnimationFrame(scrollToEnd);
     if (reply.focusQuestion) window.setTimeout(() => inputRef.current?.focus(), 0);
   }
 
@@ -317,7 +360,7 @@ function ITeraAssistantSession({
     setQuestion("");
     setBusy(true);
     setMessages((current) => [...current, { id: nextId(), role: "visitor", text }]);
-    window.requestAnimationFrame(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
+    window.requestAnimationFrame(scrollToEnd);
 
     if (!chatSessionId.current) chatSessionId.current = createChatSessionId();
     if (!chatSessionKey.current) chatSessionKey.current = createChatSessionKey();
@@ -373,7 +416,7 @@ function ITeraAssistantSession({
             <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
           </header>
 
-          <div className={styles.messages} aria-live="polite">
+          <div ref={messagesRef} className={styles.messages} aria-live="polite">
             {resumed && messages.length > 1 ? (
               <div className={styles.resumeBar}>
                 <span>{newChatCopy.resumed}</span>
