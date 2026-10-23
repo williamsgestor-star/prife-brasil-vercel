@@ -5,7 +5,34 @@
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
-const GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+// Modelos preferidos, em ordem. O Groq aposenta modelos de tempos em tempos, então a lista real
+// é lida da conta (/models) e usamos o primeiro preferido disponível ou, se nenhum existir, qualquer modelo de chat.
+const GROQ_PREFERRED = [
+  "openai/gpt-oss-120b",
+  "llama-3.3-70b-versatile",
+  "meta-llama/llama-4-maverick-17b-128e-instruct",
+  "qwen/qwen3-32b",
+  "openai/gpt-oss-20b",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "llama-3.1-8b-instant",
+];
+let groqModelCache: { at: number; models: string[] } | null = null;
+export async function groqModels(key: string): Promise<string[]> {
+  if (groqModelCache && Date.now() - groqModelCache.at < 6 * 3600_000) return groqModelCache.models;
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/models", { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(8_000) });
+    if (!response.ok) return GROQ_PREFERRED;
+    const ids = (((await response.json()) as { data?: Array<{ id: string; active?: boolean }> }).data || [])
+      .filter((m) => m.active !== false).map((m) => m.id)
+      .filter((id) => !/whisper|guard|tts|playai|orpheus|distil|compound|prompt-guard|safeguard/i.test(id));
+    const preferred = GROQ_PREFERRED.filter((id) => ids.includes(id));
+    const models = (preferred.length ? preferred : ids).slice(0, 3);
+    groqModelCache = { at: Date.now(), models: models.length ? models : GROQ_PREFERRED };
+    return groqModelCache.models;
+  } catch {
+    return GROQ_PREFERRED;
+  }
+}
 
 type Completion = { choices?: Array<{ message?: { content?: string } }> };
 
@@ -17,7 +44,7 @@ export async function callChatModel(
 
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
-    for (const model of GROQ_MODELS) {
+    for (const model of await groqModels(groqKey)) {
       try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -28,6 +55,7 @@ export async function callChatModel(
             temperature,
             max_tokens: maxTokens,
             ...(json ? { response_format: { type: "json_object" } } : {}),
+            ...(model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low" } : {}),
           }),
           signal: AbortSignal.timeout(20_000),
         });

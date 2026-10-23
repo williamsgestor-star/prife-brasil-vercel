@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { groqModels } from "../../../lib/ai-chat";
 
 // Diagnóstico da IA do assistente: confere se a chave do Groq existe e responde. Não mostra a chave.
 export const dynamic = "force-dynamic";
@@ -7,7 +8,8 @@ export async function GET() {
   const key = process.env.GROQ_API_KEY;
   if (!key) return NextResponse.json({ groqKey: "ausente", ok: false }, { headers: { "Cache-Control": "no-store" } });
   const results: Array<{ model: string; status: number; ok: boolean; detail?: string }> = [];
-  for (const model of ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]) {
+  const models = await groqModels(key);
+  for (const model of models.slice(0, 2)) {
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
