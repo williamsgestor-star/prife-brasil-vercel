@@ -645,14 +645,16 @@ export default function CompanyEditor({
           <div className={styles.mediaHeader}><div><h3>8 espaços de fotos</h3><p>Até 8 fotos; escolha horizontal ou vertical para cada imagem.</p></div><label className={styles.uploadButton}>{busy === "gallery" ? "Enviando…" : "+ Adicionar fotos"}<input type="file" accept={IMAGE_ACCEPT} multiple onChange={(e) => upload(e, "gallery")} disabled={Boolean(busy) || profile.gallery_urls.length >= MAX_GALLERY_PHOTOS} /></label></div>
           <div className={styles.galleryEditor}>
             {profile.gallery_urls.slice(0, MAX_GALLERY_PHOTOS).map((url, index) => <article key={`${url}-${index}`}><div><img src={url} alt={`Foto ${index + 1}`} /><button type="button" aria-label={`Remover foto ${index + 1}`} onClick={() => removeGalleryItem(index)}>×</button></div><label>Formato recomendado (largura × altura)<select value={visual.galleryOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("gallery", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1600 × 1000 px</option><option value="vertical">Vertical — 1200 × 1600 px</option></select></label><label>Título<input value={profile.gallery_titles[index] ?? ""} onChange={(e) => updateListItem("gallery_titles", index, e.target.value)} /></label><label>Legenda<input value={profile.gallery_descriptions[index] ?? ""} onChange={(e) => updateListItem("gallery_descriptions", index, e.target.value)} /></label></article>)}
-            {Array.from({ length: Math.max(0, MAX_GALLERY_PHOTOS - profile.gallery_urls.length) }, (_, index) => <article className={styles.emptyMediaSlot} key={`empty-photo-${index}`}><span>+</span><strong>Foto {profile.gallery_urls.length + index + 1}</strong><small>Horizontal: 1600 × 1000 px · Vertical: 1200 × 1600 px</small></article>)}
+            {profile.gallery_urls.length > 0 && Array.from({ length: Math.max(0, MAX_GALLERY_PHOTOS - profile.gallery_urls.length) }, (_, index) => <article className={styles.emptyMediaSlot} key={`empty-photo-${index}`}><span>+</span><strong>Foto {profile.gallery_urls.length + index + 1}</strong><small>Horizontal: 1600 × 1000 px · Vertical: 1200 × 1600 px</small></article>)}
+            {profile.gallery_urls.length === 0 && STANDARD_GALLERY.map((src, index) => <article key={`std-photo-${index}`} style={{ opacity: .92 }}><div><img src={src} alt={`Foto padrão ${index + 1}`} /></div><small style={{ color: "#7fe9f5", fontSize: 11 }}>Foto {index + 1} · padrão do site principal</small></article>)}
           </div>
+          {profile.gallery_urls.length === 0 && <p style={{ marginTop: 12, color: "#9df9ff", fontSize: 13 }}>Este site mostra agora as fotos padrão do site principal (acima). Ao clicar em <b>+ Adicionar fotos</b>, as suas fotos passam a aparecer no lugar delas.</p>}
         </div>
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>04</b><div><h2>Galeria de vídeos</h2><p>Envie vídeos ou use links do YouTube e Vimeo.</p></div></div>
           <div className={styles.mediaHeader}><div><h3>4 espaços de vídeos</h3><p>Até 4 vídeos de 50 MB. Para carregar mais rápido no celular, prefira um link do YouTube ou Vimeo.</p></div></div>
           <div className={styles.videoActions}><label className={styles.uploadButton}>{busy === "videos" ? `Enviando ${uploadProgress}%` : "+ Enviar vídeo"}<input type="file" accept={VIDEO_ACCEPT} multiple onChange={(e) => upload(e, "videos")} disabled={Boolean(busy) || profile.video_urls.length >= MAX_GALLERY_VIDEOS} /></label><div><input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="Cole um link do YouTube ou Vimeo" disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS} /><button type="button" onClick={addVideoUrl} disabled={profile.video_urls.length >= MAX_GALLERY_VIDEOS}>Adicionar</button></div></div>
-          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></article>)}{Array.from({ length: Math.max(0, MAX_GALLERY_VIDEOS - profile.video_urls.length) }, (_, index) => <article className={styles.emptyVideoSlot} key={`empty-video-${index}`}><span>{String(profile.video_urls.length + index + 1).padStart(2, "0")}</span><div><strong>Vídeo disponível</strong><small>Horizontal: 1920 × 1080 px · Vertical: 1080 × 1920 px</small></div></article>)}</div>
+          <div className={styles.videoEditor}>{profile.video_urls.slice(0, MAX_GALLERY_VIDEOS).map((url, index) => <article key={`${url}-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><div><div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}><VideoThumb url={url} /><a href={url} target="_blank" rel="noreferrer">Visualizar vídeo ↗</a></div><label>Formato recomendado (largura × altura)<select value={visual.videoOrientations?.[index] ?? "horizontal"} onChange={(e) => updateMediaOrientation("video", index, e.target.value as MediaOrientation)}><option value="horizontal">Horizontal — 1920 × 1080 px</option><option value="vertical">Vertical — 1080 × 1920 px</option></select></label><label>Título<input value={profile.video_titles[index] ?? ""} onChange={(e) => updateListItem("video_titles", index, e.target.value)} /></label><label>Descrição<input value={profile.video_descriptions[index] ?? ""} onChange={(e) => updateListItem("video_descriptions", index, e.target.value)} /></label></div><button type="button" onClick={() => removeVideoItem(index)}>Remover</button></article>)}{profile.video_urls.length === 0 && <div style={{ margin: "4px 0 12px" }}><p style={{ color: "#9df9ff", fontSize: 13, margin: "0 0 10px" }}>Este site mostra agora os vídeos padrão do site principal. Ao enviar um vídeo ou colar um link, os seus passam a aparecer no lugar deles.</p><div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>{STANDARD_VIDEOS.map((v) => <video key={v.src} src={v.src} poster={v.poster} preload="none" muted playsInline controls style={{ width: 180, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 12, background: "#020c26", border: "1px solid rgba(66,218,239,.22)" }} />)}</div></div>}{Array.from({ length: Math.max(0, MAX_GALLERY_VIDEOS - profile.video_urls.length) }, (_, index) => <article className={styles.emptyVideoSlot} key={`empty-video-${index}`}><span>{String(profile.video_urls.length + index + 1).padStart(2, "0")}</span><div><strong>Vídeo disponível</strong><small>Horizontal: 1920 × 1080 px · Vertical: 1080 × 1920 px</small></div></article>)}</div>
         </div>
 
         <div className={styles.section}><div className={styles.sectionTitle}><b>05</b><div><h2>Editor visual completo</h2><p>Personalize aparência, conteúdo, ordem e efeitos sem mexer em código.</p></div></div>
@@ -707,6 +709,29 @@ export default function CompanyEditor({
       </section>
     </div>
   );
+}
+
+const STANDARD_GALLERY = ["lancamento-grupo", "palco-prife", "corte-fita", "reconhecimento", "comunidade-prife", "lancamento-celebracao", "malasia-aniversario-01", "malasia-aniversario-02"].map((name) => `/gallery/${name}.webp`);
+const STANDARD_VIDEOS = [
+  { src: "/videos/prife-lancamento-01.mp4", poster: "/videos/poster-01.jpg" },
+  { src: "/videos/prife-lancamento-02.mp4", poster: "/videos/poster-02.jpg" },
+  { src: "/videos/prife-lancamento-03.mp4", poster: "/videos/poster-03.jpg" },
+  { src: "/videos/prife-brasil-palco-internacional.mp4", poster: "/videos/prife-brasil-palco-internacional-poster.webp" },
+];
+function youtubeId(url: string) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1);
+    if (u.hostname.includes("youtube.com")) return u.searchParams.get("v") || u.pathname.split("/").filter(Boolean).pop() || "";
+  } catch { /* link inválido */ }
+  return "";
+}
+function VideoThumb({ url }: { url: string }) {
+  const id = youtubeId(url);
+  const box: CSSProperties = { width: 180, aspectRatio: "16 / 9", borderRadius: 12, overflow: "hidden", background: "#020c26", border: "1px solid rgba(66,218,239,.22)", flex: "none" };
+  if (id) return <a href={url} target="_blank" rel="noreferrer" style={box}><img src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`} alt="Prévia do vídeo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></a>;
+  if (/vimeo\.com/.test(url)) return <a href={url} target="_blank" rel="noreferrer" style={{ ...box, display: "grid", placeItems: "center", color: "#9df9ff", fontSize: 12, textDecoration: "none" }}>Vimeo ↗</a>;
+  return <video src={`${url}#t=0.5`} preload="metadata" muted playsInline controls style={{ ...box, objectFit: "cover", display: "block" }} />;
 }
 
 function AccountAccess({ tenantId, slug }: { tenantId: string; slug: string }) {
