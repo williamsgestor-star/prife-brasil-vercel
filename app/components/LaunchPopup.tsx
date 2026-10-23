@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import { useSiteLanguage } from "../lib/site-language";
 import styles from "./LaunchPopup.module.css";
 
-// Pop-up de lançamento: aparece ao abrir o site, no máximo 1 vez por dia por visitante.
-// Para trocar a campanha, mude a imagem e o CAMPAIGN (um id novo faz aparecer de novo para todos).
-const CAMPAIGN = "classic-plus-2026-10";
-const SHOW_EVERY_MS = 24 * 60 * 60 * 1000;
+// Pop-up de lançamento: aparece toda vez que o site é aberto.
+// Para trocar a campanha, troque public/promo/classic-plus.webp e .jpg.
 
 const copy = {
   pt: { alt: "Chegou o mais esperado: iTeraCare Classic Plus já disponível", buy: "Quero o meu", details: "Ver detalhes", close: "Fechar", msg: (n: string) => `Olá, ${n}! Vi no site que o iTeraCare Classic Plus chegou. Quero saber valor e como garantir o meu.` },
@@ -21,9 +19,6 @@ export default function LaunchPopup({ whatsappNumber, distributorName }: { whats
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    let last = 0;
-    try { last = Number(window.localStorage.getItem(`promo-${CAMPAIGN}`)) || 0; } catch { /* sem storage: mostra */ }
-    if (Date.now() - last < SHOW_EVERY_MS) return;
     const timer = window.setTimeout(() => setOpen(true), 1200);
     return () => window.clearTimeout(timer);
   }, []);
@@ -37,7 +32,6 @@ export default function LaunchPopup({ whatsappNumber, distributorName }: { whats
 
   function close() {
     setOpen(false);
-    try { window.localStorage.setItem(`promo-${CAMPAIGN}`, String(Date.now())); } catch { /* ok */ }
   }
 
   function seeDetails() {
