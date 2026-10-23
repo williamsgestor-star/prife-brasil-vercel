@@ -26,3 +26,8 @@
 .videoEditor .emptyVideoSlot{min-height:82px;align-items:center;border-style:dashed;background:rgba(1,16,48,.3)}
 .emptyVideoSlot>div{display:grid;gap:5px;color:#9dbbd0;font-size:11px}
 @media(max-width:720px){.faqEditor>article{grid-template-columns:1fr}.faqEditor>article>strong{margin-bottom:2px}}
+
+.galleryEditor .mediaActions{position:static;height:auto;margin:10px 0 4px;overflow:visible;display:flex;align-items:center;gap:10px;border-radius:0}
+.galleryEditor .mediaActions button{position:static;top:auto;right:auto;width:auto;height:auto}
+.galleryEditor .mediaActions .uploadButton{min-height:34px;padding:0 14px;color:#9df9ff;border:1px solid rgba(67,224,241,.32);border-radius:11px;background:rgba(21,139,175,.13);font-size:10px;font-weight:900}
+.galleryEditor .mediaActions .removeMedia{margin-left:0;padding:0;color:#ff9bac;border:0;background:none;font-size:10px;font-weight:700}
