@@ -10,6 +10,7 @@ import {
 } from "../../../lib/itera-assistant";
 import { callChatModel, customerPriceList, type ChatMessage } from "../../../lib/ai-chat";
 import type { IteraContext } from "../../../lib/itera-expertise";
+import { PRODUCT_MATERIALS, materialsFor } from "../../../lib/itera-materials";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SESSION_KEY_PATTERN = /^[A-Za-z0-9._~-]{32,180}$/;
@@ -148,14 +149,19 @@ async function aiReply(
     ])
     .slice(-16);
 
+  const previousQuestions = history.map((row) => row.visitor_question);
+  const materials = materialsFor(question, previousQuestions, fallback.context || null);
   const grounding = [
     languageInstruction,
-    "BASE DE CONHECIMENTO DO SITE para esta pergunta (use como fonte de fatos; reescreva com suas palavras, adapte à pergunta e à conversa, não copie literalmente):",
+    "MATERIAL OFICIAL DOS PRODUTOS (extraído dos PDFs da Prife; é a FONTE PRINCIPAL. Responda com os fatos concretos daqui: o que é, como funciona, recursos, modo de uso, cuidados e o que o material apresenta como benefício):",
+    materials,
+    "Como falar dos benefícios: diga que 'o material da Prife apresenta' ou 'associa ao uso', sem prometer cura ou resultado. Só traga o aviso de que não substitui profissional de saúde quando a pessoa falar de doença, sintoma, remédio ou tratamento, ou no máximo uma vez na conversa; não repita esse aviso em toda resposta.",
+    "RESPOSTA-PADRÃO DO SITE (apoio secundário; use só o que ajudar, não copie):",
     fallback.text,
     "Contexto atual da conversa: " + (fallback.context || "não definido"),
     "LISTA DE PREÇOS AO CLIENTE (PRIFE Brasil). Use apenas estes valores quando perguntarem preço, sempre avisando que podem mudar e que frete, pagamento e disponibilidade são confirmados com o consultor:",
     customerPriceList(),
-    "Converse de forma natural e humana, como um consultor atencioso no WhatsApp: mensagens curtas (1 a 3 frases), reaja com as palavras da pessoa, responda exatamente o que foi perguntado, use a conversa recente para entender referências ('ele', 'isso', 'esse aparelho'), não repita perguntas já respondidas nem a mesma abertura comercial. A base acima é só fonte de fatos: resuma o essencial, não copie listas inteiras.",
+    "Quando a pessoa perguntar como funciona, o que faz, benefícios, como usar ou diferença entre modelos, explique de verdade com os dados do material (até 90 palavras, pode usar 2 parágrafos curtos). Nas demais, converse de forma natural e humana, como um consultor atencioso no WhatsApp: mensagens curtas (1 a 3 frases), reaja com as palavras da pessoa, responda exatamente o que foi perguntado, use a conversa recente para entender referências ('ele', 'isso', 'esse aparelho'), não repita perguntas já respondidas nem a mesma abertura comercial. A base acima é só fonte de fatos: resuma o essencial, não copie listas inteiras.",
     "Se faltar uma informação específica na base, diga com transparência que o consultor confirma.",
     "Marque showWhatsApp como true quando a pessoa quiser comprar, saber preço/condições, se cadastrar, ser distribuidora ou falar com alguém.",
     'Retorne SOMENTE JSON válido: {"text":"resposta para o visitante","context":"prife|business|sales|catalog|iteracare|iterabio|biolite|ionshield|magnoseek|glasses|bracelet|renew|oxytap|other-product|pwg|travel|foundation","focusQuestion":true,"showWhatsApp":false}.',
@@ -167,7 +173,15 @@ async function aiReply(
     ...recentConversation,
     { role: "user", content: question },
   ]);
-  if (!result) return { reply: fallback, model: "rules-fallback" };
+  if (!result) {
+    // Sem IA: se a pergunta é sobre um produto, responde com o resumo do material em vez do texto genérico.
+    const hit = PRODUCT_MATERIALS.find((m) => m.match.test(question)) || PRODUCT_MATERIALS.find((m) => m.match.test(previousQuestions.slice(-3).join(" ")));
+    if (hit && language === "pt") {
+      const summary = hit.text.split("\n")[0].slice(0, 700);
+      return { reply: { ...fallback, text: `${summary}\n\nQuer saber o modo de uso, os cuidados ou o valor?` }, model: "materials-fallback" };
+    }
+    return { reply: fallback, model: "rules-fallback" };
+  }
   return { reply: parseAiReply(result.raw, fallback), model: result.model };
 }
 
