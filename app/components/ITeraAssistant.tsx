@@ -199,6 +199,8 @@ function ITeraAssistantSession({
   const [leadIntent, setLeadIntent] = useState<LeadIntent | null>(null);
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(true);
+  const [resumed, setResumed] = useState(false);
+  const newChatCopy = { pt: { label: "Nova conversa", resumed: "Continuando a sua conversa anterior.", start: "Começar uma nova" }, es: { label: "Nueva conversación", resumed: "Continuando tu conversación anterior.", start: "Empezar una nueva" }, en: { label: "New chat", resumed: "Continuing your previous chat.", start: "Start a new one" } }[language as "pt" | "es" | "en"] || { label: "Nova conversa", resumed: "Continuando a sua conversa anterior.", start: "Começar uma nova" };
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, role: "assistant", text: getIteraWelcomeMessage(language) },
   ]);
@@ -245,6 +247,7 @@ function ITeraAssistantSession({
         })).filter((item: Message) => item.text);
         messageId.current = restoredMessages.length + 1;
         setMessages([{ id: 1, role: "assistant", text: getIteraWelcomeMessage(language) }, ...restoredMessages]);
+        setResumed(true);
         const restoredContext = data.context as IteraContext | null;
         if (restoredContext) setContext(restoredContext);
       }
@@ -254,6 +257,23 @@ function ITeraAssistantSession({
 
     return () => { active = false; };
   }, [language]);
+
+  function startNewConversation() {
+    const sessionId = createChatSessionId();
+    const sessionKey = createChatSessionKey();
+    chatSessionId.current = sessionId;
+    chatSessionKey.current = sessionKey;
+    try {
+      window.localStorage.setItem("itera-chat-session", sessionId);
+      window.localStorage.setItem("itera-chat-session-key", sessionKey);
+    } catch { /* navegador sem armazenamento: segue só nesta aba */ }
+    messageId.current = 1;
+    setMessages([{ id: 1, role: "assistant", text: getIteraWelcomeMessage(language) }]);
+    setContext(null);
+    setLeadIntent(null);
+    setResumed(false);
+    window.setTimeout(() => inputRef.current?.focus(), 50);
+  }
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
@@ -349,10 +369,17 @@ function ITeraAssistantSession({
               <strong>{copy.name}</strong>
               <span><i /> {copy.status}</span>
             </div>
+            <button type="button" className={styles.newChat} onClick={startNewConversation} aria-label={newChatCopy.label} title={newChatCopy.label}>↺</button>
             <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
           </header>
 
           <div className={styles.messages} aria-live="polite">
+            {resumed && messages.length > 1 ? (
+              <div className={styles.resumeBar}>
+                <span>{newChatCopy.resumed}</span>
+                <button type="button" onClick={startNewConversation}>{newChatCopy.start}</button>
+              </div>
+            ) : null}
             {messages.map((message) => (
               <div
                 className={`${styles.messageRow} ${message.role === "assistant" ? styles.assistantRow : styles.visitorRow}`}

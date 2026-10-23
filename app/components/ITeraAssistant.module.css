@@ -221,3 +221,11 @@
 @media (prefers-reduced-motion: reduce) {
   .welcomeScene, .panel, .typing span { animation: none; }
 }
+/* Nova conversa */
+.header button.newChat { font: 600 22px/1 Arial, sans-serif; margin-right: 8px; }
+.resumeBar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid rgba(74, 159, 255, .28); border-radius: 14px; background: rgba(10, 37, 88, .55); color: #b9d4f5; font-size: 13px; }
+.resumeBar button { padding: 6px 12px; border: 1px solid rgba(71, 194, 255, .55); border-radius: 999px; background: rgba(18, 223, 243, .12); color: #9ff4ff; font: 700 12px/1.2 inherit; cursor: pointer; }
+.resumeBar button:hover { background: rgba(18, 223, 243, .22); color: #fff; }
+.header { grid-template-columns: 68px 1fr 46px 46px; }
+.header button.newChat { margin-right: 0; }
+@media (max-width: 560px) { .header { grid-template-columns: 56px 1fr 42px 42px; gap: 8px; } }
