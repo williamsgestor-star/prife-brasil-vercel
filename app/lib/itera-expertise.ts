@@ -312,9 +312,9 @@ export function expertiseReply(
   if (/\b(garantia|troca|devolucao|reembolso|nota fiscal|warranty|return|refund|invoice|garantia|cambio|devolucion|factura)\b/.test(input)) {
     return {
       text: translated(language,
-        "Garantia, devolução e troca podem variar por país, canal e modelo. Antes da compra, confirme por escrito: prazo de garantia, cobertura, assistência, política de devolução, nota fiscal e quem paga o envio em caso de suporte. Guarde comprovante, número de série e embalagem. Posso conectar você ao consultor para confirmar as condições atuais.",
-        "La garantía, devolución y cambio pueden variar según el país, el canal y el modelo. Antes de comprar, confirma por escrito el plazo, la cobertura, la asistencia, la política de devolución, la factura y quién paga el envío. Guarda comprobante, número de serie y embalaje. Puedo conectarte con el consultor para confirmar las condiciones actuales.",
-        "Warranty, returns, and exchanges may vary by country, channel, and model. Before buying, confirm the term, coverage, service, return policy, invoice, and who pays shipping for support in writing. Keep the receipt, serial number, and packaging. I can connect you with the consultant to confirm current terms.",
+        "Todos os aparelhos PRIFE, incluindo o iTeraCare Classic Plus, têm 1 ano de garantia. Guarde o comprovante de compra, o número de série e a embalagem. Devolução, troca e frete em caso de suporte podem variar por país e canal de compra, então confirme por escrito com o consultor. Posso conectar você a ele agora.",
+        "Todos los dispositivos PRIFE, incluido el iTeraCare Classic Plus, tienen 1 año de garantía. Guarda el comprobante de compra, el número de serie y el embalaje. La devolución, el cambio y el envío en caso de soporte pueden variar según el país y el canal de compra; confírmalo por escrito con el consultor. Puedo conectarte con él ahora.",
+        "All PRIFE devices, including the iTeraCare Classic Plus, come with a 1-year warranty. Keep the receipt, serial number, and packaging. Returns, exchanges, and shipping for support may vary by country and sales channel, so confirm them in writing with the consultant. I can connect you with them now.",
       ),
       context: context || "catalog",
       showWhatsApp: true,

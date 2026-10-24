@@ -28,13 +28,14 @@ const content = {
     points: [
       ["Entenda o produto", "Conheça o aparelho, as versões disponíveis e a proposta de uso externo voltada ao bem-estar."],
       ["Confirme os cuidados", "Consulte o manual, as orientações do fabricante e as informações de segurança antes do uso."],
-      ["Compare as condições", "Verifique preço vigente, estoque, frete, garantia e formas de pagamento diretamente com o distribuidor."],
+      ["Compare as condições", "Todos os aparelhos PRIFE têm 1 ano de garantia. Confirme preço vigente, estoque, frete e formas de pagamento diretamente com o distribuidor."],
     ],
     faqTitle: <>Dúvidas antes de <em>conhecer o produto?</em></>,
     faqs: [
       ["O iTeraCare substitui acompanhamento médico?", "Não. As tecnologias apresentadas são voltadas ao bem-estar e não substituem diagnóstico, prescrição ou acompanhamento de profissionais de saúde."],
       ["Como saber qual modelo é adequado?", "O distribuidor pode comparar modelos, tensão, acessórios e finalidade de uso informada, sem indicar tratamento de saúde."],
       ["Quanto custa?", "Preços, estoque, frete e condições podem mudar. O atendimento confirma os valores atuais antes de qualquer decisão."],
+      ["Qual é a garantia do iTeraCare?", "O iTeraCare Classic Plus, assim como todos os aparelhos PRIFE, tem 1 ano de garantia. Guarde o comprovante de compra e o número de série; o distribuidor orienta como acionar a garantia se precisar."],
     ],
     finalTitle: <>Quer conhecer o iTeraCare com <em>transparência?</em></>,
     finalText: "Converse diretamente com o distribuidor responsável e receba uma apresentação sem obrigação de compra.",
