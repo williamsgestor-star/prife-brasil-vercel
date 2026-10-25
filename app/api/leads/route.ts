@@ -930,9 +930,15 @@ export async function POST(request: Request) {
       return null;
     }
     const reservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
-    const reservedCount = Number(reservation?.allowed_count || 0);
-    if (reservedCount < 1) {
-      return { payload: { error: "Sua franquia mensal de leads foi atingida.", quota: reservation }, leads: [], quotaExhausted: true };
+    // consume_prospector_leads devolve a coluna "consumed" (allowed_count era o nome antigo).
+    const reservedCount = Number(reservation?.consumed ?? reservation?.allowed_count ?? 0);
+    if (!Number.isFinite(reservedCount) || reservedCount < 1) {
+      const remaining = Number(reservation?.remaining);
+      if (Number.isFinite(remaining) && remaining <= 0) {
+        return { payload: { error: "Sua franquia mensal de leads foi atingida.", quota: reservation }, leads: [], quotaExhausted: true };
+      }
+      console.error("Prospector reservation returned no leads", reservation);
+      return null;
     }
     try {
       let searched: SearchResult | null = null;
