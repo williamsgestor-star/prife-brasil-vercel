@@ -210,7 +210,7 @@ const leadCopy = {
 } satisfies Record<SiteLanguage, Record<string, string | string[]>>;
 
 function localizedApiError(message: string, language: SiteLanguage, fallback: string) {
-  if (/franquia|quota|limite (mensal|di[aá]rio)/i.test(message)) {
+  if (/franquia mensal de leads foi atingida|monthly_quota_exhausted|limite (mensal|di[aá]rio)/i.test(message)) {
     if (language === "pt") {
       return "Sua franquia mensal de 100 leads foi atingida. A franquia será renovada automaticamente no início do próximo mês.";
     }
@@ -478,7 +478,12 @@ export default function LeadFinder({
 
       if (data.quota) setQuota(data.quota);
       if (!response.ok) {
-        throw new Error(localizedApiError(data.error || "", language, copy.searchError));
+        const apiMessage = data.error || "";
+        throw new Error(
+          response.status === 429 || !/franquia/i.test(apiMessage)
+            ? localizedApiError(apiMessage, language, copy.searchError)
+            : language === "pt" ? apiMessage : copy.apiFallback,
+        );
       }
       setLeads(data.leads ?? []);
       setMeta(data.meta ?? null);
