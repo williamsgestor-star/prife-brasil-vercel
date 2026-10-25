@@ -478,7 +478,8 @@ export default function LeadFinder({
 
       if (data.quota) setQuota(data.quota);
       if (!response.ok) {
-        const apiMessage = data.error || "";
+        const apiDetails = (data as { details?: string }).details;
+        const apiMessage = (data.error || "") + (response.status === 502 && apiDetails ? ` (código: ${apiDetails})` : "");
         throw new Error(
           response.status === 429 || !/franquia/i.test(apiMessage)
             ? localizedApiError(apiMessage, language, copy.searchError)

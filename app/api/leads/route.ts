@@ -729,6 +729,72 @@ export async function GET() {
   }, { headers: { "Cache-Control": "no-store" } });
 }
 
+async function searchOverpassBusinesses({
+  category,
+  niche,
+  segment,
+  searchLocation,
+  latitude,
+  longitude,
+  radius,
+}: {
+  category: CategoryDefinition | null;
+  niche: string;
+  segment: string;
+  searchLocation: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+}): Promise<SearchResult> {
+  const query = category
+    ? buildOverpassQuery(category, latitude, longitude, radius)
+    : segment
+      ? buildCustomOverpassQuery(niche, latitude, longitude, radius)
+      : buildAllBusinessesOverpassQuery(latitude, longitude, radius);
+  const response = await fetchOverpass(query);
+  const data = (await response.json()) as { elements?: OverpassElement[] };
+  const seen = new Set<string>();
+  const leads = (data.elements ?? []).flatMap((element) => {
+    const tags = element.tags ?? {};
+    const name = (tags.name || tags.brand || "").trim();
+    if (!name) return [];
+    const phone = publicContactPhone(tags);
+    if (!phone) return [];
+    const address = formatAddress(tags);
+    const key = identityKey(name, phone, address);
+    if (seen.has(key)) return [];
+    seen.add(key);
+    const lat = Number(element.lat ?? element.center?.lat);
+    const lon = Number(element.lon ?? element.center?.lon);
+    const osmType = element.type || "node";
+    return [{
+      sourceId: `osm:${osmType}:${element.id}`,
+      name,
+      category: niche,
+      address,
+      phone,
+      website: normalizeWebsite(firstTag(tags, ["contact:website", "website"])),
+      sourceUrl: `https://www.openstreetmap.org/${osmType}/${element.id}`,
+      provider: "OpenStreetMap",
+      latitude: Number.isFinite(lat) ? lat : null,
+      longitude: Number.isFinite(lon) ? lon : null,
+      distanceKm: distanceInKm(latitude, longitude, lat, lon),
+    }];
+  }).sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999)).slice(0, 80);
+
+  return {
+    leads,
+    meta: {
+      category: niche,
+      location: searchLocation,
+      radius,
+      returned: leads.length,
+      attribution: "© OpenStreetMap contributors — ODbL",
+      provider: "OpenStreetMap",
+    },
+  };
+}
+
 async function searchNominatimBusinesses({
   niche,
   searchLocation,
@@ -918,6 +984,8 @@ export async function POST(request: Request) {
   };
   const filters = { segment, city, region, neighborhood, country, requested_provider: provider };
 
+  const sourceErrors: string[] = [];
+
   // OpenStreetMap: reserva a franquia, busca e grava sem repetir leads.
   async function attemptExternal(): Promise<Attempt | null> {
     const kind = "osm";
@@ -944,6 +1012,33 @@ export async function POST(request: Request) {
       let searched: SearchResult | null = null;
       const located = await geocodeBestLocation({ neighborhood, city, region, country });
       if (located) {
+        const lat = Number(located.location.lat);
+        const lon = Number(located.location.lon);
+        for (const radius of neighborhood ? [3_000, 9_000] : [6_000, 12_000]) {
+          try {
+            const found = await searchOverpassBusinesses({
+              category: category ?? null,
+              niche,
+              segment,
+              searchLocation: located.matchedQuery,
+              latitude: lat,
+              longitude: lon,
+              radius,
+            });
+            if (found.leads.length >= Math.min(reservedCount, 8) || (found.leads.length && radius >= 9_000)) {
+              searched = found;
+              break;
+            }
+            if (found.leads.length) searched = found;
+          } catch (overpassError) {
+            sourceErrors.push(`osm_overpass:${String((overpassError as Error)?.message || overpassError).slice(0, 60)}`);
+            break;
+          }
+        }
+      } else {
+        sourceErrors.push("osm_local_nao_encontrado");
+      }
+      if (located && !searched?.leads.length) {
         searched = await searchNominatimBusinesses({
           niche,
           searchLocation: located.matchedQuery,
@@ -1002,6 +1097,7 @@ export async function POST(request: Request) {
       };
     } catch (providerError) {
       console.error(`Prospector source ${kind} failed`, providerError);
+      sourceErrors.push(`osm:${String((providerError as Error)?.message || providerError).slice(0, 60)}`);
       await user!.supabase.rpc("settle_prospector_quota", {
         p_reserved_count: reservedCount,
         p_delivered_count: 0,
@@ -1024,6 +1120,7 @@ export async function POST(request: Request) {
     });
     if (searchError) {
       console.error(`Prospector source ${kind} RPC error`, searchError);
+      sourceErrors.push(`microsoft_rpc:${String(searchError.message || searchError.code || "erro").slice(0, 60)}`);
       return null;
     }
     const result = (data || {}) as Record<string, unknown>;
@@ -1031,7 +1128,8 @@ export async function POST(request: Request) {
       return { payload: { error: String(result.message || "Sua franquia mensal de leads foi atingida."), quota: result.quota }, leads: [], quotaExhausted: true };
     }
     if (result.error) {
-      console.error(`Prospector source ${kind} returned error`, result.error);
+      console.error(`Prospector source ${kind} returned error`, result.error, result.details);
+      sourceErrors.push(`microsoft:${String(result.details || result.error).slice(0, 60)}`);
       return null;
     }
     const leads = Array.isArray(result.leads) ? result.leads as Array<Record<string, unknown>> : [];
@@ -1058,7 +1156,14 @@ export async function POST(request: Request) {
 
   if (!success) {
     if (lastEmpty) return NextResponse.json(lastEmpty.payload, { headers: { "Cache-Control": "no-store" } });
-    return jsonError("Nenhuma fonte respondeu agora. Sua franquia não foi consumida. Tente novamente em instantes.", 502);
+    console.error("Prospector: todas as fontes falharam", sourceErrors);
+    return NextResponse.json(
+      {
+        error: "Nenhuma fonte respondeu agora. Sua franquia não foi consumida. Tente novamente em instantes.",
+        details: sourceErrors.join(" | ").slice(0, 300),
+      },
+      { status: 502, headers: { "Cache-Control": "no-store" } },
+    );
   }
 
   const resultQuota = Array.isArray(success.payload.quota) ? (success.payload.quota as unknown[])[0] : success.payload.quota;
