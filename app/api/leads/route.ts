@@ -729,15 +729,6 @@ export async function GET() {
   }, { headers: { "Cache-Control": "no-store" } });
 }
 
-type OverpassElement = {
-  type?: string;
-  id?: number;
-  lat?: number;
-  lon?: number;
-  center?: { lat?: number; lon?: number };
-  tags?: Record<string, string>;
-};
-
 async function searchOverpassBusinesses({
   category,
   niche,
