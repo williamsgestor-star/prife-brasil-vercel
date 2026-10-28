@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import { groqModels } from "../../../lib/ai-chat";
+import { RATE_RULES, checkRateLimit, tooManyRequests } from "../../../lib/rate-limit";
+import { getAuthenticatedContext } from "../../../lib/supabase/access";
 
 // Diagnóstico da IA do assistente: confere se a chave do Groq existe e responde. Não mostra a chave.
+// Só administradores podem usar: cada chamada gasta a chave da Groq.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const context = await getAuthenticatedContext();
+  if (!context?.isAdmin) {
+    return NextResponse.json({ error: "Acesso administrativo necessário." }, { status: 403, headers: { "Cache-Control": "no-store" } });
+  }
+  const limit = await checkRateLimit(RATE_RULES.diagnosticoUser, String(context.claims.sub));
+  if (!limit.allowed) return tooManyRequests(limit.retryAfter, "Aguarde alguns minutos para rodar o diagnóstico de novo.");
+
   const key = process.env.GROQ_API_KEY;
   if (!key) return NextResponse.json({ groqKey: "ausente", ok: false }, { headers: { "Cache-Control": "no-store" } });
   const results: Array<{ model: string; status: number; ok: boolean; detail?: string }> = [];
@@ -23,5 +33,5 @@ export async function GET() {
       results.push({ model, status: 0, ok: false, detail: error instanceof Error ? error.message : "erro" });
     }
   }
-  return NextResponse.json({ groqKey: `presente (${key.length} caracteres, começa com ${key.slice(0, 4)}…)`, ok: results.some((r) => r.ok), results }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ groqKey: "presente", ok: results.some((r) => r.ok), results }, { headers: { "Cache-Control": "no-store" } });
 }

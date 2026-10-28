@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { RATE_RULES, checkRateLimit, tooManyRequests } from "../../lib/rate-limit";
 import { getAuthenticatedContext } from "../../lib/supabase/access";
 
 export const dynamic = "force-dynamic";
@@ -206,7 +207,6 @@ const countryNames: Record<string, string> = {
 };
 const callingCodes: Record<string, string> = { br: "55", py: "595", ar: "54", uy: "598", bo: "591" };
 const geocodeCache = new Map<string, { expiresAt: number; value: NominatimResult }>();
-const requestBuckets = new Map<string, { count: number; resetAt: number }>();
 let geocodeChain: Promise<void> = Promise.resolve();
 let nextGeocodeAt = 0;
 
@@ -356,19 +356,6 @@ function enforceSameOrigin(request: Request) {
   }
 }
 
-function withinRateLimit(key: string) {
-  const now = Date.now();
-  const current = requestBuckets.get(key);
-
-  if (!current || current.resetAt <= now) {
-    requestBuckets.set(key, { count: 1, resetAt: now + 10 * 60_000 });
-    return true;
-  }
-
-  if (current.count >= 8) return false;
-  current.count += 1;
-  return true;
-}
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {
   const controller = new AbortController();
@@ -935,9 +922,8 @@ export async function POST(request: Request) {
     return jsonError("Origem da solicitação não permitida.", 403);
   }
 
-  if (!withinRateLimit(user.email.toLocaleLowerCase("en-US"))) {
-    return jsonError("Limite temporário atingido. Tente novamente em alguns minutos.", 429);
-  }
+  const limit = await checkRateLimit(RATE_RULES.leadsUser, user.email.toLocaleLowerCase("en-US"));
+  if (!limit.allowed) return tooManyRequests(limit.retryAfter, "Limite temporário atingido. Tente novamente em alguns minutos.");
 
   let body: Record<string, unknown>;
   try {
