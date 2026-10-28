@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { RATE_RULES, checkRateLimit, tooManyRequests } from "../../lib/rate-limit";
 import { getAuthenticatedContext } from "../../lib/supabase/access";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,9 @@ export async function POST(request: Request) {
 
     const context = await getAuthenticatedContext();
     if (!context) return NextResponse.json({ error: "Sua sessão expirou. Entre novamente." }, { status: 401 });
+
+    const limit = await checkRateLimit(RATE_RULES.accessRequestUser, String(context.claims.sub));
+    if (!limit.allowed) return tooManyRequests(limit.retryAfter, "Muitos pedidos enviados. Aguarde um pouco e tente de novo.");
 
     const body = await request.json().catch(() => null) as {
       fullName?: unknown;
