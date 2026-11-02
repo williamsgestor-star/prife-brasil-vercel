@@ -1100,11 +1100,12 @@ export async function POST(request: Request) {
     } catch (providerError) {
       console.error(`Prospector source ${kind} failed`, providerError);
       sourceErrors.push(`osm:${String((providerError as Error)?.message || providerError).slice(0, 60)}`);
-      await user!.supabase.rpc("settle_prospector_quota", {
+      const { error: settleError } = await user!.supabase.rpc("settle_prospector_quota", {
         p_reservation_id: reservationId,
         p_delivered_count: 0,
         p_provider_billed_count: 0,
       });
+      if (settleError) console.error("Prospector quota refund failed", settleError.message);
       return null;
     }
   }

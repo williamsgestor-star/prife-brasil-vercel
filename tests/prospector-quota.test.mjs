@@ -31,6 +31,8 @@ test('etapa 2 remove as versões antigas por quantidade', async () => {
   const sql = await read('supabase/migrations/20261102050000_prospector_quota_drop_legacy.sql');
   assert.match(sql, /drop function if exists public\.settle_prospector_quota\(integer, integer, integer\)/);
   assert.match(sql, /drop function if exists public\.save_external_prospector_candidates\(text, text, jsonb, jsonb, integer, integer\)/);
+  assert.match(sql, /update private\.prospector_quota_reservations\s+set settled_at = now\(\)\s+where settled_at is null/);
+  assert.match(sql, /versao_antiga_da_franquia_ainda_existe/);
 });
 
 test('rota do Prospector usa o id da reserva', async () => {
