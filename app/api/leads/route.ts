@@ -1000,7 +1000,9 @@ export async function POST(request: Request) {
     const reservation = Array.isArray(reservationData) ? reservationData[0] : reservationData;
     // consume_prospector_leads devolve a coluna "consumed" (allowed_count era o nome antigo).
     const reservedCount = Number(reservation?.consumed ?? reservation?.allowed_count ?? 0);
-    if (!Number.isFinite(reservedCount) || reservedCount < 1) {
+    // O banco só aceita gravar e devolver créditos com o id desta reserva.
+    const reservationId = typeof reservation?.reservation_id === "string" ? reservation.reservation_id : null;
+    if (!Number.isFinite(reservedCount) || reservedCount < 1 || !reservationId) {
       const remaining = Number(reservation?.remaining);
       if (Number.isFinite(remaining) && remaining <= 0) {
         return { payload: { error: "Sua franquia mensal de leads foi atingida.", quota: reservation }, leads: [], quotaExhausted: true };
@@ -1069,7 +1071,7 @@ export async function POST(request: Request) {
             longitude: lead.longitude,
             distance_km: lead.distanceKm,
           })),
-          p_reserved_count: reservedCount,
+          p_reservation_id: reservationId,
           p_provider_billed_count: 0,
         },
       );
@@ -1099,7 +1101,7 @@ export async function POST(request: Request) {
       console.error(`Prospector source ${kind} failed`, providerError);
       sourceErrors.push(`osm:${String((providerError as Error)?.message || providerError).slice(0, 60)}`);
       await user!.supabase.rpc("settle_prospector_quota", {
-        p_reserved_count: reservedCount,
+        p_reservation_id: reservationId,
         p_delivered_count: 0,
         p_provider_billed_count: 0,
       });
