@@ -16,3 +16,7 @@
 .success,.error { margin: 0; padding: 12px; border-radius: 11px; font-size: 13px; }.success { color:#91ffe3;background:rgba(34,175,137,.1); }.error { color:#ffb0be;background:rgba(179,34,70,.14); }
 .signout { display: block; width: max-content; margin: 38px auto 0; color: #7feefa; font-size: 13px; }
 @media(max-width:820px){.card{grid-template-columns:1fr;margin-top:50px}.copy h1{font-size:clamp(42px,12vw,62px)}.form{padding:24px}.slugField{grid-template-columns:1fr}.slugField span{padding:0 16px 12px}}
+
+.form label.consent { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; line-height: 1.5; cursor: pointer; }
+.form label.consent input { width: 20px; height: 20px; flex-shrink: 0; margin: 2px 0 0; padding: 0; accent-color: #1edcef; }
+.form label.consent a { color: #7af7ff; }

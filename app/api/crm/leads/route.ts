@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { withoutBlockedPhones } from "../../../lib/contact-blocklist";
 import { getAuthenticatedContext } from "../../../lib/supabase/access";
 
 type ImportedLead = {
@@ -118,8 +119,13 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString(),
     });
   });
-  const normalized = [...normalizedByPhone.values()];
-  if (!normalized.length) return NextResponse.json({ error: "Nenhum lead válido com nome e telefone." }, { status: 400 });
+  const candidates = [...normalizedByPhone.values()];
+  if (!candidates.length) return NextResponse.json({ error: "Nenhum lead válido com nome e telefone." }, { status: 400 });
+  // Números na lista de bloqueio ("não contatar") não entram de novo no CRM.
+  const normalized = await withoutBlockedPhones(resolved.context.supabase, resolved.tenantId, candidates);
+  if (!normalized) return NextResponse.json({ error: "Não foi possível conferir a lista de bloqueio. Tente novamente." }, { status: 503 });
+  const skippedBlocked = candidates.length - normalized.length;
+  if (!normalized.length) return NextResponse.json({ imported: 0, skippedBlocked });
   const { data, error } = await resolved.context.supabase
     .from("crm_leads")
     .upsert(normalized, { onConflict: "tenant_id,phone", ignoreDuplicates: false })
@@ -134,7 +140,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ error: "Não foi possível importar os leads." }, { status: 500 });
   }
-  return NextResponse.json({ imported: data?.length || normalized.length });
+  return NextResponse.json({ imported: data?.length || normalized.length, skippedBlocked });
 }
 
 export async function DELETE(request: Request) {
