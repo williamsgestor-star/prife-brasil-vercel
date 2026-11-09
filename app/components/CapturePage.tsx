@@ -83,7 +83,9 @@ export default function CapturePage({ variant, ownerName, whatsappNumber, leader
   const imageSize = variant === "product" ? { width: 941, height: 1672 } : { width: 1100, height: 1102 };
 
   return (
-    <main className={styles.page} data-variant={variant}>
+    <>
+    <a className="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <main className={styles.page} data-variant={variant} id="conteudo" tabIndex={-1}>
       <div className={styles.shell}>
         <header className={styles.header}>
           <Image src="/brand/prife-brasil-original.png" alt="Prife Brasil" width={138} height={58} priority />
@@ -158,8 +160,13 @@ export default function CapturePage({ variant, ownerName, whatsappNumber, leader
 
       <footer className={`${styles.footer} ${styles.shell}`}>
         <span>© 2026 Prife Brasil • Distribuidor independente</span>
-        <a href="/privacidade">Política de Privacidade</a>
+        <span className="legal-footer-links">
+          <a href="/privacidade">Política de Privacidade</a>
+          <a href="/termos">Termos de uso</a>
+          <button type="button" data-cookie-preferences>Cookies</button>
+        </span>
       </footer>
     </main>
+    </>
   );
 }

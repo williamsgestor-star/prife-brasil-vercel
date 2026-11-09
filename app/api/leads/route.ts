@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { withoutBlockedPhones } from "../../lib/contact-blocklist";
 import { getAuthenticatedContext } from "../../lib/supabase/access";
 
 export const dynamic = "force-dynamic";
@@ -1167,13 +1168,21 @@ export async function POST(request: Request) {
   }
 
   const resultQuota = Array.isArray(success.payload.quota) ? (success.payload.quota as unknown[])[0] : success.payload.quota;
-  const crmRows = crmRowsFromLeads(
-    success.leads,
-    country,
-    String((resultQuota as Record<string, unknown> | undefined)?.tenant_id || user.profile?.tenant_id || ""),
-    String(user.claims.sub),
-  );
-  if (crmRows.length) {
+  const crmTenantId = String((resultQuota as Record<string, unknown> | undefined)?.tenant_id || user.profile?.tenant_id || "");
+  // Quem pediu para não ser contatado (lista de bloqueio) não volta para o CRM.
+  const candidateRows = crmRowsFromLeads(success.leads, country, crmTenantId, String(user.claims.sub));
+  const crmRows = await withoutBlockedPhones(user.supabase, crmTenantId, candidateRows);
+  if (!crmRows) console.error("Automatic CRM sync skipped: blocklist unavailable");
+  const keptPhones = new Set((crmRows || []).map((row) => String(row.phone)));
+  const blockedPhones = new Set(crmRows ? candidateRows.map((row) => String(row.phone)).filter((phone) => !keptPhones.has(phone)) : []);
+  if (blockedPhones.size && Array.isArray(success.payload.leads)) {
+    // Também some da lista do Prospector, para ninguém ser contatado por engano.
+    success.payload.leads = (success.payload.leads as Array<Record<string, unknown>>).filter((lead) => {
+      const phone = crmRowsFromLeads([lead], country, crmTenantId, String(user.claims.sub))[0]?.phone;
+      return !phone || !blockedPhones.has(String(phone));
+    });
+  }
+  if (crmRows?.length) {
     const { error: crmSyncError } = await user.supabase
       .from("crm_leads")
       .upsert(crmRows, { onConflict: "tenant_id,phone", ignoreDuplicates: false });

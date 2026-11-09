@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=129", { as: "script" });
+  preloadModule("/src/app.js?v=130", { as: "script" });
   preloadModule("/src/content.js?v=112", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
@@ -127,6 +127,7 @@ export default async function Home() {
               <a href="/produto">iTeraCare</a>
               <a href="/oportunidade">Oportunidade</a>
               <a href="/privacidade">Privacidade</a>
+              <a href="/termos">Termos</a>
             </nav>
           </header>
           <main>
@@ -187,7 +188,8 @@ export default async function Home() {
             </section>
             <footer className="seo-section">
               <p>{ownerName}, distribuidor independente PRIFE. Este não é o site oficial da Prife International.</p>
-              <a href="/privacidade">Política de Privacidade</a>
+              <a href="/privacidade">Política de Privacidade</a>{" "}
+              <a href="/termos">Termos de uso</a>
             </footer>
           </main>
         </div>

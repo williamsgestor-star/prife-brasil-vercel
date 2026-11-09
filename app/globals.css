@@ -91,3 +91,9 @@ body {
 @media (display-mode: standalone) {
   body { padding-top: env(safe-area-inset-top); }
 }
+
+/* Acessibilidade: foco sempre visível para quem navega pelo teclado (Lei 13.146/2015). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid #ffd27a !important; outline-offset: 2px; }
+
+.legal-footer-links { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.legal-footer-links button { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }

@@ -34,8 +34,11 @@
 .success, .error { margin: 15px 0 0; padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.45; }
 .success { color: #8fffe4; border: 1px solid rgba(51, 238, 187, .28); background: rgba(30, 172, 134, .09); }
 .error { color: #ffafbd; border: 1px solid rgba(255, 83, 118, .35); background: rgba(177, 31, 68, .13); }
-.security { margin: 20px 0 0; color: #7188aa; text-align: center; font-size: 11px; line-height: 1.5; }
+.security { margin: 20px 0 0; color: #93a8c9; text-align: center; font-size: 11px; line-height: 1.5; }
 .orbOne, .orbTwo { position: absolute; border-radius: 50%; filter: blur(1px); pointer-events: none; }
 .orbOne { width: 420px; height: 420px; right: -150px; top: -190px; border: 1px solid rgba(27, 226, 244, .16); box-shadow: 0 0 90px rgba(24, 150, 242, .12); }
 .orbTwo { width: 260px; height: 260px; left: -130px; bottom: -80px; border: 1px solid rgba(27, 226, 244, .1); }
 @media (max-width: 860px) { .page { padding: 24px 18px 42px; } .brand { width: 142px; } .card { grid-template-columns: 1fr; margin-top: 48px; gap: 34px; } .copy h1 { font-size: clamp(42px, 13vw, 64px); } .copy ul { display: none; } .panel { border-radius: 22px; } }
+
+.legal { margin: 14px 0 0; color: #93a8c9; text-align: center; font-size: 12px; line-height: 1.5; }
+.legal a { color: #7af7ff; }

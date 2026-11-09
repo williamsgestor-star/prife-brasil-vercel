@@ -260,3 +260,6 @@
   .chatWhatsappText strong { font-size: 12px; }
   .chatWhatsappText small { font-size: 9px; }
 }
+
+.privacyNote { margin: 6px 2px 0; color: #a9bad6; font-size: 11px; line-height: 1.4; }
+.privacyNote a { color: #7af7ff; }
