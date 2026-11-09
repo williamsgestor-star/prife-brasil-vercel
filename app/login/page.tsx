@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -44,6 +45,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <h2>Acesse sua conta</h2>
           <p>Entre com a senha provisória fornecida pelo administrador ou receba um código no seu e-mail.</p>
           <LoginForm nextPath={nextPath} />
+          <p className={styles.legal}>Ao entrar, você concorda com os <Link href="/termos">Termos de uso</Link> e a <Link href="/privacidade">Política de Privacidade</Link>.</p>
         </div>
       </section>
     </main>

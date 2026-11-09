@@ -124,6 +124,8 @@ function ITeraAssistantSession({
       whatsapp: "Falar com",
       whatsappSuffix: "no WhatsApp",
       questionLabel: "Digite sua dúvida",
+      privacyNote: "Respostas automáticas por IA. Não digite dados de saúde, documentos ou senhas.",
+      privacyLink: "Privacidade",
       placeholder: "Como posso ajudar?",
       loading: "Carregando conversa…",
       send: "Enviar pergunta",
@@ -153,6 +155,8 @@ function ITeraAssistantSession({
       whatsapp: "Hablar con",
       whatsappSuffix: "por WhatsApp",
       questionLabel: "Escribe tu pregunta",
+      privacyNote: "Respuestas automáticas por IA. No escriba datos de salud, documentos ni contraseñas.",
+      privacyLink: "Privacidad",
       placeholder: "¿Cómo puedo ayudarte?",
       loading: "Cargando conversación…",
       send: "Enviar pregunta",
@@ -182,6 +186,8 @@ function ITeraAssistantSession({
       whatsapp: "Talk to",
       whatsappSuffix: "on WhatsApp",
       questionLabel: "Type your question",
+      privacyNote: "Automatic AI replies. Do not enter health data, documents or passwords.",
+      privacyLink: "Privacy",
       placeholder: "How can I help?",
       loading: "Loading conversation…",
       send: "Send question",
@@ -484,6 +490,7 @@ function ITeraAssistantSession({
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 4 18 8-18 8 4-8-4-8Zm4 8h14" /></svg>
               </button>
             </div>
+            <p className={styles.privacyNote}>{copy.privacyNote} <a href="/privacidade" target="_blank" rel="noopener noreferrer">{copy.privacyLink}</a></p>
           </form>
           <div className={styles.panelFooter}>
             {safeWhatsapp ? (

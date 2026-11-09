@@ -1,0 +1,44 @@
+.banner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483000;
+  max-width: 760px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  color: #eefbff;
+  background: rgba(2, 8, 33, 0.97);
+  border: 1px solid rgba(29, 224, 239, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  font-family: inherit;
+}
+
+.copy { flex: 1; min-width: 0; }
+.copy strong { display: block; margin-bottom: 4px; font-size: 14px; color: #ffffff; }
+.copy p { margin: 0; font-size: 13px; line-height: 1.5; color: #cfdcf2; }
+.copy a { color: #48e3f1; text-decoration: underline; }
+
+.actions { display: flex; gap: 10px; flex-shrink: 0; }
+.actions button {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.reject { color: #eefbff; background: transparent; border: 1px solid rgba(238, 251, 255, 0.55); }
+.accept { color: #021025; background: #48e3f1; border: 1px solid #48e3f1; }
+.actions button:focus-visible, .copy a:focus-visible { outline: 3px solid #ffd27a; outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .banner { flex-direction: column; align-items: stretch; left: 10px; right: 10px; bottom: 10px; padding: 16px; }
+  .actions button { flex: 1; }
+}

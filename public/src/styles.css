@@ -756,7 +756,7 @@ footer { background: rgb(2, 4, 20); border-top: 1px solid rgba(255, 255, 255, 0.
 .footer-grid nav { gap: 25px; display: flex; }
 .footer-grid nav button, .footer-grid nav a { color: rgb(140, 153, 175); cursor: pointer; background: 0px 0px; border: 0px; font-size: 10px; text-decoration: none; }
 .footer-grid nav a { color: rgb(117, 223, 233); }
-.footer-grid > span { color: rgb(83, 96, 120); border-top: 1px solid rgba(255, 255, 255, 0.06); grid-column: 1 / -1; padding-top: 22px; font-size: 9px; }
+.footer-grid > span { color: rgb(140, 153, 175); border-top: 1px solid rgba(255, 255, 255, 0.06); grid-column: 1 / -1; padding-top: 22px; font-size: 9px; }
 body[data-site-scope] .footer-legal { align-items: center; gap: 7px; display: flex; }
 body[data-site-scope] .footer-legal > b { color: var(--cyan); border: 1px solid rgba(18, 223, 243, .38); border-radius: 50%; place-items: center; width: 20px; height: 20px; font-size: 10px; display: grid; }
 body[data-site-scope] .footer-legal a { color: #7cf4ff; margin-left: auto; font-weight: 800; letter-spacing: .08em; text-decoration: none; transition: color .25s, text-shadow .25s; }
@@ -4338,3 +4338,6 @@ header *:hover::before, header *:hover::after, header *:focus-visible::before, h
 
 /* Chat aberto: pausa as animações da página atrás para a rolagem do chat ficar leve */
 body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-itera-open] main *::after,body[data-itera-open] .site-header *{animation-play-state:paused!important}
+
+/* Acessibilidade: foco sempre visível para quem navega pelo teclado (Lei 13.146/2015). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid #ffd27a !important; outline-offset: 2px; }
