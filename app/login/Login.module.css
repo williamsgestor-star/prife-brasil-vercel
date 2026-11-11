@@ -19,7 +19,7 @@
 .loginModes .activeMode { color: #eaffff; background: rgba(24, 188, 215, .2); box-shadow: inset 0 0 0 1px rgba(76, 229, 244, .28); }
 .formStack form { display: grid; gap: 11px; }
 .formStack label { color: #d9ecff; font-size: 13px; font-weight: 800; }
-.formStack input { width: 100%; height: 56px; box-sizing: border-box; padding: 0 17px; color: #fff; font-size: 16px; outline: none; border: 1px solid transparent; border-radius: 15px; background: rgba(120, 190, 255, .08); transition: .25s; }
+.formStack input { width: 100%; height: 56px; box-sizing: border-box; padding: 0 17px; color: #fff; font-size: 16px; outline: none; border: 1px solid rgba(120, 200, 255, .45); border-radius: 15px; background: rgba(120, 190, 255, .08); transition: .25s; }
 .formStack input:focus { border-color: #23ddf4; box-shadow: 0 0 0 4px rgba(35, 221, 244, .1), 0 0 24px rgba(35, 221, 244, .12); }
 .googleButton, .primaryButton { position: relative; isolation: isolate; width: 100%; min-height: 58px; border: 1px solid rgba(169, 249, 255, .7); border-radius: 16px; cursor: pointer; font-weight: 900; font-size: 15px; transition: transform .22s, box-shadow .22s, filter .22s; }
 .googleButton { color: #e9fbff; background: linear-gradient(135deg, rgba(15, 58, 117, .9), rgba(7, 26, 67, .95)); box-shadow: inset 0 1px rgba(255,255,255,.08), 0 12px 32px rgba(0,0,0,.2); }
@@ -49,7 +49,7 @@
 .codeSent { margin: 0 0 10px; color: #93a9cc; font-size: 14px; }
 .otpBoxes { position: relative; display: flex; justify-content: center; gap: 8px; cursor: text; }
 .formStack .otpBoxes input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; opacity: 0; border: 0; caret-color: transparent; font-size: 16px; }
-.otpBox { display: grid; place-items: center; flex: 1 1 0; min-width: 0; max-width: 48px; height: 56px; border-radius: 13px; background: rgba(120, 190, 255, .08); color: #fff; font-size: 24px; font-weight: 900; transition: box-shadow .15s, color .15s; }
+.otpBox { display: grid; place-items: center; flex: 1 1 0; min-width: 0; max-width: 48px; height: 56px; border-radius: 13px; background: rgba(120, 190, 255, .08); border: 1px solid rgba(120, 200, 255, .45); color: #fff; font-size: 24px; font-weight: 900; transition: box-shadow .15s, color .15s; }
 .otpActive { box-shadow: 0 0 0 2px #23ddf4, 0 0 22px rgba(35, 221, 244, .25); }
 .otpBoxes[data-error="true"] .otpBox { color: #ff8fa3; box-shadow: 0 0 0 1px rgba(255, 91, 118, .5); }
 .codeHint { min-height: 18px; margin: 4px 0 0; color: #7cefff; font-size: 13px; }
@@ -62,3 +62,4 @@
 @keyframes okDraw { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
 @media (max-width: 380px) { .otpBox { height: 52px; } }
 @media (prefers-reduced-motion: reduce) { .shake, .successOverlay, .successOverlay span, .successOverlay svg { animation: none; } }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

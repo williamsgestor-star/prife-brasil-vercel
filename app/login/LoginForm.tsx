@@ -6,7 +6,9 @@ import { createClient } from "../lib/supabase/client";
 import styles from "./Login.module.css";
 
 const REQUEST_TIMEOUT_MS = 20_000;
-const RESEND_SECONDS = 30;
+const RESEND_SECONDS = 60; // espera mínima padrão do Supabase entre envios
+// Tamanho do código do Supabase (Authentication → Email → OTP length). Colar 8 dígitos também funciona.
+const OTP_LENGTH = 6;
 
 function maskEmail(value: string) {
   const [user, domain] = value.trim().toLowerCase().split("@");
@@ -50,7 +52,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
   const [resendIn, setResendIn] = useState(0);
   const passwordRef = useRef<HTMLInputElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
-  const autoTimer = useRef<number | undefined>(undefined);
+  const verifying = useRef(false);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -103,6 +105,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
       setResendIn(RESEND_SECONDS);
       setMessage("Não chegou? Veja também Spam e Promoções.");
     } catch (requestError) {
+      if (step === "code") setResendIn(RESEND_SECONDS);
       setError(
         requestError instanceof DOMException && requestError.name === "AbortError"
           ? "O envio demorou mais que o esperado. Tente novamente."
@@ -116,7 +119,8 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
   }
 
   async function verifyCode(token: string) {
-    if (loading) return;
+    if (verifying.current) return;
+    verifying.current = true;
     setLoading(true);
     setError("");
     try {
@@ -132,6 +136,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
             : "Código inválido ou expirado. Solicite um novo código.",
         timedOut ? null : "code",
       );
+      verifying.current = false;
       setLoading(false);
     }
   }
@@ -140,10 +145,8 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
     const digits = raw.replace(/\D/g, "").slice(0, 8);
     setCode(digits);
     setError("");
-    window.clearTimeout(autoTimer.current);
-    // Confirma sozinha: no 6º número (espera um instante caso o código tenha 8)
-    if (digits.length === 8) void verifyCode(digits);
-    else if (digits.length === 6) autoTimer.current = window.setTimeout(() => void verifyCode(digits), 450);
+    // Confirma sozinha ao completar o código (ou ao colar um código maior inteiro)
+    if (digits.length === OTP_LENGTH || (digits.length > OTP_LENGTH && digits.length - code.length > 1)) void verifyCode(digits);
   }
 
   return (
@@ -182,7 +185,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
           </button>
         </form>
       ) : (
-        <form key={`c${shake}`} className={`${styles.codeStep} ${shake ? styles.shake : ""}`} onSubmit={(event) => { event.preventDefault(); if (code.length >= 6) void verifyCode(code); }}>
+        <form key={`c${shake}`} className={`${styles.codeStep} ${shake ? styles.shake : ""}`} onSubmit={(event) => { event.preventDefault(); if (code.length >= OTP_LENGTH) void verifyCode(code); }}>
           <h3 className={styles.codeTitle}>Digite o código</h3>
           <p className={styles.codeSent}>Enviado para {maskEmail(email)}</p>
           <label htmlFor="login-code" className={styles.otpBoxes} data-error={error ? "true" : undefined}>
@@ -198,11 +201,11 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
               aria-label="Código de verificação recebido por e-mail"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? "login-error" : undefined}
-              disabled={loading}
+              readOnly={loading}
               required
             />
-            {Array.from({ length: Math.max(6, code.length) }, (_, index) => (
-              <span key={index} className={`${styles.otpBox} ${index === Math.min(code.length, Math.max(6, code.length) - 1) && !loading ? styles.otpActive : ""}`} aria-hidden="true">
+            {Array.from({ length: Math.max(OTP_LENGTH, code.length) }, (_, index) => (
+              <span key={index} className={`${styles.otpBox} ${index === Math.min(code.length, Math.max(OTP_LENGTH, code.length) - 1) && !loading ? styles.otpActive : ""}`} aria-hidden="true">
                 {code[index] ?? ""}
               </span>
             ))}
@@ -222,6 +225,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
       {success && (
         <div className={styles.successOverlay} role="status" aria-label="Acesso liberado">
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+          <em className={styles.srOnly}>Acesso liberado</em>
         </div>
       )}
       <p className={styles.security}>Acesso individual, seguro e vinculado ao proprietário do subdomínio.</p>
