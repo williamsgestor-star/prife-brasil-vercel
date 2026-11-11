@@ -510,29 +510,37 @@ function buildAllBusinessesOverpassQuery(
 
 async function fetchOverpass(query: string) {
   const endpoints = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
     "https://overpass.private.coffee/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-    "https://overpass-api.de/api/interpreter",
   ];
 
-  return Promise.any(endpoints.map(async (endpoint) => {
-    const response = await fetchWithTimeout(
-      endpoint,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          "User-Agent": "Prife-Brasil-Prospector/1.0 (+https://prife-brasil.com)",
+  try {
+    return await Promise.any(endpoints.map(async (endpoint) => {
+      const response = await fetchWithTimeout(
+        endpoint,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "User-Agent": "Prife-Brasil-Prospector/1.2 (+https://prife-brasil.com; contato via site)",
+          },
+          body: new URLSearchParams({ data: query }),
+          cache: "no-store",
         },
-        body: new URLSearchParams({ data: query }),
-        cache: "no-store",
-      },
-      6_500,
-    );
-    if (!response.ok) throw new Error(`OVERPASS_${response.status}`);
-    return response;
-  }));
+        11_000,
+      );
+      if (!response.ok) throw new Error(`${new URL(endpoint).hostname}:${response.status}`);
+      return response;
+    }));
+  } catch (error) {
+    const reasons = error instanceof AggregateError
+      ? error.errors.map((item) => String((item as Error)?.message || item).replace(/^.*abort.*$/i, "timeout")).join(",")
+      : String((error as Error)?.message || error);
+    throw new Error(`OVERPASS(${reasons})`);
+  }
 }
 
 function firstTag(tags: Record<string, string>, keys: string[]) {
@@ -1031,7 +1039,7 @@ export async function POST(request: Request) {
             }
             if (found.leads.length) searched = found;
           } catch (overpassError) {
-            sourceErrors.push(`osm_overpass:${String((overpassError as Error)?.message || overpassError).slice(0, 60)}`);
+            sourceErrors.push(`osm_overpass:${String((overpassError as Error)?.message || overpassError).slice(0, 140)}`);
             break;
           }
         }
@@ -1160,7 +1168,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Nenhuma fonte respondeu agora. Sua franquia não foi consumida. Tente novamente em instantes.",
-        details: sourceErrors.join(" | ").slice(0, 300),
+        details: sourceErrors.join(" | ").slice(0, 400),
       },
       { status: 502, headers: { "Cache-Control": "no-store" } },
     );
