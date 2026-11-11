@@ -1,11 +1,24 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { createClient } from "../lib/supabase/client";
 import styles from "./Login.module.css";
 
 const REQUEST_TIMEOUT_MS = 20_000;
+const RESEND_SECONDS = 60; // espera mínima padrão do Supabase entre envios
+// Tamanho do código do Supabase (Authentication → Email → OTP length). Colar 8 dígitos também funciona.
+const OTP_LENGTH = 6;
+
+function maskEmail(value: string) {
+  const [user, domain] = value.trim().toLowerCase().split("@");
+  if (!user || !domain) return value;
+  return `${user.slice(0, 1)}${"•".repeat(Math.max(2, Math.min(user.length - 1, 5)))}@${domain}`;
+}
+
+function buzz(pattern: number | number[]) {
+  try { navigator.vibrate?.(pattern); } catch { /* sem vibração */ }
+}
 
 async function postWithTimeout(path: string, body: Record<string, string>) {
   const controller = new AbortController();
@@ -34,6 +47,36 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [shake, setShake] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const codeRef = useRef<HTMLInputElement>(null);
+  const verifying = useRef(false);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = window.setTimeout(() => setResendIn((v) => v - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [resendIn]);
+
+  useEffect(() => {
+    if (loginMode === "code" && step === "code") codeRef.current?.focus();
+  }, [loginMode, step]);
+
+  function fail(text: string, clear: "password" | "code" | null) {
+    setError(text);
+    setShake((n) => n + 1);
+    buzz([40, 40, 40]);
+    if (clear === "password") { setPassword(""); window.setTimeout(() => passwordRef.current?.focus(), 40); }
+    if (clear === "code") { setCode(""); window.setTimeout(() => codeRef.current?.focus(), 40); }
+  }
+
+  function succeed() {
+    setSuccess(true);
+    buzz(20);
+    window.setTimeout(() => window.location.assign(nextPath), 650);
+  }
 
   async function signInWithPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,23 +86,26 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
     try {
       const { error: signInError } = await createClient().auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (signInError) throw signInError;
-      window.location.assign(nextPath);
+      succeed();
     } catch {
-      setError("E-mail ou senha incorretos. Confira os dados enviados pelo administrador.");
+      fail("E-mail ou senha incorretos. Confira os dados enviados pelo administrador.", "password");
       setLoading(false);
     }
   }
 
-  async function sendCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function sendCode(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     setLoading(true);
     setError("");
     setMessage("");
     try {
       await postWithTimeout("/api/auth/otp", { email, next: nextPath });
       setStep("code");
-      setMessage("Código enviado. Verifique também as pastas Spam e Promoções.");
+      setCode("");
+      setResendIn(RESEND_SECONDS);
+      setMessage("Não chegou? Veja também Spam e Promoções.");
     } catch (requestError) {
+      if (step === "code") setResendIn(RESEND_SECONDS);
       setError(
         requestError instanceof DOMException && requestError.name === "AbortError"
           ? "O envio demorou mais que o esperado. Tente novamente."
@@ -72,23 +118,35 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
     }
   }
 
-  async function verifyCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function verifyCode(token: string) {
+    if (verifying.current) return;
+    verifying.current = true;
     setLoading(true);
     setError("");
     try {
-      await postWithTimeout("/api/auth/verify", { email, token: code });
-      window.location.assign(nextPath);
+      await postWithTimeout("/api/auth/verify", { email, token });
+      succeed();
     } catch (requestError) {
-      setError(
-        requestError instanceof DOMException && requestError.name === "AbortError"
+      const timedOut = requestError instanceof DOMException && requestError.name === "AbortError";
+      fail(
+        timedOut
           ? "A validação demorou mais que o esperado. Tente novamente."
           : requestError instanceof Error
             ? requestError.message
             : "Código inválido ou expirado. Solicite um novo código.",
+        timedOut ? null : "code",
       );
+      verifying.current = false;
       setLoading(false);
     }
+  }
+
+  function onCodeChange(raw: string) {
+    const digits = raw.replace(/\D/g, "").slice(0, 8);
+    setCode(digits);
+    setError("");
+    // Confirma sozinha ao completar o código (ou ao colar um código maior inteiro)
+    if (digits.length === OTP_LENGTH || (digits.length > OTP_LENGTH && digits.length - code.length > 1)) void verifyCode(digits);
   }
 
   return (
@@ -98,11 +156,11 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
         <button type="button" className={loginMode === "code" ? styles.activeMode : ""} onClick={() => { setLoginMode("code"); setStep("email"); setError(""); setMessage(""); }}>Código por e-mail</button>
       </div>
       {loginMode === "password" ? (
-        <form onSubmit={signInWithPassword}>
+        <form key={`p${shake}`} className={shake ? styles.shake : undefined} onSubmit={signInWithPassword}>
           <label htmlFor="password-email">E-mail de acesso</label>
           <input id="password-email" type="email" autoComplete="email" placeholder="voce@email.com" value={email} onChange={(event) => setEmail(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} required />
           <label htmlFor="login-password">Senha</label>
-          <input id="login-password" type="password" autoComplete="current-password" placeholder="Sua senha provisória" value={password} onChange={(event) => setPassword(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} required />
+          <input ref={passwordRef} id="login-password" className={error ? styles.inputError : undefined} type="password" autoComplete="current-password" placeholder="Sua senha provisória" value={password} onChange={(event) => { setPassword(event.target.value); setError(""); }} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} required />
           <button className={styles.primaryButton} disabled={loading} type="submit">
             {loading ? "Entrando…" : "Entrar na área exclusiva"}<span aria-hidden="true">→</span>
           </button>
@@ -127,26 +185,36 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
           </button>
         </form>
       ) : (
-        <form onSubmit={verifyCode}>
-          <label htmlFor="login-code">Código recebido por e-mail</label>
-          <input
-            id="login-code"
-            className={styles.codeInput}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="000000"
-            maxLength={8}
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "login-error" : undefined}
-            required
-          />
-          <button className={styles.primaryButton} disabled={loading} type="submit">
-            {loading ? "Validando…" : "Entrar na área exclusiva"}
-            <span aria-hidden="true">→</span>
+        <form key={`c${shake}`} className={`${styles.codeStep} ${shake ? styles.shake : ""}`} onSubmit={(event) => { event.preventDefault(); if (code.length >= OTP_LENGTH) void verifyCode(code); }}>
+          <h3 className={styles.codeTitle}>Digite o código</h3>
+          <p className={styles.codeSent}>Enviado para {maskEmail(email)}</p>
+          <label htmlFor="login-code" className={styles.otpBoxes} data-error={error ? "true" : undefined}>
+            <input
+              ref={codeRef}
+              id="login-code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]*"
+              maxLength={8}
+              value={code}
+              onChange={(event) => onCodeChange(event.target.value)}
+              aria-label="Código de verificação recebido por e-mail"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "login-error" : undefined}
+              readOnly={loading}
+              required
+            />
+            {Array.from({ length: Math.max(OTP_LENGTH, code.length) }, (_, index) => (
+              <span key={index} className={`${styles.otpBox} ${index === Math.min(code.length, Math.max(OTP_LENGTH, code.length) - 1) && !loading ? styles.otpActive : ""}`} aria-hidden="true">
+                {code[index] ?? ""}
+              </span>
+            ))}
+          </label>
+          <p className={styles.codeHint} aria-live="polite">{loading ? "Verificando…" : ""}</p>
+          <button className={styles.textButton} type="button" disabled={resendIn > 0 || loading} onClick={() => void sendCode()}>
+            {resendIn > 0 ? `Reenviar em 0:${String(resendIn).padStart(2, "0")}` : "Reenviar código"}
           </button>
-          <button className={styles.textButton} type="button" onClick={() => { setStep("email"); setCode(""); setMessage(""); }}>
+          <button className={styles.textButton} type="button" onClick={() => { setStep("email"); setCode(""); setMessage(""); setError(""); }}>
             Usar outro e-mail
           </button>
         </form>
@@ -154,6 +222,12 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
 
       {message && <p className={styles.success} role="status">{message}</p>}
       {error && <p id="login-error" className={styles.error} role="alert">{error}</p>}
+      {success && (
+        <div className={styles.successOverlay} role="status" aria-label="Acesso liberado">
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+          <em className={styles.srOnly}>Acesso liberado</em>
+        </div>
+      )}
       <p className={styles.security}>Acesso individual, seguro e vinculado ao proprietário do subdomínio.</p>
     </div>
   );
