@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { RATE_RULES, checkRateLimits, clientIp, tooManyRequests } from "../../../lib/rate-limit";
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OTP_PATTERN = /^\d{6,8}$/;
 
@@ -12,6 +14,15 @@ export async function POST(request: NextRequest) {
 
     if (!EMAIL_PATTERN.test(email) || !OTP_PATTERN.test(token)) {
       return NextResponse.json({ error: "Código inválido ou expirado. Solicite um novo código." }, { status: 400 });
+    }
+
+    // Trava tentativa de adivinhar o código: poucas tentativas por e-mail e por IP.
+    const limit = await checkRateLimits([
+      [RATE_RULES.verifyIp, clientIp(request)],
+      [RATE_RULES.verifyEmail, email],
+    ]);
+    if (!limit.allowed) {
+      return tooManyRequests(limit.retryAfter, "Muitas tentativas de código. Aguarde alguns minutos e peça um código novo.");
     }
 
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

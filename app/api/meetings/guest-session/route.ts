@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 
+import { RATE_RULES, checkRateLimit, clientIp, tooManyRequests } from "../../../lib/rate-limit";
 import { createDailyMeetingToken, getOrCreateDailyRoom, recordingPasswordIsValid, verifyMeetingInvite } from "../../../lib/meetings";
 
 export async function POST(request: Request) {
   const apiKey = process.env.DAILY_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "A sala ainda não está configurada." }, { status: 503 });
+
+  // Evita tentar senhas de gravação ou convites sem parar.
+  const limit = await checkRateLimit(RATE_RULES.meetingIp, clientIp(request));
+  if (!limit.allowed) return tooManyRequests(limit.retryAfter, "Muitas tentativas de entrada. Aguarde alguns minutos.");
 
   let body: { invite?: unknown; name?: unknown; recordingPassword?: unknown };
   try {

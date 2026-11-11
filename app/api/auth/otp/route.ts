@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { safeNextPath } from "../../../lib/supabase/access";
+import { RATE_RULES, checkRateLimits, clientIp, tooManyRequests } from "../../../lib/rate-limit";
 import { createClient } from "../../../lib/supabase/server";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -13,6 +14,14 @@ export async function POST(request: Request) {
 
     if (!EMAIL_PATTERN.test(email)) {
       return NextResponse.json({ error: "Informe um e-mail válido." }, { status: 400 });
+    }
+
+    const limit = await checkRateLimits([
+      [RATE_RULES.otpIp, clientIp(request)],
+      [RATE_RULES.otpEmail, email],
+    ]);
+    if (!limit.allowed) {
+      return tooManyRequests(limit.retryAfter, "Muitos códigos pedidos. Aguarde um pouco antes de pedir outro.");
     }
 
     const supabase = await createClient();

@@ -11,12 +11,10 @@ import {
 import { callChatModel, customerPriceList, type ChatMessage } from "../../../lib/ai-chat";
 import type { IteraContext } from "../../../lib/itera-expertise";
 import { PRODUCT_MATERIALS, materialsFor } from "../../../lib/itera-materials";
+import { RATE_RULES, checkRateLimit, clientIp, tooManyRequests } from "../../../lib/rate-limit";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SESSION_KEY_PATTERN = /^[A-Za-z0-9._~-]{32,180}$/;
-const requestBuckets = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 10 * 60_000;
-const RATE_LIMIT = 30;
 const MAX_HISTORY_EXCHANGES = 12;
 
 type Language = "pt" | "es" | "en";
@@ -28,18 +26,6 @@ type HistoryRow = {
   created_at: string;
 };
 
-function rateLimited(request: NextRequest) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const key = forwarded || request.headers.get("x-real-ip") || "unknown";
-  const now = Date.now();
-  const current = requestBuckets.get(key);
-  if (!current || current.resetAt <= now) {
-    requestBuckets.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  current.count += 1;
-  return current.count > RATE_LIMIT;
-}
 
 function tenantSlugFromRequest(request: NextRequest) {
   const rawHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "prife-brasil.com";
@@ -213,12 +199,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (rateLimited(request)) {
-      return NextResponse.json(
-        { error: "rate_limited" },
-        { status: 429, headers: { "Retry-After": "600", "Cache-Control": "no-store" } },
-      );
-    }
+    const limit = await checkRateLimit(RATE_RULES.iteraChatIp, clientIp(request));
+    if (!limit.allowed) return tooManyRequests(limit.retryAfter, "rate_limited");
 
     const body = (await request.json()) as Record<string, unknown>;
     const sessionId = String(body.sessionId ?? "");

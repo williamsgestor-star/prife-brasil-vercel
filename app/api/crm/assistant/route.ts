@@ -6,6 +6,7 @@ import { detectIteraContext, expertiseReply } from "../../../lib/itera-expertise
 import { materialKnowledgeReply } from "../../../lib/itera-knowledge";
 import { getAuthenticatedContext } from "../../../lib/supabase/access";
 import { callChatModel, distributorPriceList } from "../../../lib/ai-chat";
+import { RATE_RULES, checkRateLimit, tooManyRequests } from "../../../lib/rate-limit";
 
 type Language = "pt" | "es" | "en";
 type AiMode = "ask" | "outreach" | "objection" | "followup" | "client";
@@ -26,9 +27,6 @@ type StoredMessage = {
   created_at: string;
 };
 
-const requestBuckets = new Map<string, { count: number; resetAt: number }>();
-const RATE_WINDOW_MS = 5 * 60_000;
-const RATE_LIMIT = 20;
 
 const COPILOT_PROMPT = `
 Você é o Copiloto IA do CRM PRIFE. Você conversa com o operador logado do CRM, não com o cliente final.
@@ -68,16 +66,6 @@ Quando houver mensagem pronta para o cliente, use:
 {"answer":"orientação curta ao operador","customerMessage":"mensagem pronta","showWhatsApp":true,"intent":"sales_message"}
 `.trim();
 
-function rateLimited(userId: string) {
-  const now = Date.now();
-  const current = requestBuckets.get(userId);
-  if (!current || current.resetAt <= now) {
-    requestBuckets.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  current.count += 1;
-  return current.count > RATE_LIMIT;
-}
 
 function cleanText(value: unknown, maxLength: number) {
   return String(value ?? "")
@@ -262,9 +250,8 @@ export async function POST(request: Request) {
   const resolved = await tenantContext(request);
   if ("error" in resolved) return resolved.error;
   const userId = String(resolved.context.claims.sub);
-  if (rateLimited(userId)) {
-    return NextResponse.json({ error: "Muitas solicitações. Aguarde alguns minutos e tente novamente." }, { status: 429 });
-  }
+  const limit = await checkRateLimit(RATE_RULES.crmAssistantUser, userId);
+  if (!limit.allowed) return tooManyRequests(limit.retryAfter, "Muitas solicitações. Aguarde alguns minutos e tente novamente.");
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const message = cleanText(body?.message, 2000);
