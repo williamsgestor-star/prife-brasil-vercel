@@ -7,8 +7,8 @@ import styles from "./Login.module.css";
 
 const REQUEST_TIMEOUT_MS = 20_000;
 const RESEND_SECONDS = 60; // espera mínima padrão do Supabase entre envios
-// Tamanho do código do Supabase (Authentication → Email → OTP length). Colar 8 dígitos também funciona.
-const OTP_LENGTH = 6;
+// Tamanho do código do Supabase (Authentication → Email → OTP length = 8).
+const OTP_LENGTH = 8;
 
 function maskEmail(value: string) {
   const [user, domain] = value.trim().toLowerCase().split("@");
