@@ -4338,3 +4338,19 @@ header *:hover::before, header *:hover::after, header *:focus-visible::before, h
 
 /* Chat aberto: pausa as animações da página atrás para a rolagem do chat ficar leve */
 body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-itera-open] main *::after,body[data-itera-open] .site-header *{animation-play-state:paused!important}
+
+/* Selo Inmetro no topo de "Universo Prife" (texto da curadoria abaixo do título) */
+.products-heading { grid-template-columns: minmax(0, 1fr) minmax(300px, 440px); align-items: center; }
+.products-heading .products-lead { color: rgb(160, 174, 200); font-size: 16px; line-height: 1.75; max-width: 600px; margin: 22px 0 0; }
+.products-inmetro { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #3ee6f5; justify-self: end; width: 100%; }
+.products-inmetro img { width: 100%; height: auto; display: block; filter: drop-shadow(0 14px 34px rgba(0, 120, 255, .28)); transition: transform .25s ease; }
+.products-inmetro:hover img, .products-inmetro:focus-visible img { transform: translateY(-3px); }
+.products-inmetro span { font-size: 13px; font-weight: 600; letter-spacing: .04em; border-bottom: 1px solid rgba(62, 230, 245, .45); padding-bottom: 2px; }
+@media (width <= 1100px) {
+  .products-heading { grid-template-columns: 1fr; gap: 28px; }
+  .products-inmetro { justify-self: start; max-width: 440px; }
+}
+@media (width <= 600px) {
+  .products-heading .products-lead { font-size: 15px; margin-top: 16px; }
+  .products-inmetro { justify-self: center; max-width: 100%; }
+}

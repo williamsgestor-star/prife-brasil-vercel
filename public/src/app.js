@@ -1012,8 +1012,8 @@ function render() {
 
       <section class="products-section" id="produtos">
         <div class="wrap products-heading reveal">
-          <div><div class="section-kicker">${t.productHeading.kicker}</div><h2>${t.productHeading.before}<em>${t.productHeading.emphasis}</em></h2></div>
-          <p>${t.productHeading.text}</p>
+          <div><div class="section-kicker">${t.productHeading.kicker}</div><h2>${t.productHeading.before}<em>${t.productHeading.emphasis}</em></h2><p class="products-lead">${t.productHeading.text}</p></div>
+          <a class="products-inmetro" href="pdfs/apoio-02-iteracare-inmetro.pdf" target="_blank" rel="noopener" aria-label="${escapeHtml(t.productHeading.inmetroAlt)}"><img src="brand/inmetro-selo.webp" alt="${escapeHtml(t.productHeading.inmetroAlt)}" width="1382" height="466" loading="lazy" decoding="async" /><span>${t.productHeading.inmetroCta}</span></a>
         </div>
         <div class="wrap product-showcase reveal" id="product-showcase">
           <div class="product-selector" id="product-selector" role="tablist">${productTabsMarkup()}</div>
