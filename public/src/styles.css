@@ -4343,13 +4343,21 @@ body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-iter
 .products-heading { grid-template-columns: minmax(0, 1fr) minmax(300px, 440px); align-items: center; }
 .products-heading .products-lead { color: rgb(160, 174, 200); font-size: 16px; line-height: 1.75; max-width: 600px; margin: 22px 0 0; }
 .products-inmetro { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #3ee6f5; justify-self: end; width: 100%; }
-.products-inmetro .inm-card { position: relative; display: flex; align-items: center; width: 100%; }
-.products-inmetro .inm-card img { position: relative; z-index: 2; width: 34%; height: auto; flex: 0 0 auto; filter: drop-shadow(0 10px 26px rgba(0, 120, 255, .35)); transition: transform .25s ease; }
-.products-inmetro .inm-band { margin-left: -9%; padding: 16px 18px 16px calc(9% + 16px); flex: 1; min-height: 64%; display: flex; flex-direction: column; justify-content: center; gap: 8px; text-align: center; border-radius: 0 22px 22px 0; background: linear-gradient(100deg, #12379a, #1c2f7c 60%, #142463); border: 1px solid rgba(120, 170, 255, .35); box-shadow: 0 14px 34px rgba(0, 60, 200, .28); }
-.products-inmetro .inm-band b { color: #7fd9ff; font: 800 clamp(15px, 1.45vw, 20px)/1.15 var(--display-sans, Arial, sans-serif); letter-spacing: .01em; text-wrap: balance; }
-.products-inmetro .inm-band small { text-wrap: balance; color: #eef4ff; font-size: clamp(12px, 1vw, 14px); line-height: 1.4; }
+.products-inmetro { container-type: inline-size; }
+.products-inmetro .inm-card { position: relative; display: block; width: 100%; height: 34cqw; }
+.products-inmetro .inm-card img { position: absolute; z-index: 2; left: 0; top: 0; width: 34cqw; height: 34cqw; filter: drop-shadow(0 10px 26px rgba(0, 120, 255, .35)); transition: transform .25s ease; }
+.products-inmetro .inm-band { position: absolute; left: 17cqw; right: 0; top: 3.5cqw; bottom: 3.5cqw; padding: 0 3cqw 0 20cqw; display: flex; flex-direction: column; justify-content: center; gap: 1.2cqw; text-align: center; border-radius: 0 2.6cqw 2.6cqw 0; background: linear-gradient(100deg, #12379a, #1c2f7c 60%, #142463); border: 1px solid rgba(120, 170, 255, .35); border-left: 0; box-shadow: 0 14px 34px rgba(0, 60, 200, .28); }
+.products-inmetro .inm-band b { color: #7fd9ff; font: 800 4.3cqw/1.15 var(--display-sans, Arial, sans-serif); letter-spacing: .01em; text-wrap: balance; }
+.products-inmetro .inm-band small { color: #eef4ff; font-size: 2.9cqw; line-height: 1.38; text-wrap: balance; }
 .products-inmetro:hover .inm-card img, .products-inmetro:focus-visible .inm-card img { transform: translateY(-3px) rotate(-3deg); }
 .products-inmetro .inm-cta { font-size: 13px; font-weight: 600; letter-spacing: .04em; border-bottom: 1px solid rgba(62, 230, 245, .45); padding-bottom: 2px; }
+@container (width < 380px) {
+  .products-inmetro .inm-card { height: auto; display: flex; flex-direction: column; align-items: center; }
+  .products-inmetro .inm-card img { position: relative; width: 116px; height: 116px; }
+  .products-inmetro .inm-band { position: relative; left: auto; top: auto; bottom: auto; right: auto; width: 100%; margin-top: -44px; padding: 54px 18px 18px; gap: 8px; border-radius: 20px; border-left: 1px solid rgba(120, 170, 255, .35); }
+  .products-inmetro .inm-band b { font-size: 18px; }
+  .products-inmetro .inm-band small { font-size: 13.5px; }
+}
 @media (width <= 1100px) {
   .products-heading { grid-template-columns: 1fr; gap: 28px; }
   .products-inmetro { justify-self: start; max-width: 440px; }
