@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=112";
+} from "./content.js?v=113";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -1012,8 +1012,8 @@ function render() {
 
       <section class="products-section" id="produtos">
         <div class="wrap products-heading reveal">
-          <div><div class="section-kicker">${t.productHeading.kicker}</div><h2>${t.productHeading.before}<em>${t.productHeading.emphasis}</em></h2></div>
-          <p>${t.productHeading.text}</p>
+          <div><div class="section-kicker">${t.productHeading.kicker}</div><h2>${t.productHeading.before}<em>${t.productHeading.emphasis}</em></h2><p class="products-lead">${t.productHeading.text}</p></div>
+          <a class="products-inmetro" href="pdfs/apoio-02-iteracare-inmetro.pdf" target="_blank" rel="noopener"><span class="inm-card"><img src="brand/inmetro-marca.webp" alt="Inmetro" width="600" height="600" loading="lazy" decoding="async" /><span class="inm-band"><b>${t.productHeading.inmetroTitle}</b><small>${t.productHeading.inmetroText}</small></span></span><span class="inm-cta">${t.productHeading.inmetroCta}</span></a>
         </div>
         <div class="wrap product-showcase reveal" id="product-showcase">
           <div class="product-selector" id="product-selector" role="tablist">${productTabsMarkup()}</div>
