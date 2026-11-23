@@ -4345,7 +4345,7 @@ body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-iter
 .products-inmetro { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #3ee6f5; justify-self: end; width: 100%; }
 .products-inmetro .inm-card { position: relative; display: flex; align-items: center; width: 100%; }
 .products-inmetro .inm-card img { position: relative; z-index: 2; width: 34%; height: auto; flex: 0 0 auto; filter: drop-shadow(0 10px 26px rgba(0, 120, 255, .35)); transition: transform .25s ease; }
-.products-inmetro .inm-band { margin-left: -9%; padding: 16px 18px 16px calc(9% + 16px); flex: 1; min-height: 64%; display: flex; flex-direction: column; justify-content: center; gap: 8px; text-align: center; background: linear-gradient(100deg, #12379a, #1c2f7c 60%, #142463); border: 1px solid rgba(120, 170, 255, .35); box-shadow: 0 14px 34px rgba(0, 60, 200, .28); }
+.products-inmetro .inm-band { margin-left: -9%; padding: 16px 18px 16px calc(9% + 16px); flex: 1; min-height: 64%; display: flex; flex-direction: column; justify-content: center; gap: 8px; text-align: center; border-radius: 0 22px 22px 0; background: linear-gradient(100deg, #12379a, #1c2f7c 60%, #142463); border: 1px solid rgba(120, 170, 255, .35); box-shadow: 0 14px 34px rgba(0, 60, 200, .28); }
 .products-inmetro .inm-band b { color: #7fd9ff; font: 800 clamp(15px, 1.45vw, 20px)/1.15 var(--display-sans, Arial, sans-serif); letter-spacing: .01em; text-wrap: balance; }
 .products-inmetro .inm-band small { text-wrap: balance; color: #eef4ff; font-size: clamp(12px, 1vw, 14px); line-height: 1.4; }
 .products-inmetro:hover .inm-card img, .products-inmetro:focus-visible .inm-card img { transform: translateY(-3px) rotate(-3deg); }
@@ -4358,3 +4358,14 @@ body[data-itera-open] main *,body[data-itera-open] main *::before,body[data-iter
   .products-heading .products-lead { font-size: 15px; margin-top: 16px; }
   .products-inmetro { justify-self: center; max-width: 100%; }
 }
+
+/* Selo Inmetro flutuando no hero, ao lado do iTeraCare */
+.hero-inmetro { position: absolute; z-index: 4; top: 9%; right: 2%; width: 128px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; animation: inmetroFloat 4.2s ease-in-out infinite; }
+.hero-inmetro img { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 22px rgba(56, 189, 248, .55)) drop-shadow(0 16px 26px rgba(0, 10, 40, .55)); transition: transform .25s ease; }
+.hero-inmetro::before { content: ""; position: absolute; inset: -14% -14% auto; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(56, 189, 248, .35), transparent 65%); z-index: -1; animation: inmetroGlow 2.8s ease-in-out infinite; }
+.hero-inmetro span { white-space: nowrap; color: #eaf6ff; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; background: rgba(4, 9, 31, .72); border: 1px solid rgba(56, 189, 248, .55); backdrop-filter: blur(10px); box-shadow: 0 0 14px rgba(56, 189, 248, .25); }
+.hero-inmetro:hover img, .hero-inmetro:focus-visible img { transform: scale(1.06) rotate(-4deg); }
+@keyframes inmetroFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-14px) rotate(2deg); } }
+@keyframes inmetroGlow { 0%, 100% { opacity: .55; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@media (width <= 900px) { .hero-inmetro { width: 92px; top: 4%; right: 3%; } .hero-inmetro span { font-size: 9px; padding: 5px 9px; } }
+@media (prefers-reduced-motion: reduce) { .hero-inmetro, .hero-inmetro::before { animation: none; } }
