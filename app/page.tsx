@@ -64,8 +64,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   // Começa a baixar o script da página junto com o HTML (antes ele só era pedido depois do React carregar).
-  preloadModule("/src/app.js?v=129", { as: "script" });
-  preloadModule("/src/content.js?v=112", { as: "script" });
+  preloadModule("/src/app.js?v=130", { as: "script" });
+  preloadModule("/src/content.js?v=113", { as: "script" });
   const [resolution, origin] = await Promise.all([resolveCurrentTenantSite(), currentPublicOrigin()]);
   if (resolution.unavailable) {
     return (
