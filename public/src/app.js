@@ -5,7 +5,7 @@ import {
   products,
   siteConfig as defaultSiteConfig,
   videos as defaultVideos,
-} from "./content.js?v=113";
+} from "./content.js?v=114";
 
 const tenantSite = window.__PRIFE_TENANT__ || {};
 const integrationConfig = window.__PRIFE_INTEGRATIONS__ || {};
@@ -945,6 +945,7 @@ function render() {
               <div class="stage-label"><span>${t.hero.highlight}</span><strong>iTeraCare<br />Classic Plus</strong></div>
               <div class="hero-video-shell"><video class="hero-product-video" autoplay muted loop playsinline preload="none" poster="/videos/iteracare-original-clean-top-v97-poster.webp" aria-label="${navT().aAnim1}"><source data-src="/videos/iteracare-original-clean-top-v97.webm" type="video/webm" /></video><video class="hero-product-video-mobile" autoplay muted loop playsinline preload="none" disablepictureinpicture poster="/videos/iteracare-mobile-ios-v102-poster.webp" aria-label="${navT().aAnim2}"><source data-src="/videos/iteracare-mobile-ios-v102.mp4" type="video/mp4" /></video><picture><source media="(max-width: 900px)" srcset="/videos/iteracare-mobile-fluid-v100.webp" /><img class="hero-product-animation-mobile" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${navT().aAnim2}" decoding="async" fetchpriority="high" /></picture><img class="hero-product-static" src="/products/current/iteracare-classic-plus.webp" alt="iTeraCare Classic Plus" decoding="async" fetchpriority="high" /><span class="hero-video-orbit" aria-hidden="true"></span></div>
               <div class="stage-chip"><i></i>${t.hero.wellbeing}</div>
+              <a class="hero-inmetro" href="pdfs/apoio-02-iteracare-inmetro.pdf" target="_blank" rel="noopener" aria-label="${t.productHeading.inmetroTitle} ${t.productHeading.inmetroCta}"><img src="brand/inmetro-marca.webp" alt="" width="600" height="600" decoding="async" /><span>${t.productHeading.inmetroBadge}</span></a>
             </div>
           </div>
         </div>
